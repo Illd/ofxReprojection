@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="example-UIMultiWindow" />
+		<Option makefile_is_custom="1" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option virtualFolders="addons/;src/;build config/;" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/$(PROJECT_NAME)_debug" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin" />
+				<Option object_output="obj/Debug/" />
+				<Option external_deps="../../../libs/openFrameworksCompiled/lib/linux/libopenFrameworksDebug.a;" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+			</Target>
+			<Target title="Release">
+				<Option output="bin/$(PROJECT_NAME)" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin" />
+				<Option object_output="obj/Release/" />
+				<Option external_deps="../../../libs/openFrameworksCompiled/lib/linux/libopenFrameworks.a;" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+			</Target>
+		</Build>
+		<Unit filename="../../../addons/ofxFenster/src/ofxDisplay.cpp" />
+		<Unit filename="../../../addons/ofxFenster/src/ofxDisplay.h" />
+		<Unit filename="../../../addons/ofxFenster/src/ofxDisplayMac.h" />
+		<Unit filename="../../../addons/ofxFenster/src/ofxDisplayManager.cpp" />
+		<Unit filename="../../../addons/ofxFenster/src/ofxDisplayManager.h" />
+		<Unit filename="../../../addons/ofxFenster/src/ofxDisplayManagerMac.mm" />
+		<Unit filename="../../../addons/ofxFenster/src/ofxFenster.cpp" />
+		<Unit filename="../../../addons/ofxFenster/src/ofxFenster.h" />
+		<Unit filename="../../../addons/ofxFenster/src/ofxFensterCanvas.cpp" />
+		<Unit filename="../../../addons/ofxFenster/src/ofxFensterCanvas.h" />
+		<Unit filename="../../../addons/ofxFenster/src/ofxFensterManager.cpp" />
+		<Unit filename="../../../addons/ofxFenster/src/ofxFensterManager.h" />
+		<Unit filename="config.make">
+			<Option virtualFolder="build config" />
+		</Unit>
+		<Unit filename="src/OpenNI/IXnNodeAllocator.h" />
+		<Unit filename="src/OpenNI/XnBaseNode.h" />
+		<Unit filename="src/OpenNI/XnCallback.h" />
+		<Unit filename="src/OpenNI/XnCodecIDs.h" />
+		<Unit filename="src/OpenNI/XnContext.h" />
+		<Unit filename="src/OpenNI/XnCppWrapper.h" />
+		<Unit filename="src/OpenNI/XnDataTypes.h" />
+		<Unit filename="src/OpenNI/XnEnumerationErrors.h" />
+		<Unit filename="src/OpenNI/XnEvent.h" />
+		<Unit filename="src/OpenNI/XnFPSCalculator.h" />
+		<Unit filename="src/OpenNI/XnGeneralBuffer.h" />
+		<Unit filename="src/OpenNI/XnHash.h" />
+		<Unit filename="src/OpenNI/XnInternalDefs.h" />
+		<Unit filename="src/OpenNI/XnLicensing.h" />
+		<Unit filename="src/OpenNI/XnList.h" />
+		<Unit filename="src/OpenNI/XnLog.h" />
+		<Unit filename="src/OpenNI/XnMacros.h" />
+		<Unit filename="src/OpenNI/XnModuleCppInterface.h" />
+		<Unit filename="src/OpenNI/XnModuleCppRegistratration.h" />
+		<Unit filename="src/OpenNI/XnModuleInterface.h" />
+		<Unit filename="src/OpenNI/XnNode.h" />
+		<Unit filename="src/OpenNI/XnNodeAllocator.h" />
+		<Unit filename="src/OpenNI/XnOS.h" />
+		<Unit filename="src/OpenNI/XnOSCpp.h" />
+		<Unit filename="src/OpenNI/XnOpenNI.h" />
+		<Unit filename="src/OpenNI/XnPlatform.h" />
+		<Unit filename="src/OpenNI/XnPrdNode.h" />
+		<Unit filename="src/OpenNI/XnPrdNodeInfo.h" />
+		<Unit filename="src/OpenNI/XnPrdNodeInfoList.h" />
+		<Unit filename="src/OpenNI/XnProfiling.h" />
+		<Unit filename="src/OpenNI/XnPropNames.h" />
+		<Unit filename="src/OpenNI/XnQueries.h" />
+		<Unit filename="src/OpenNI/XnQueue.h" />
+		<Unit filename="src/OpenNI/XnScheduler.h" />
+		<Unit filename="src/OpenNI/XnStack.h" />
+		<Unit filename="src/OpenNI/XnStatus.h" />
+		<Unit filename="src/OpenNI/XnStatusCodes.h" />
+		<Unit filename="src/OpenNI/XnStatusRegister.h" />
+		<Unit filename="src/OpenNI/XnStringsHash.h" />
+		<Unit filename="src/OpenNI/XnThreadSafeQueue.h" />
+		<Unit filename="src/OpenNI/XnTypes.h" />
+		<Unit filename="src/OpenNI/XnUSB.h" />
+		<Unit filename="src/OpenNI/XnUtils.h" />
+		<Unit filename="src/OpenNI/XnVersion.h" />
+		<Unit filename="src/lmmin.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/lmmin.h">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/main.cpp">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/measure.cpp">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/measure.h">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/ofxONI.cpp">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/ofxONI.h">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/reproject.cpp">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/reproject.h">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/testApp.cpp">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Unit filename="src/testApp.h">
+			<Option virtualFolder="src/" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
