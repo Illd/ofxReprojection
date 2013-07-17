@@ -1,4 +1,4 @@
 ofxReprojection
 ===============
 
-Linux only development project.
+For now a Linux only development project. 
