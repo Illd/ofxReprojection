@@ -1,0 +1,138 @@
+<VAR1A_2>
+    <val_0>0.98</val_0>
+</VAR1A_2>
+<VAR10A_2>
+    <val_0>5.41111</val_0>
+</VAR10A_2>
+<VAR100A_2>
+    <val_0>-0.888191</val_0>
+</VAR100A_2>
+<VAR1000A_2>
+    <val_0>-142.222</val_0>
+</VAR1000A_2>
+<BOOLEAN_1_2>
+    <val_0>0</val_0>
+</BOOLEAN_1_2>
+<BOOLEAN_2_2>
+    <val_0>0</val_0>
+</BOOLEAN_2_2>
+<BOOLEAN_3_2>
+    <val_0>0</val_0>
+</BOOLEAN_3_2>
+<BOOLEAN_4_2>
+    <val_0>0</val_0>
+</BOOLEAN_4_2>
+<VAR1B_2>
+    <val_0>0.64</val_0>
+</VAR1B_2>
+<VAR10B_2>
+    <val_0>-2.54222</val_0>
+</VAR10B_2>
+<VAR100B_2>
+    <val_0>-14</val_0>
+</VAR100B_2>
+<VAR1000B_2>
+    <val_0>-527.778</val_0>
+</VAR1000B_2>
+<VAR10000A_2>
+    <val_0>0</val_0>
+</VAR10000A_2>
+<BOOLEAN_5_2>
+    <val_0>0</val_0>
+</BOOLEAN_5_2>
+<BOOLEAN_6_2>
+    <val_0>0</val_0>
+</BOOLEAN_6_2>
+<BOOLEAN_7_2>
+    <val_0>0</val_0>
+</BOOLEAN_7_2>
+<BOOLEAN_8_2>
+    <val_0>0</val_0>
+</BOOLEAN_8_2>
+<BOOLEAN_9_2>
+    <val_0>0</val_0>
+</BOOLEAN_9_2>
+<VAR1A>
+    <val_0>0.244444</val_0>
+</VAR1A>
+<VAR10A>
+    <val_0>-0.666667</val_0>
+</VAR10A>
+<VAR100A>
+    <val_0>17.9321</val_0>
+</VAR100A>
+<VAR1000A>
+    <val_0>171.111</val_0>
+</VAR1000A>
+<BOOLEAN_1>
+    <val_0>0</val_0>
+</BOOLEAN_1>
+<BOOLEAN_2>
+    <val_0>0</val_0>
+</BOOLEAN_2>
+<BOOLEAN_3>
+    <val_0>1</val_0>
+</BOOLEAN_3>
+<BOOLEAN_4>
+    <val_0>0</val_0>
+</BOOLEAN_4>
+<VAR1B>
+    <val_0>0.133333</val_0>
+</VAR1B>
+<VAR10B>
+    <val_0>-4.66667</val_0>
+</VAR10B>
+<VAR100B>
+    <val_0>-41.5556</val_0>
+</VAR100B>
+<VAR1000B>
+    <val_0>155.556</val_0>
+</VAR1000B>
+<VAR10000A>
+    <val_0>0</val_0>
+</VAR10000A>
+<BOOLEAN_5>
+    <val_0>0</val_0>
+</BOOLEAN_5>
+<BOOLEAN_6>
+    <val_0>0</val_0>
+</BOOLEAN_6>
+<BOOLEAN_7>
+    <val_0>0</val_0>
+</BOOLEAN_7>
+<BOOLEAN_8>
+    <val_0>0</val_0>
+</BOOLEAN_8>
+<BOOLEAN_9>
+    <val_0>0</val_0>
+</BOOLEAN_9>
+<PERSPECTIVE_VALUEX>
+    <val_0>3562.500000</val_0>
+</PERSPECTIVE_VALUEX>
+<PERSPECTIVE_VALUEY>
+    <val_0>3510.000000</val_0>
+</PERSPECTIVE_VALUEY>
+<FLAT_VALUE>
+    <val_0>0.008770</val_0>
+</FLAT_VALUE>
+<DISPLACE_VALUEX>
+    <val_0>-130.000000</val_0>
+</DISPLACE_VALUEX>
+<DISPLACE_VALUEY>
+    <val_0>-145.000000</val_0>
+</DISPLACE_VALUEY>
+<TRANSLATE_VALUEX>
+    <val_0>801.000000</val_0>
+</TRANSLATE_VALUEX>
+<TRANSLATE_VALUEY>
+    <val_0>136.777771</val_0>
+</TRANSLATE_VALUEY>
+<DEPTH_VALUEX>
+    <val_0>1.990000</val_0>
+</DEPTH_VALUEX>
+<DEPTH_VALUEY>
+    <val_0>1.439999</val_0>
+</DEPTH_VALUEY>
+<PLAYERS_BOOLEAN>
+    <val_0>1.000000</val_0>
+</PLAYERS_BOOLEAN>

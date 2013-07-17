@@ -1,0 +1,27 @@
+<keyframes>
+    <key>
+        <flag />
+        <time>00:02:12:859</time>
+        <value>0.900662243</value>
+    </key>
+    <key>
+        <flag>murx</flag>
+        <time>00:02:16:616</time>
+        <value>0.924050629</value>
+    </key>
+    <key>
+        <flag />
+        <time>00:02:37:440</time>
+        <value>0.620253146</value>
+    </key>
+    <key>
+        <flag />
+        <time>00:02:51:503</time>
+        <value>0.476821184</value>
+    </key>
+    <key>
+        <flag />
+        <time>00:05:32:508</time>
+        <value>0.000000000</value>
+    </key>
+</keyframes>

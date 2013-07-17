@@ -1,0 +1,27 @@
+<keyframes>
+    <key>
+        <flag>asdf</flag>
+        <time>00:02:01:508</time>
+        <value>0.646464646</value>
+    </key>
+    <key>
+        <flag />
+        <time>00:02:23:046</time>
+        <value>0.877419353</value>
+    </key>
+    <key>
+        <flag />
+        <time>00:03:57:447</time>
+        <value>0.483443707</value>
+    </key>
+    <key>
+        <flag />
+        <time>00:10:56:546</time>
+        <value>0.016000001</value>
+    </key>
+    <key>
+        <flag />
+        <time>00:13:17:123</time>
+        <value>0.795081973</value>
+    </key>
+</keyframes>
