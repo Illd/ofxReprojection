@@ -1,27 +1,22 @@
 class ofxReprojection {
 
+  ofFloatPixels* (*getDepthFrameFunction)();
 
-ofFloatPixels* (*getDepthFrameFunction)();
-
-ofxReprojection::setup( ofFloatPixels* (*i_getDepthFrameFunction)()  );
-ofxReprojection::update();
-
+  ofxReprojection::setup( ofFloatPixels* (*i_getDepthFrameFunction)()  );
+  ofxReprojection::update();
 
 };
 
 
 
-ofxReprojection::setup( ofFloatPixels* (*i_getDepthFrameFunction)()  ) {
-      getDepthFrameFunction = i_getDepthFrameFunction;
-
+ofxReprojection::setup( ofFloatPixels* (*i_getDepthFrameFunction)() ) {
+  getDepthFrameFunction = i_getDepthFrameFunction;
 }
 
 
 ofxReprojection::update() {
    ofFloatPixels* depthimage = &getDepthFrameFunction();
 }
-
-
 
 
 /* Example app:
@@ -33,6 +28,9 @@ testApp::setup() {
 
 	ofxReprojection reprojection;
 	reprojection.setup( &kinect.getDepthFrame );
+	
+	
+	
 }
 
 */
