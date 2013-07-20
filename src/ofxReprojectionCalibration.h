@@ -5,6 +5,13 @@
 #include "ofMain.h"
 #include "ofxBase3DVideo.h"
 
+// 
+// This class takes care of the calibration of depth cam and projector.
+//
+// The constructor takes a ofxBase3DVideo object which supplies the depth cam images
+// and a window onto which the projector output is drawn. This window should be a fullscreen
+// window on the projector.
+//
 
 
 class ofxReprojectionCalibration {
