@@ -16,7 +16,7 @@
 
 class ofxGLFWWindow {
 	public:
-		ofxGLFWWindow();
+		ofxGLFWWindow(int w, int h, string title, GLFWmonitor* monitor, GLFWwindow* share);
 		~ofxGLFWWindow();
 
 		// void setFullscreen(bool b);
