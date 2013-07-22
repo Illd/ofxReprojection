@@ -6,8 +6,8 @@ ofxReprojectionRenderer::ofxReprojectionRenderer() {
 
 	string shaderstring = STRINGIFY(
 
-		#version 120
-		#extension GL_ARB_texture_rectangle : enable
+		\#version 120
+		\#extension GL_ARB_texture_rectangle : enable
 
 		uniform sampler2DRect depth_map;
 		uniform sampler2DRect color_image;

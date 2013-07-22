@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ofMain.h"
+
 class ofxReprojectionCalibrationData {
 	public:
 		ofxReprojectionCalibrationData();
@@ -16,5 +18,7 @@ class ofxReprojectionCalibrationData {
 		vector< vector< ofVec3f > > campoints;
 		vector< vector< ofVec2f > > projectorpoints;
 
+		ofMatrix4x4 matrix;
 
-}
+
+};

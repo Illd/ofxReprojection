@@ -7,22 +7,24 @@ ofxReprojection::ofxReprojection() {
 ofxReprojection::~ofxReprojection() {
 }
 
-void ofxReprojection::init(ofxBase3DVideo* cam, string calibration_file) {
+bool ofxReprojection::init(ofxBase3DVideo* cam, string calibration_file) {
 	ofLogVerbose("ofxReprojection") << "initing ofxReprojection object";
 	if(calibration_file != "") {
-		calibration.loadFromFile(calibration_file);
+		calibration.loadData(calibration_file);
 		calibration.finalize();
 		bCalibrationStage = false;
 	}
 
 	this->cam = cam;
+
+	return true;
 }
 
-void ofxReprojection::update() {
+void ofxReprojection::update() {
 	if(bCalibrationStage) {
 		calibration.update();
 	} else {
-		renderer.update();
+		// render
 	}
 }
 

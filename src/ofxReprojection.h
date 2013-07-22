@@ -6,12 +6,14 @@
 
 #include "ofMain.h"
 #include "ofxBase3DVideo.h"
+#include "ofxReprojectionCalibration.h"
+#include "ofxReprojectionRenderer.h"
 
 class ofxReprojection {
 public:
 		ofxReprojection();
 		~ofxReprojection();
-		void init(ofxBase3DVideo* cam, string calibration_file = "");
+		bool init(ofxBase3DVideo* cam, string calibration_file = "");
 		void update();
 		void drawCalibrationStatusScreen();
 

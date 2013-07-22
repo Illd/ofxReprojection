@@ -1,23 +1,40 @@
 #include "ofxReprojectionCalibration.h"
 
-ofxReprojectionCalibration::ofxReprojectionCalibration(ofxBase3DVideo *cam, ofWindow projector_win, ofxReprojectionCalibrationConfig *config = NULL) {
+ofxReprojectionCalibration::ofxReprojectionCalibration() {
+}
+
+bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxGLFWWindow *projector_win, ofxReprojectionCalibrationConfig config) {
 
 	if(cam == NULL) {
-		ofxLogWarning("ofxReprojection") << "Valid ofxBase3DVideo providing both color and depth image must be passed to constructor ofxReprojectionCalibration";
+		ofLogWarning("ofxReprojection") << "Valid ofxBase3DVideo providing both color and depth image must be passed to constructor ofxReprojectionCalibration";
+		return false;
 	} else {
-		self->cam = cam;
+		this->cam = cam;
 	}
 
+	this->config = config;
 
-	if(config != NULL) {
-		self->config = *config;
-	}
+	this->projector_win = projector_win;
+
+	chess_rows = 4;
+	chess_cols = 6;
+	chess_x = 100;
+	chess_y = 100;
+	chess_width = ((int)(0.8f*projector_w));
+	chess_height = ((int)(0.8f*projector_h));
+	chess_brightness = 255;
+
+	corner_history.reserve(config.num_stability_frames);
+
+	return true;
 }
 
 ofxReprojectionCalibration::~ofxReprojectionCalibration() {
 }
 
-static void ofxReprojectionCalibration::lm_evaluate_camera_matrix(const double *par, int m_dat, const void *data, double *fvec, int *info) {
+const cv::Mat ofxReprojectionCalibration::lm_affinerow = (cv::Mat_<double>(1,4) << 0,0,0,1);
+
+void ofxReprojectionCalibration::lm_evaluate_camera_matrix(const double *par, int m_dat, const void *data, double *fvec, int *info) {
 	
 	// Calculate Ax = b for each 3d measurement x
 
@@ -52,7 +69,7 @@ static void ofxReprojectionCalibration::lm_evaluate_camera_matrix(const double *
 
 
 
-static void ofxReprojectionCalibration::makechessboard(uchar* pixels, int img_width, int img_height, int rows, int cols, int x, int y, int width, int height, char brightness) {
+void ofxReprojectionCalibration::makechessboard(uchar* pixels, int img_width, int img_height, int rows, int cols, int x, int y, int width, int height, char brightness) {
 	uchar bg = brightness;
 	uchar black = 0;
 	uchar white = brightness;
@@ -81,170 +98,176 @@ static void ofxReprojectionCalibration::makechessboard(uchar* pixels, int img_wi
 }
 
 static ofxReprojectionCalibrationData loadDataFromFile(string filename) {
-	string filename;
-	if(arg_filename.empty()) {
-		ofFileDialogResult filedialog = ofSystemLoadDialog("Load calibration measurements.",false,"~");
-		cout << "opening " << filedialog.getPath() << endl;
-		filename = filedialog.getPath();
-	}  else {
-		filename = arg_filename;
-	}
-	
-	cv::FileStorage fs(filename, cv::FileStorage::READ);
-	string timestamp; fs["timestamp"] >> timestamp;
+	// string filename;
+	// if(arg_filename.empty()) {
+	// 	ofFileDialogResult filedialog = ofSystemLoadDialog("Load calibration measurements.",false,"~");
+	// 	cout << "opening " << filedialog.getPath() << endl;
+	// 	filename = filedialog.getPath();
+	// }  else {
+	// 	filename = arg_filename;
+	// }
+	// 
+	// cv::FileStorage fs(filename, cv::FileStorage::READ);
+	// string timestamp; fs["timestamp"] >> timestamp;
 
-	cout << "Loading measurements from timestamp " << timestamp << endl;
+	// cout << "Loading measurements from timestamp " << timestamp << endl;
 
-	int stored_kinect_width, stored_kinect_height;
-	fs["kinect_width"] >> stored_kinect_width;
-	fs["kinect_height"] >> stored_kinect_height;
+	// int stored_kinect_width, stored_kinect_height;
+	// fs["kinect_width"] >> stored_kinect_width;
+	// fs["kinect_height"] >> stored_kinect_height;
 
-	if(kinect_height != stored_kinect_height  ||  kinect_width != stored_kinect_width) {
-		cout << "Error: stored measurements dimensions do not match Kinect input." << endl;
-	}
+	// if(kinect_height != stored_kinect_height  ||  kinect_width != stored_kinect_width) {
+	// 	cout << "Error: stored measurements dimensions do not match Kinect input." << endl;
+	// }
 
-	int stored_projector_width, stored_projector_height;
-	fs["projector_width"] >> stored_projector_width;
-	fs["projector_height"] >> stored_projector_height;
+	// int stored_projector_width, stored_projector_height;
+	// fs["projector_width"] >> stored_projector_width;
+	// fs["projector_height"] >> stored_projector_height;
 
-	if(projector_height != stored_projector_height  ||  projector_width != stored_projector_width) {
-		cout << "Error: stored measurements dimensions do not match projector input." << endl;
-	}
+	// if(projector_height != stored_projector_height  ||  projector_width != stored_projector_width) {
+	// 	cout << "Error: stored measurements dimensions do not match projector input." << endl;
+	// }
 
-	fs["ref_max_depth"] >> ref_max_depth;
-	kinect.ref_max_depth = ref_max_depth;
+	// fs["ref_max_depth"] >> ref_max_depth;
+	// kinect.ref_max_depth = ref_max_depth;
 
-	cv::FileNode fn_measurements  = fs["measurements"];
-	cv::FileNodeIterator it = fn_measurements.begin();
+	// cv::FileNode fn_measurements  = fs["measurements"];
+	// cv::FileNodeIterator it = fn_measurements.begin();
 
-	vector< vector<cv::Point3f> > measurements; {
-		for(int i = 0; it != fn_measurements.end(); it++, i++) {
-			vector<cv::Point3f> measurement;
+	// vector< vector<cv::Point3f> > measurements; {
+	// 	for(int i = 0; it != fn_measurements.end(); it++, i++) {
+	// 		vector<cv::Point3f> measurement;
 
-			cv::FileNodeIterator it2 = (*it).begin();
-			for(int j = 0; it2 != (*it).end(); it2++, j++) {
-				vector<double> point;
-				(*it2) >> point;
-				cv::Point3f p = cv::Point3f(point[0], point[1], point[2]);
-				measurement.push_back(p);
-				//cout << "measurement " << p << endl;
-			}
-			measurements.push_back(measurement);
-		}
-	}
+	// 		cv::FileNodeIterator it2 = (*it).begin();
+	// 		for(int j = 0; it2 != (*it).end(); it2++, j++) {
+	// 			vector<double> point;
+	// 			(*it2) >> point;
+	// 			cv::Point3f p = cv::Point3f(point[0], point[1], point[2]);
+	// 			measurement.push_back(p);
+	// 			//cout << "measurement " << p << endl;
+	// 		}
+	// 		measurements.push_back(measurement);
+	// 	}
+	// }
 
-	vector< vector<cv::Point2f> > projpoints; {
-		cv::FileNode fn_projpoints  = fs["projpoints"];
-		cv::FileNodeIterator it = fn_projpoints.begin();
+	// vector< vector<cv::Point2f> > projpoints; {
+	// 	cv::FileNode fn_projpoints  = fs["projpoints"];
+	// 	cv::FileNodeIterator it = fn_projpoints.begin();
 
-		for(int i = 0; it != fn_projpoints.end(); it++, i++) {
-			vector<cv::Point2f> projpoint;
+	// 	for(int i = 0; it != fn_projpoints.end(); it++, i++) {
+	// 		vector<cv::Point2f> projpoint;
 
-			cv::FileNodeIterator it2 = (*it).begin();
-			for(int j = 0; it2 != (*it).end(); it2++, j++) {
-				vector<double> point;
-				(*it2) >> point;
-				cv::Point2f p = cv::Point2f(point[0], point[1]);
-				projpoint.push_back(p);
-			}
-			projpoints.push_back(projpoint);
-		}
-	}
+	// 		cv::FileNodeIterator it2 = (*it).begin();
+	// 		for(int j = 0; it2 != (*it).end(); it2++, j++) {
+	// 			vector<double> point;
+	// 			(*it2) >> point;
+	// 			cv::Point2f p = cv::Point2f(point[0], point[1]);
+	// 			projpoint.push_back(p);
+	// 		}
+	// 		projpoints.push_back(projpoint);
+	// 	}
+	// }
 
-	fs.release();
+	// fs.release();
 
 
+	ofxReprojectionCalibrationData data;
+	return data;
 }
 
 static ofMatrix4x4 calculateReprojectionTransform(ofxReprojectionCalibrationData data) {
-
-	// Put all measured points in one vector.
-	//
-	vector<cv::Point3f> measurements_all; {
-		for(uint i  = 0; i < measurements.size(); i++) {
-			for(uint j = 0; j < measurements[i].size(); j++) {
-				measurements_all.push_back(measurements[i][j]);
-			}
-		}
-	}
-	vector<cv::Point2f> projpoints_all; {
-		for(uint i  = 0; i < projpoints.size(); i++) {
-			for(uint j = 0; j < projpoints[i].size(); j++) {
-				projpoints_all.push_back(projpoints[i][j]);
-			}
-		}
-	}
-
-	// Transform measurement coodinates into world coordinates.
-	//
-	for(uint i = 0; i < measurements_all.size(); i++) {
-		measurements_all[i] = kinect.pixel3f_to_world3f(measurements_all[i]);
-	}
-	for(uint i = 0; i < projpoints_all.size(); i++) {
-		// Transform projector coordinates? (not necessary)
-	}
-
-
-	// Try calculating full 4x4 (affine) projection/camera matrix 
-	// by fitting the data to a matrix by LM least squares (lmmin.c).
-	// Two last rows should be (0,0,0,0; 0,0,0,1), so find the
-	// unknown 2x4 matrix.
-
-	vector<void*> lm_cam_data;
-
-	lm_cam_data.push_back((void*) &(measurements_all)); 
-	lm_cam_data.push_back((void*) &(projpoints_all)); 
-
-	lm_status_struct lm_cam_status;
-	lm_control_struct lm_cam_control = lm_control_double;
-	lm_cam_control.printflags = 3;
-
-	int n_par = 2*4;
-
-	lmmin(n_par, lm_cam_params, measurements_all.size()*3, (const void*)&lm_cam_data, 
-		lm_evaluate_camera_matrix,
-		&lm_cam_control, &lm_cam_status, NULL);
-
-	// Copy to openFrameworks matrix type.
-	ofprojmat.set(
-		       	lm_cam_params[0], lm_cam_params[1], lm_cam_params[2], lm_cam_params[3],
-		       	lm_cam_params[4], lm_cam_params[5], lm_cam_params[6], lm_cam_params[7],
-			0,0,0,0,
-		       	0,0,0,1
-	);
-
-
-	ofidentitymat.set(1,0,0,0,   0,1,0,0,   0,0,1,0,    0,0,0,1);
-	cout << "set identitymat to " << endl << ofidentitymat << endl;
-
-
-	// Calculate reprojection error.
-	double cum_err_2 = 0;
-	for(uint i = 0; i < measurements_all.size(); i++) {
-		ofVec3f v(
-				measurements_all[i].x,
-				measurements_all[i].y,
-				measurements_all[i].z
-			);
-		cv::Point2f projpoint = projpoints_all[i];
-		ofVec3f u = ofprojmat*v;
-		double error = sqrt(pow(u.x-projpoint.x,2)+pow(u.y-projpoint.y,2));
-
-
-		// Print all measured values with reprojection, for debugging.
-		cout << measurements_all[i] << " " << projpoint << " " << u << " " << error << " " <<  endl;
-
-		cum_err_2 += error*error;
-	}
-	double rms = sqrt(cum_err_2/ measurements_all.size() );
-
-
-	cout << "Calculated transformation:" << endl;
-	cout << ofprojmat << endl;
-	cout << "Calculated RMS reprojection error: " << rms << endl;
-
+// 
+// 	// Put all measured points in one vector.
+// 	//
+// 	vector<cv::Point3f> measurements_all; {
+// 		for(uint i  = 0; i < measurements.size(); i++) {
+// 			for(uint j = 0; j < measurements[i].size(); j++) {
+// 				measurements_all.push_back(measurements[i][j]);
+// 			}
+// 		}
+// 	}
+// 	vector<cv::Point2f> projpoints_all; {
+// 		for(uint i  = 0; i < projpoints.size(); i++) {
+// 			for(uint j = 0; j < projpoints[i].size(); j++) {
+// 				projpoints_all.push_back(projpoints[i][j]);
+// 			}
+// 		}
+// 	}
+// 
+// 	// Transform measurement coodinates into world coordinates.
+// 	//
+// 	for(uint i = 0; i < measurements_all.size(); i++) {
+// 		measurements_all[i] = kinect.pixel3f_to_world3f(measurements_all[i]);
+// 	}
+// 	for(uint i = 0; i < projpoints_all.size(); i++) {
+// 		// Transform projector coordinates? (not necessary)
+// 	}
+// 
+// 
+// 	// Try calculating full 4x4 (affine) projection/camera matrix 
+// 	// by fitting the data to a matrix by LM least squares (lmmin.c).
+// 	// Two last rows should be (0,0,0,0; 0,0,0,1), so find the
+// 	// unknown 2x4 matrix.
+// 
+// 	vector<void*> lm_cam_data;
+// 
+// 	lm_cam_data.push_back((void*) &(measurements_all)); 
+// 	lm_cam_data.push_back((void*) &(projpoints_all)); 
+// 
+// 	lm_status_struct lm_cam_status;
+// 	lm_control_struct lm_cam_control = lm_control_double;
+// 	lm_cam_control.printflags = 3;
+// 
+// 	int n_par = 2*4;
+// 
+// 	lmmin(n_par, lm_cam_params, measurements_all.size()*3, (const void*)&lm_cam_data, 
+// 		lm_evaluate_camera_matrix,
+// 		&lm_cam_control, &lm_cam_status, NULL);
+// 
+// 	// Copy to openFrameworks matrix type.
+// 	ofprojmat.set(
+// 		       	lm_cam_params[0], lm_cam_params[1], lm_cam_params[2], lm_cam_params[3],
+// 		       	lm_cam_params[4], lm_cam_params[5], lm_cam_params[6], lm_cam_params[7],
+// 			0,0,0,0,
+// 		       	0,0,0,1
+// 	);
+// 
+// 
+	ofMatrix4x4 ofidentitymat;
+ 	ofidentitymat.set(1,0,0,0,   0,1,0,0,   0,0,1,0,    0,0,0,1);
+	return ofidentitymat;
+// 	cout << "set identitymat to " << endl << ofidentitymat << endl;
+// 
+// 
+// 	// Calculate reprojection error.
+// 	double cum_err_2 = 0;
+// 	for(uint i = 0; i < measurements_all.size(); i++) {
+// 		ofVec3f v(
+// 				measurements_all[i].x,
+// 				measurements_all[i].y,
+// 				measurements_all[i].z
+// 			);
+// 		cv::Point2f projpoint = projpoints_all[i];
+// 		ofVec3f u = ofprojmat*v;
+// 		double error = sqrt(pow(u.x-projpoint.x,2)+pow(u.y-projpoint.y,2));
+// 
+// 
+// 		// Print all measured values with reprojection, for debugging.
+// 		cout << measurements_all[i] << " " << projpoint << " " << u << " " << error << " " <<  endl;
+// 
+// 		cum_err_2 += error*error;
+// 	}
+// 	double rms = sqrt(cum_err_2/ measurements_all.size() );
+// 
+// 
+// 	cout << "Calculated transformation:" << endl;
+// 	cout << ofprojmat << endl;
+// 	cout << "Calculated RMS reprojection error: " << rms << endl;
+// 
 }
 
+
+// TODO: work through this to fit into ofxReprojectionCalibration
 void ofxReprojectionCalibration::update() {
 	cam->update();
 	if(cam->isFrameNew()) {
@@ -268,7 +291,7 @@ void ofxReprojectionCalibration::update() {
 
 		chessfound = false;
 
-		if(measurement_pause and (ofGetSystemTime() - measurement_pause_time > MEASUREMENT_PAUSE_LENGTH)) {
+		if(measurement_pause and (ofGetSystemTime() - measurement_pause_time > config.measurement_pause_length)) {
 			measurement_pause = false;
 		}
 
@@ -327,7 +350,7 @@ void ofxReprojectionCalibration::update() {
 
 				for(uint j = 0; j < depth_values_test.size(); j++) {
 					int value = (int)pDPixel[depth_values_test[j]];
-					if(value < DEPTH_MIN || value > DEPTH_MAX) {
+					if(value < config.depth_min || value > config.depth_max) {
 						chessfound_includes_depth = false;
 						break;
 					}
@@ -403,7 +426,7 @@ void ofxReprojectionCalibration::update() {
 					plane_r2 = 1 - ssres/sstot;
 
 					if(config.use_planar_condition) { 
-						chessfound_planar = plane_r2 > PLANAR_THRESHOLD;
+						chessfound_planar = plane_r2 > config.planar_threshold;
 					} else {
 						chessfound_planar = true;
 					}
@@ -411,7 +434,7 @@ void ofxReprojectionCalibration::update() {
 			}
 
 			cv::drawChessboardCorners(chessdetectimage, cv::Size(chess_cols,chess_rows), cv::Mat(chesscorners), chessfound);
-			color_image.setFromPixels(pPixelsUC, kinect_width, kinect_height, OF_IMAGE_COLOR);
+			/* color_image.setFromPixels(pPixelsUC, kinect_width, kinect_height, OF_IMAGE_COLOR); */
 		}
 
 		// If chessboard is found, depth data exists and planarity check is satisfied, 
@@ -480,7 +503,7 @@ void ofxReprojectionCalibration::update() {
 				}
 			}
 
-			if(largest_variance_xy < VARIANCE_THRESHOLD_XY and largest_variance_z < VARIANCE_THRESHOLD_Z) {
+			if(largest_variance_xy < config.variance_threshold_xy and largest_variance_z < config.variance_threshold_z) {
 				chessfound_variance_ok = true;
 
 				// Measurement is accepted. Calculate the mean and
@@ -503,10 +526,11 @@ void ofxReprojectionCalibration::update() {
 					measurement_mean.push_back(cornerp);
 				}
 
-				ofxLogVerbose("ofxReprojection") << "Measurement: " << cv::Mat(measurement_mean) << endl;
+				ofLogVerbose("ofxReprojection") << "Measurement: " << cv::Mat(measurement_mean) << endl;
 
 
-				valid_measurements.push_back(measurement_mean);
+				//valid_measurements.push_back(measurement_mean);
+				// TODO: data.add_measurement(measurement_mean);
 
 
 				vector<cv::Point2f> chessboard_points;
@@ -516,12 +540,13 @@ void ofxReprojectionCalibration::update() {
 						int py = chess_y + ((int)((y+1)*chess_height/(chess_rows+1)));
 						cv::Point2f p((float)px,(float)py);
 
-						ofxLogVerbose("ofxReprojection") << "chessboard point " << p << endl;
+						ofLogVerbose("ofxReprojection") << "chessboard point " << p << endl;
 						chessboard_points.push_back(p);
 					}
 				}
 
-				all_chessboard_points.push_back(chessboard_points);
+				//all_chessboard_points.push_back(chessboard_points);
+				// TODO: data.add_projpoints(chessboard_points);
 
 				
 				measurement_pause = true;
@@ -530,143 +555,155 @@ void ofxReprojectionCalibration::update() {
 		}
 	}
 }
-void ofReprojectionCalibration::drawCalibrationStatusScreen(){
 
-	projector_chessboard.draw(1920,0);
 
-	kinect.color_image.draw(0,0);
-	kinect.depth_image.draw(kinect_width,0);
 
-	ofCircle(kinect_width/2, kinect_height/2, 5);
+// TODO: work through this to fit into ofxReprojectionCalibration
+void ofxReprojectionCalibration::drawCalibrationStatusScreen(){
 
-	color_image_debug.draw(kinect_width,kinect_height);
+	// projector_chessboard.draw(1920,0);
 
-	string str = "framerate is ";                       
-	str += ofToString(ofGetFrameRate(), 2)+"fps"; 
-	
-	ofDrawBitmapString(str, 20,kinect_height+20);
+	// kinect.color_image.draw(0,0);
+	// kinect.depth_image.draw(kinect_width,0);
 
-	ostringstream msg; msg << "Valid measurements: " << valid_measurements.size();
-	ofDrawBitmapString(msg.str(), 20, 2*kinect_height-20);
+	// ofCircle(kinect_width/2, kinect_height/2, 5);
 
-	ostringstream msg2; msg2 << "Press 'd' to drop last measurement, 'c' to clear, 's' to save and exit." << endl;
-	ofDrawBitmapString(msg2.str(), 20, 2*kinect_height-40);
+	// color_image_debug.draw(kinect_width,kinect_height);
 
-	ostringstream msg3; msg3 << "Planar threshold " << PLANAR_THRESHOLD << ", variance threshold XY " << VARIANCE_THRESHOLD_XY
-					<< " Z " << VARIANCE_THRESHOLD_Z << "." << endl;
-	ofDrawBitmapString(msg3.str(), 20, 2*kinect_height-60);
+	// string str = "framerate is ";                       
+	// str += ofToString(ofGetFrameRate(), 2)+"fps"; 
+	// 
+	// ofDrawBitmapString(str, 20,kinect_height+20);
 
-	ofColor c_error(200,0,0);
-	ofColor c_success(0,200,0);
-	ofColor c_white(255,255,255);
+	// ostringstream msg; msg << "Valid measurements: " << valid_measurements.size();
+	// ofDrawBitmapString(msg.str(), 20, 2*kinect_height-20);
 
-	if(measurement_pause) {
-		ofSetColor(c_white);
-		ofDrawBitmapString("Pausing before next measurement...", 20, kinect_height+40);
-	} else {
-		if(!chessfound) {
-			ofSetColor(c_error);
-			ofDrawBitmapString("Chess board not detected.",20, kinect_height+40);
-		} else {
-			ofSetColor(c_success);
-			ofDrawBitmapString("Chess board detected.",20, kinect_height+40);
+	// ostringstream msg2; msg2 << "Press 'd' to drop last measurement, 'c' to clear, 's' to save and exit." << endl;
+	// ofDrawBitmapString(msg2.str(), 20, 2*kinect_height-40);
 
-			if(!chessfound_includes_depth) {
-				ofSetColor(c_error);
-				ofDrawBitmapString("Depth data for chess board is incomplete.", 20, kinect_height+60);
-			} else {
-				ofSetColor(c_success);
-				ofDrawBitmapString("Depth data complete.", 20, kinect_height+60);
+	// ostringstream msg3; msg3 << "Planar threshold " << PLANAR_THRESHOLD << ", variance threshold XY " << VARIANCE_THRESHOLD_XY
+	// 				<< " Z " << VARIANCE_THRESHOLD_Z << "." << endl;
+	// ofDrawBitmapString(msg3.str(), 20, 2*kinect_height-60);
 
-				if(!chessfound_planar) {
-					ofSetColor(c_error);
-					ostringstream msg; msg << "Chessboard is not planar (R^2 = " << plane_r2 << ").";
-					ofDrawBitmapString(msg.str(), 20, kinect_height+80);
-				} else {
-					ofSetColor(c_success);
-					ostringstream msg; msg << "Chessboard is planar (R^2 = " << plane_r2 << ").";
-					ofDrawBitmapString(msg.str(), 20, kinect_height+80);
+	// ofColor c_error(200,0,0);
+	// ofColor c_success(0,200,0);
+	// ofColor c_white(255,255,255);
 
-					if(!chessfound_enough_frames) {
-						ofSetColor(c_error);
-						ostringstream msg; msg << "Values for " << num_ok_frames 
-							<< "/" << NUM_STABILITY_FRAMES << " frames";
-						ofDrawBitmapString(msg.str(), 20, kinect_height+100);
-					} else {
-						ofSetColor(c_success);
-						ostringstream msg; msg << "Values for " << num_ok_frames 
-							<< "/" << NUM_STABILITY_FRAMES << " frames";
-						ofDrawBitmapString(msg.str(), 20, kinect_height+100);
+	// if(measurement_pause) {
+	// 	ofSetColor(c_white);
+	// 	ofDrawBitmapString("Pausing before next measurement...", 20, kinect_height+40);
+	// } else {
+	// 	if(!chessfound) {
+	// 		ofSetColor(c_error);
+	// 		ofDrawBitmapString("Chess board not detected.",20, kinect_height+40);
+	// 	} else {
+	// 		ofSetColor(c_success);
+	// 		ofDrawBitmapString("Chess board detected.",20, kinect_height+40);
 
-						if(!chessfound_variance_ok) {
-							ofSetColor(c_error);
-							ostringstream msg; msg << "Variance too high (xy " << largest_variance_xy 
-								<< " (" << VARIANCE_THRESHOLD_XY << "), z " << largest_variance_z
-								<< " (" << VARIANCE_THRESHOLD_Z << ")).";
-							ofDrawBitmapString(msg.str(), 20, kinect_height+120);
-						} else {
-							ofSetColor(c_success);
-							ostringstream msg; msg << "Variance OK (xy " << largest_variance_xy 
-								<< " (" << VARIANCE_THRESHOLD_XY << "), z " << largest_variance_z
-								<< " (" << VARIANCE_THRESHOLD_Z << ")).";
-							ofDrawBitmapString(msg.str(), 20, kinect_height+120);
-						}
-					}
-				}
-			}
-		}
-	}
+	// 		if(!chessfound_includes_depth) {
+	// 			ofSetColor(c_error);
+	// 			ofDrawBitmapString("Depth data for chess board is incomplete.", 20, kinect_height+60);
+	// 		} else {
+	// 			ofSetColor(c_success);
+	// 			ofDrawBitmapString("Depth data complete.", 20, kinect_height+60);
 
-	ofSetColor(255,255,255);
-		
+	// 			if(!chessfound_planar) {
+	// 				ofSetColor(c_error);
+	// 				ostringstream msg; msg << "Chessboard is not planar (R^2 = " << plane_r2 << ").";
+	// 				ofDrawBitmapString(msg.str(), 20, kinect_height+80);
+	// 			} else {
+	// 				ofSetColor(c_success);
+	// 				ostringstream msg; msg << "Chessboard is planar (R^2 = " << plane_r2 << ").";
+	// 				ofDrawBitmapString(msg.str(), 20, kinect_height+80);
+
+	// 				if(!chessfound_enough_frames) {
+	// 					ofSetColor(c_error);
+	// 					ostringstream msg; msg << "Values for " << num_ok_frames 
+	// 						<< "/" << NUM_STABILITY_FRAMES << " frames";
+	// 					ofDrawBitmapString(msg.str(), 20, kinect_height+100);
+	// 				} else {
+	// 					ofSetColor(c_success);
+	// 					ostringstream msg; msg << "Values for " << num_ok_frames 
+	// 						<< "/" << NUM_STABILITY_FRAMES << " frames";
+	// 					ofDrawBitmapString(msg.str(), 20, kinect_height+100);
+
+	// 					if(!chessfound_variance_ok) {
+	// 						ofSetColor(c_error);
+	// 						ostringstream msg; msg << "Variance too high (xy " << largest_variance_xy 
+	// 							<< " (" << VARIANCE_THRESHOLD_XY << "), z " << largest_variance_z
+	// 							<< " (" << VARIANCE_THRESHOLD_Z << ")).";
+	// 						ofDrawBitmapString(msg.str(), 20, kinect_height+120);
+	// 					} else {
+	// 						ofSetColor(c_success);
+	// 						ostringstream msg; msg << "Variance OK (xy " << largest_variance_xy 
+	// 							<< " (" << VARIANCE_THRESHOLD_XY << "), z " << largest_variance_z
+	// 							<< " (" << VARIANCE_THRESHOLD_Z << ")).";
+	// 						ofDrawBitmapString(msg.str(), 20, kinect_height+120);
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	// ofSetColor(255,255,255);
+	// 	
 
 
 
 }
 
+
+// TODO: update with new XML format
 static void saveDataToFile(ofxReprojectionCalibrationData data, string filename) {
 
 	//ofFileDialogResult filename = ofSystemSaveDialog(ofGetTimestampString(),"Save measurements.");
 
-	cv::FileStorage fs(filename.getPath(), cv::FileStorage::WRITE);
+	// cv::FileStorage fs(filename.getPath(), cv::FileStorage::WRITE);
 
-	fs << "timestamp" << ofGetTimestampString();
+	// fs << "timestamp" << ofGetTimestampString();
 
-	fs << "kinect_width" << kinect_width;
-	fs << "kinect_height" << kinect_height;
+	// fs << "kinect_width" << kinect_width;
+	// fs << "kinect_height" << kinect_height;
 
-	fs << "projector_width" << projector_width;
-	fs << "projector_height" << projector_height;
+	// fs << "projector_width" << projector_width;
+	// fs << "projector_height" << projector_height;
 
-	fs << "ref_max_depth" << kinect.ref_max_depth;
+	// fs << "ref_max_depth" << kinect.ref_max_depth;
 
-	fs << "measurements" << "[";
+	// fs << "measurements" << "[";
 
-	for(uint i = 0; i < valid_measurements.size() ; i++) {
-		fs << "[";
-		for(uint j = 0; j < valid_measurements[i].size(); j++) {
-			fs << valid_measurements[i][j];
-		}
-		fs << "]";
+	// for(uint i = 0; i < valid_measurements.size() ; i++) {
+	// 	fs << "[";
+	// 	for(uint j = 0; j < valid_measurements[i].size(); j++) {
+	// 		fs << valid_measurements[i][j];
+	// 	}
+	// 	fs << "]";
 
-	} 
+	// } 
 
-	fs << "]";
+	// fs << "]";
 
-	fs << "projpoints" << "[";
+	// fs << "projpoints" << "[";
 
-	for(uint i = 0; i < all_chessboard_points.size() ; i++) {
-		fs << "[";
-		for(uint j = 0; j < all_chessboard_points[i].size(); j++) {
-			fs << all_chessboard_points[i][j];
-		}
-		fs << "]";
+	// for(uint i = 0; i < all_chessboard_points.size() ; i++) {
+	// 	fs << "[";
+	// 	for(uint j = 0; j < all_chessboard_points[i].size(); j++) {
+	// 		fs << all_chessboard_points[i][j];
+	// 	}
+	// 	fs << "]";
 
-	} 
+	// } 
 
-	fs << "]";
+	// fs << "]";
 
-	fs.release();
+	// fs.release();
 }
 
+bool ofxReprojectionCalibration::loadData(string filename) {
+	*data = loadDataFromFile(filename);
+	return true;
+}
 
+void ofxReprojectionCalibration::finalize() {
+}

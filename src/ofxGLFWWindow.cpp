@@ -14,7 +14,7 @@ ofxGLFWWindow::~ofxGLFWWindow() {
 int ofxGLFWWindow::getWidth() { return w; }
 int ofxGLFWWindow::getHeight() { return h; }
 
-static GLFWmonitor* glfwGetSecondaryMonitor() {
+GLFWmonitor* ofxGLFWWindow::glfwGetSecondaryMonitor() {
 	GLFWmonitor* primary = glfwGetPrimaryMonitor();
 
 	int count;

@@ -14,7 +14,7 @@ class ofxReprojectionRenderer {
 
 		// Draws transformed 2d image
 		void draw2D(ofImage i);
-		void draw2D(uchar* p, int pw, int ph);
+		void draw2D(unsigned char* p, int pw, int ph);
 
 		// Draws transformed 3D object
 		void start();
