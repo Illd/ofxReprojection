@@ -66,7 +66,7 @@ public:
 		void mouseReleased(int x, int y, int button);
 		void windowResized(int w, int h);
         void exit();
-
+        ofEasyCam cam;
         ofxONI oni;
         reproject reprojection;
 		int numOfPlayres;

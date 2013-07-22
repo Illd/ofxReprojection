@@ -1,10 +1,5 @@
 <keyframes>
     <key>
-        <flag />
-        <time>00:02:12:859</time>
-        <value>0.900662243</value>
-    </key>
-    <key>
         <flag>murx</flag>
         <time>00:02:16:616</time>
         <value>0.924050629</value>
@@ -16,8 +11,33 @@
     </key>
     <key>
         <flag />
-        <time>00:02:51:503</time>
-        <value>0.476821184</value>
+        <time>00:02:48:556</time>
+        <value>0.158940405</value>
+    </key>
+    <key>
+        <flag />
+        <time>00:02:55:432</time>
+        <value>1.000000000</value>
+    </key>
+    <key>
+        <flag />
+        <time>00:02:55:433</time>
+        <value>0.271523178</value>
+    </key>
+    <key>
+        <flag />
+        <time>00:03:24:908</time>
+        <value>1.000000000</value>
+    </key>
+    <key>
+        <flag />
+        <time>00:03:38:008</time>
+        <value>1.000000000</value>
+    </key>
+    <key>
+        <flag />
+        <time>00:04:53:988</time>
+        <value>0.152317882</value>
     </key>
     <key>
         <flag />

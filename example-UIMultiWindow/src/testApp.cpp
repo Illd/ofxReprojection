@@ -11,7 +11,7 @@ void testApp::setup()
     use_transform = false;
     ready_to_draw = false;
     use_depthimage = true;
-    onirunning = true;
+    onirunning = false;
 
     projectionwindow.setup();
     ofxFenster* win=ofxFensterManager::get()->createFenster(100, 100, 1024,768, OF_WINDOW);
@@ -29,6 +29,7 @@ void testApp::setup()
 
     // Creating window for projection output.
     oni.generate_grid();
+
 
 }
 
@@ -60,7 +61,7 @@ void testApp::draw()
 //oni.drawDepth(50,50,640,480);
 //oni.shaderdepth.draw(50,50,640,480);
 //oni.refcolordepth.draw(0,0,640,480);
-
+    //cam.begin();
     if(ready_to_draw)
     {
         // Setup orthographic projection.
@@ -70,6 +71,7 @@ void testApp::draw()
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         ofScale(1,-1,1); // Pixel/image format -> GL coord.sys.
+
         if(use_transform)
         {
 
@@ -96,6 +98,12 @@ void testApp::draw()
 
         glEnable(GL_POINT_SPRITE);
         glEnable(GL_PROGRAM_POINT_SIZE);
+
+
+
+//cam.begin();
+
+
         reprojection.shader.begin();
 
         // Point size input to shader. Set to smallest value that does not give
@@ -124,12 +132,12 @@ void testApp::draw()
         {
             reprojection.shader.setUniformTexture("color_image", oni.players, 1);
         }
-
         oni.kinect_grid.draw();
 
         reprojection.shader.end();
 
     }
+    //cam.end();
 
 }
 
