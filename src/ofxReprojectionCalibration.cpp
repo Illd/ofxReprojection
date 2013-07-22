@@ -1,5 +1,22 @@
 #include "ofxReprojectionCalibration.h"
 
+ofxReprojectionCalibration::ofxReprojectionCalibration(ofxBase3DVideo *cam, ofWindow projector_win, ofxReprojectionCalibrationConfig *config = NULL) {
+
+	if(cam == NULL) {
+		ofxLogWarning("ofxReprojection") << "Valid ofxBase3DVideo providing both color and depth image must be passed to constructor ofxReprojectionCalibration";
+	} else {
+		self->cam = cam;
+	}
+
+
+	if(config != NULL) {
+		self->config = *config;
+	}
+}
+
+ofxReprojectionCalibration::~ofxReprojectionCalibration() {
+}
+
 static void ofxReprojectionCalibration::lm_evaluate_camera_matrix(const double *par, int m_dat, const void *data, double *fvec, int *info) {
 	
 	// Calculate Ax = b for each 3d measurement x
@@ -229,24 +246,25 @@ static ofMatrix4x4 calculateReprojectionTransform(ofxReprojectionCalibrationData
 }
 
 void ofxReprojectionCalibration::update() {
-	kinect.update();
-	if(kinect.has_changed_color()) {
+	cam->update();
+	if(cam->isFrameNew()) {
 
-		// Convert image to OpenCV image.
-		unsigned char *pPixelsUC = (unsigned char*) kinect.kinect_color_frame.getData();
-		cv::Mat chessdetectimage(kinect.get_height(),kinect.get_width(),CV_8UC(3), pPixelsUC); 
+		// Convert color image to OpenCV image.
+		unsigned char *pPixelsUC = (unsigned char*) cam->getPixels();
+		cv::Mat chessdetectimage(cam_h,cam_w,CV_8UC(3), pPixelsUC); 
+
 		vector<cv::Point2f> chesscorners;
 
 		cv::Mat gray;
 		cv::cvtColor(chessdetectimage, gray, CV_BGR2GRAY);
 
-		// Draw image with equialized histogram for inspection purposes.
-		// This image seems to be worse for detecting the chess board. 
-		// But it is sometimes recommended as an option to 
-		// findChessboardCorners (cv::CALIB_CB_NORMALIZE_IMAGE)
-		cv::Mat gray2;
-		cv::equalizeHist(gray,gray2);
-		color_image_debug.setFromPixels((unsigned char*) gray2.data, kinect_width, kinect_height, OF_IMAGE_GRAYSCALE);
+		// // Draw image with equialized histogram for inspection purposes.
+		// // This image seems to be worse for detecting the chess board. 
+		// // But it is sometimes recommended as an option to 
+		// // findChessboardCorners (cv::CALIB_CB_NORMALIZE_IMAGE)
+		// cv::Mat gray2;
+		// cv::equalizeHist(gray,gray2);
+		// color_image_debug.setFromPixels((unsigned char*) gray2.data, kinect_width, kinect_height, OF_IMAGE_GRAYSCALE);
 
 		chessfound = false;
 
@@ -269,6 +287,11 @@ void ofxReprojectionCalibration::update() {
 
 			// Calculate matrix elements for solving planar regression (multiple linear regression)
 			// to find R^2-value of plane (how planar is the chess board?).
+			// 
+			// This test is not strictly needed, but in case you are using a flat board to 
+			// move around for the chessboard to be projected on, then this will be a test
+			// that can give an indication of whether the measurements are good.
+			// Can be disabled in config.use_planar_condition.
 
 			double sumX = 0;
 			double sumY = 0;
@@ -282,7 +305,7 @@ void ofxReprojectionCalibration::update() {
 			
 			chessfound_includes_depth = true;
 			for(uint i = 0; i < chesscorners.size(); i++) {
-				openni::DepthPixel *pDPixel = (openni::DepthPixel*) kinect.kinect_depth_frame.getData();
+				float *pDPixel = (float*) cam->getDistancePixels();
 
 				// Calculate 3D point from color and depth image ("world coords")
 				cv::Point3f p;
@@ -297,13 +320,13 @@ void ofxReprojectionCalibration::update() {
 
 				// Check that all relevant depth values are valid;
 				vector<int> depth_values_test;
-				depth_values_test.push_back(imgx1+imgy1*kinect_width);
-				depth_values_test.push_back(imgx1+imgy2*kinect_width);
-				depth_values_test.push_back(imgx2+imgy1*kinect_width);
-				depth_values_test.push_back(imgx2+imgy2*kinect_width);
+				depth_values_test.push_back(imgx1+imgy1*cam_w);
+				depth_values_test.push_back(imgx1+imgy2*cam_w);
+				depth_values_test.push_back(imgx2+imgy1*cam_w);
+				depth_values_test.push_back(imgx2+imgy2*cam_w);
 
 				for(uint j = 0; j < depth_values_test.size(); j++) {
-					int value = pDPixel[depth_values_test[j]];
+					int value = (int)pDPixel[depth_values_test[j]];
 					if(value < DEPTH_MIN || value > DEPTH_MAX) {
 						chessfound_includes_depth = false;
 						break;
@@ -316,11 +339,11 @@ void ofxReprojectionCalibration::update() {
 
 				// Bilinear interpolation to find z in depth map from fractional coords.
 				// (The detected corners have sub-pixel precision.)
-				interp_x1  = (imgx2-(float)p.x)/((float)(imgx2-imgx1))*((float)pDPixel[imgx1+imgy1*kinect_width]);
-				interp_x1 += ((float)p.x-imgx1)/((float)(imgx2-imgx1))*((float)pDPixel[imgx2+imgy1*kinect_width]);
+				interp_x1  = (imgx2-(float)p.x)/((float)(imgx2-imgx1))*((float)pDPixel[imgx1+imgy1*cam_w]);
+				interp_x1 += ((float)p.x-imgx1)/((float)(imgx2-imgx1))*((float)pDPixel[imgx2+imgy1*cam_w]);
 
-				interp_x2  = (imgx2-(float)p.x)/((float)(imgx2-imgx1))*((float)pDPixel[imgx2+imgy1*kinect_width]);
-				interp_x2 += ((float)p.x-imgx1)/((float)(imgx2-imgx1))*((float)pDPixel[imgx2+imgy2*kinect_width]);
+				interp_x2  = (imgx2-(float)p.x)/((float)(imgx2-imgx1))*((float)pDPixel[imgx2+imgy1*cam_w]);
+				interp_x2 += ((float)p.x-imgx1)/((float)(imgx2-imgx1))*((float)pDPixel[imgx2+imgy2*cam_w]);
 
 				interp_z   = (imgy2-(float)p.y)/((float)(imgy2-imgy1)) * interp_x1;
 				interp_z  += ((float)p.y-imgy1)/((float)(imgy2-imgy1)) * interp_x2;
@@ -379,7 +402,7 @@ void ofxReprojectionCalibration::update() {
 
 					plane_r2 = 1 - ssres/sstot;
 
-					if(USE_PLANAR_CONDITION) { 
+					if(config.use_planar_condition) { 
 						chessfound_planar = plane_r2 > PLANAR_THRESHOLD;
 					} else {
 						chessfound_planar = true;
@@ -388,7 +411,7 @@ void ofxReprojectionCalibration::update() {
 			}
 
 			cv::drawChessboardCorners(chessdetectimage, cv::Size(chess_cols,chess_rows), cv::Mat(chesscorners), chessfound);
-			kinect.color_image.setFromPixels(pPixelsUC, kinect_width, kinect_height, OF_IMAGE_COLOR);
+			color_image.setFromPixels(pPixelsUC, kinect_width, kinect_height, OF_IMAGE_COLOR);
 		}
 
 		// If chessboard is found, depth data exists and planarity check is satisfied, 
@@ -480,7 +503,7 @@ void ofxReprojectionCalibration::update() {
 					measurement_mean.push_back(cornerp);
 				}
 
-				cout << "Measurement: " << cv::Mat(measurement_mean) << endl;
+				ofxLogVerbose("ofxReprojection") << "Measurement: " << cv::Mat(measurement_mean) << endl;
 
 
 				valid_measurements.push_back(measurement_mean);
@@ -493,7 +516,7 @@ void ofxReprojectionCalibration::update() {
 						int py = chess_y + ((int)((y+1)*chess_height/(chess_rows+1)));
 						cv::Point2f p((float)px,(float)py);
 
-						cout << "chessboard point " << p << endl;
+						ofxLogVerbose("ofxReprojection") << "chessboard point " << p << endl;
 						chessboard_points.push_back(p);
 					}
 				}
