@@ -2,8 +2,9 @@
 
 ofxGLFWWindow::ofxGLFWWindow(int w, int h, string title, GLFWmonitor* monitor, GLFWwindow* share) {
 	this->w = w; this->h = h;
+	begin_is_next = true;
 
-	window = glfwCreateWindow(w,h,title,monitor, share);
+	window = glfwCreateWindow(w,h,title.c_str(),monitor, share);
 }
 
 ofxGLFWWindow::~ofxGLFWWindow() {
@@ -33,7 +34,7 @@ static GLFWmonitor* glfwGetSecondaryMonitor() {
 	return NULL;
 }
 
-void ofxGLFWWindow::start() {
+void ofxGLFWWindow::begin() {
 	// begin() and end() should be called in pairs, if two begin() or two end() are
 	// called in a row, something is wrong with the usage.
 	if(!begin_is_next) {

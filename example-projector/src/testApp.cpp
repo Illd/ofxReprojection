@@ -20,7 +20,7 @@ void testApp::draw(){
 
 
 
-	projector->start();
+	projector->begin();
 
 	ofSetColor(225);
 	ofDrawBitmapString("This is the projector window.", 10, 20);

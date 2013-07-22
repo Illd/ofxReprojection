@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include "ofMain.h"
 #include "GLFW/glfw3.h"
 
 class ofxGLFWWindow {
@@ -29,7 +30,7 @@ class ofxGLFWWindow {
 		// if number of monitors available is less than two.
 		static GLFWmonitor* glfwGetSecondaryMonitor();
 
-		void start();
+		void begin();
 		void end();
 	private:
 		GLFWwindow* window;
@@ -37,5 +38,5 @@ class ofxGLFWWindow {
 
 		int w,h;
 
-		bool begin_is_next = true;
+		bool begin_is_next;
 };

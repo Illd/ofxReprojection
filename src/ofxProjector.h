@@ -16,7 +16,7 @@ class ofxProjector {
 		
 		bool open();
 
-		void close() { window->close(); }
+		void close() { delete window; }
 
 		void begin() { window->begin(); }
 		void end()   { window->end();   }
@@ -25,11 +25,11 @@ class ofxProjector {
 		int getHeight() { return h; }
 
 	private:
-		ofxGLFWWindow* window = NULL;
-		GLFWmonitor* monitor = NULL;
-		GLFWwindow* sharecontext = NULL;
+		ofxGLFWWindow* window;
+		GLFWmonitor* monitor;
+		GLFWwindow* sharecontext;
 
-		int w = 0;
-		int h = 0;
+		int w;
+		int h;
 
 };

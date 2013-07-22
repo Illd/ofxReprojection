@@ -6,7 +6,7 @@ ofxProjector::ofxProjector() {
 ofxProjector::~ofxProjector() {
 }
 
-bool ofxProjector::init(GLFWmonitor* input_monitor = NULL, GLFWwindow* sharecontext = NULL) {
+bool ofxProjector::init(GLFWmonitor* input_monitor, GLFWwindow* sharecontext) {
 	if(input_monitor != NULL) {
 		monitor = input_monitor;
 	} else {
@@ -18,7 +18,7 @@ bool ofxProjector::init(GLFWmonitor* input_monitor = NULL, GLFWwindow* sharecont
 		monitor = secondary;
 	}
 
-	GLFWvidmode *vidmode = glfwGetVideoMode(monitor);
+	const GLFWvidmode *vidmode = glfwGetVideoMode(monitor);
 	if(vidmode == NULL) {
 		ofLogWarning("ofxProjector") << "Could not find video mode of projector screen";
 		return false;
