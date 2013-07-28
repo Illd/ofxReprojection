@@ -62,6 +62,8 @@ void testApp::draw()
 //oni.shaderdepth.draw(50,50,640,480);
 //oni.refcolordepth.draw(0,0,640,480);
     //cam.begin();
+
+    ofPushMatrix();
     if(ready_to_draw)
     {
         // Setup orthographic projection.
