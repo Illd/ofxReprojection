@@ -274,7 +274,9 @@
 		<Unit filename="../../ofxONI1_5/src/ofxBase3DVideo.h">
 			<Option virtualFolder="ofxONI1_5/" />
 		</Unit>
-		<Unit filename="../../ofxONI1_5/src/ofxONI1_5.cpp" />
+		<Unit filename="../../ofxONI1_5/src/ofxONI1_5.cpp">
+			<Option virtualFolder="ofxONI1_5/" />
+		</Unit>
 		<Unit filename="../../ofxONI1_5/src/ofxONI1_5.h">
 			<Option virtualFolder="ofxONI1_5/" />
 		</Unit>

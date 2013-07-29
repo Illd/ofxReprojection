@@ -18,7 +18,7 @@ class ofxReprojectionRenderer {
 		void draw2D(unsigned char* p, int pw, int ph);
 
 		// Draws transformed 3D object
-		void start();
+		void begin();
 		void end();
 
         void generate_grid();

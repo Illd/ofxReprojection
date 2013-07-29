@@ -67,6 +67,14 @@ ofxReprojectionRenderer::~ofxReprojectionRenderer()
 
 }
 
+void ofxReprojectionRenderer::begin() {
+    shader.begin();
+}
+
+void ofxReprojectionRenderer::end() {
+    shader.end();
+
+}
 void ofxReprojectionRenderer::draw(ofTexture depthTexture, ofTexture userTexture, bool use_transform, bool use_depthimage)
 {
 
@@ -121,7 +129,7 @@ void ofxReprojectionRenderer::draw(ofTexture depthTexture, ofTexture userTexture
     }
 
     outputgrid.draw();
-    shader.end();
+
 
 }
 

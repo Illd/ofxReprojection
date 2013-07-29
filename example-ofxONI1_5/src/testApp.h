@@ -19,6 +19,7 @@ public:
 	ofxONI1_5 depthcam;
 	ofxReprojection repro;
 	bool runrepro;
+    ofFbo skeletonfbo;
 
     guiRepro gui;
 

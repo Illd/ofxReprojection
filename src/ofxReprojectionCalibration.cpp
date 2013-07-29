@@ -167,12 +167,10 @@ ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReproj
         0.5,	0.5,	0.5, 0.1,
         0.5,	0.5,	0.5, 0.1};
 
-    cout << "hello2" << endl;
  	lmmin(n_par, lm_cam_params, measurements_all.size()*3, (const void*)&lm_cam_data,
  		lm_evaluate_camera_matrix,
  		&lm_cam_control, &lm_cam_status, NULL);
 
-     cout << "hello3" << endl;
  	// Copy to openFrameworks matrix type.
  	ofMatrix4x4 ofprojmat;
 

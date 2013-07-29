@@ -14,6 +14,12 @@ void testApp::setup()
         repro.init(&depthcam, "2013-06-30-20-00-02-291.xml");
     }
     ofEnableAlphaBlending();
+
+    skeletonfbo.allocate(640*2, 480*2, GL_RGBA);
+
+    skeletonfbo.begin();
+	ofClear(255,255,255, 0);
+    skeletonfbo.end();
 }
 
 void testApp::update()
@@ -33,11 +39,32 @@ void testApp::draw()
     // DRAWING ROUTINES
     if (runrepro) {
         ofPushMatrix();
+        ofSetColor(255,255,255,255);
 
         depthcam.getDepthTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
         depthcam.getTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+        depthcam.getPlayersTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 
-        repro.draw(depthcam.getDepthTextureReference(), depthcam.getTextureReference() , gui.gUsetransform, gui.gUsetexture);
+        skeletonfbo.begin();
+        ofScale(2,2,2);
+        ofClear(255,255,255, 0);
+        depthcam.drawPlayers(0,0);
+        depthcam.drawSkeletons(0,0);
+        skeletonfbo.end();
+        skeletonfbo.getTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+
+        repro.draw(depthcam.getDepthTextureReference(), skeletonfbo.getTextureReference() , gui.gUsetransform, gui.gUsetexture);
+        //repro.draw(depthcam.getDepthTextureReference(), depthcam.getPlayersTextureReference() , gui.gUsetransform, gui.gUsetexture);
+        ofSetColor(255,0,0,255);
+        skeletonfbo.draw(0,0);
+
+
+        repro.end();
+        ofPushStyle();
+
+
+        ofPopStyle();
+
         ofPopMatrix();
         /*
         ofSetColor(255,255,255,255);
@@ -47,8 +74,7 @@ void testApp::draw()
         depthcam.drawDepth(20, 20);
 
         ofSetColor(255,255,255,100);
-        depthcam.drawPlayers(20,20);
-        depthcam.drawSkeletons(20,20);
+
 
         ofSetColor(0,0,0,255);
         ofDrawBitmapString(ofToString(depthcam.activeplayers.size()),100,20);

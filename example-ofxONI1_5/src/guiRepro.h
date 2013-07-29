@@ -7,7 +7,7 @@ class guiRepro
 
 		void setup();
 		void draw();
-
+        void update();
 	// Main
 	ofxPanel main;
 
