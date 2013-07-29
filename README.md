@@ -4,7 +4,7 @@ This project is not nearly complete. Do not expect it to be working.
 
 Screenshot
 =====
-Running at 250fps on a laptop with Nvidia fx880m, i7-820QM.
+example-ONI1_5 running at 250fps on a laptop with Nvidia fx880m, i7-820QM.
 ![ScreenShot](https://raw.github.com/tomana/ofxReprojection/master/screenshot.png)
 
 ofxReprojection
