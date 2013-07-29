@@ -2,7 +2,7 @@ Draft and fork of the main repo luteberget/ofxReprojection
 =====
 This project is not nearly complete. Do not expect it to be working.
 
-![ScreenShot](https://raw.github.com/tomana/ofxReprojection/blob/master/screenshot.png)
+![ScreenShot](https://raw.github.com/tomana/ofxReprojection/master/screenshot.png)
 
 ofxReprojection
 ===============
