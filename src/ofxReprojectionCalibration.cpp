@@ -138,12 +138,12 @@ ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReproj
 
  	// Transform measurement coodinates into world coordinates.
  	//
- 	for(int i = 0; i < measurements_all.size(); i++) {
- 		measurements_all[i] = pixel3f_to_world3fData(measurements_all[i], data);
- 	}
- 	for(int i = 0; i < projpoints_all.size(); i++) {
- 		// Transform projector coordinates? (not necessary)
- 	}
+// 	for(int i = 0; i < measurements_all.size(); i++) {
+// 		measurements_all[i] = pixel3f_to_world3fData(measurements_all[i], data);
+// 	}
+// 	for(int i = 0; i < projpoints_all.size(); i++) {
+// 		// Transform projector coordinates? (not necessary)
+// 	}
 
 
  	// Try calculating full 4x4 (affine) projection/camera matrix
@@ -179,11 +179,9 @@ ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReproj
  	ofprojmat.set(
  		       	lm_cam_params[0], lm_cam_params[1], lm_cam_params[2], lm_cam_params[3],
  		       	lm_cam_params[4], lm_cam_params[5], lm_cam_params[6], lm_cam_params[7],
- 			0,0,0,0,
+                0,0,0,0,
  		       	0,0,0,1
  	);
-
- 	data.setMatrix(ofprojmat);
 
 
 	ofMatrix4x4 ofidentitymat;
@@ -217,6 +215,8 @@ ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReproj
  	cout << "Calculated transformation:" << endl;
  	cout << ofprojmat << endl;
  	cout << "Calculated RMS reprojection error: " << rms << endl;
+
+ 	return ofprojmat;
 
 }
 
@@ -673,5 +673,6 @@ ofxReprojectionCalibrationData ofxReprojectionCalibration::getData() {
 }
 
 void ofxReprojectionCalibration::finalize() {
-    calculateReprojectionTransform(data);
+    data.setMatrix(calculateReprojectionTransform(data));
+    cout << data.getMatrix() << endl;
 }

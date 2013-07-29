@@ -8,4 +8,3 @@ ofxTextInputField
 ofxTimecode
 ofxTimeline
 ofxTween
-ofxReprojection

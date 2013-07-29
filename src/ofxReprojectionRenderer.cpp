@@ -67,9 +67,9 @@ ofxReprojectionRenderer::~ofxReprojectionRenderer()
 
 }
 
-void ofxReprojectionRenderer::draw(ofTexture& depthTexture, ofTexture& userTexture, bool use_transform, bool use_depthimage)
+void ofxReprojectionRenderer::draw(ofTexture depthTexture, ofTexture userTexture, bool use_transform, bool use_depthimage)
 {
-    ofPushMatrix();
+
 
     // Setup orthographic projection.
     // Without tranformation, the space is [-1,1]x[-1,1]x[0,1], WRONG
@@ -86,7 +86,7 @@ void ofxReprojectionRenderer::draw(ofTexture& depthTexture, ofTexture& userTextu
     }
     else
     {
-        glOrtho(0,cam_width,0,cam_height,1,-100*ref_max_depth);
+        glOrtho(0, cam_width,0, cam_height,1,-100*ref_max_depth);
     }
 
     glMatrixMode(GL_MODELVIEW);
@@ -121,8 +121,11 @@ void ofxReprojectionRenderer::draw(ofTexture& depthTexture, ofTexture& userTextu
     }
 
     outputgrid.draw();
+    shader.end();
 
 }
+
+
 void ofxReprojectionRenderer::generate_grid()
 {
     outputgrid.clear();
@@ -156,12 +159,15 @@ void ofxReprojectionRenderer::generate_grid()
             // kinect_grid.addTexCoord(ofVec2f(x+skip,y+skip));
         }
     }
+
+
 }
 
-void ofxReprojectionRenderer::setProjectionMatrix(ofMatrix4x4& m)
+void ofxReprojectionRenderer::setProjectionMatrix(ofMatrix4x4 m)
 {
     projectionMatrix = m;
     identityMatrix.makeIdentityMatrix();
+
 }
 
 void ofxReprojectionRenderer::setProjectionInfo(int proj_w, int proj_h, int cam_w, int cam_h, float max_depth) {
@@ -170,4 +176,5 @@ void ofxReprojectionRenderer::setProjectionInfo(int proj_w, int proj_h, int cam_
     cam_width = cam_w;
     cam_height = cam_h;
     ref_max_depth = max_depth;
+    shader.load("shader.vert","shader.frag");
 }

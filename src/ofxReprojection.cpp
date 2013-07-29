@@ -21,7 +21,9 @@ bool ofxReprojection::init(ofxBase3DVideo* cam, string calibration_file) {
 	}
 
 	this->cam = cam;
-    renderer.setProjectionInfo(calibration.getData().getProjectorWidth(),
+	renderer.setProjectionMatrix(calibration.getData().getMatrix());
+
+    renderer.setProjectionInfo( calibration.getData().getProjectorWidth(),
                                 calibration.getData().getProjectorHeight(),
                                 calibration.getData().getCamHeight(),
                                 calibration.getData().getCamWidth(),
@@ -39,6 +41,11 @@ void ofxReprojection::update() {
 		// render
 	}
 }
+
+void ofxReprojection::draw(ofTexture depthTexture, ofTexture userTexture, bool use_transform, bool use_depthimage) {
+    renderer.draw(depthTexture, userTexture, use_transform, use_depthimage);
+}
+
 
 void ofxReprojection::drawCalibrationStatusScreen() {
 	calibration.drawCalibrationStatusScreen();

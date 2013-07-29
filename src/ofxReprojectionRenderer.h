@@ -7,11 +7,11 @@ class ofxReprojectionRenderer {
 		ofxReprojectionRenderer();
 		~ofxReprojectionRenderer();
 
-		void setProjectionMatrix(ofMatrix4x4& m);
+		void setProjectionMatrix(ofMatrix4x4 m);
         void setProjectionInfo(int proj_w, int proj_h, int cam_w, int cam_h, float max_depth);
 
 		// Example function which draws depth picture
-		void draw(ofTexture& depthTexture, ofTexture& userTexture, bool use_transform, bool use_depthimage);
+		void draw(ofTexture depthTexture, ofTexture userTexture, bool use_transform, bool use_depthimage);
 
 		// Draws transformed 2d image
 		void draw2D(ofImage i);

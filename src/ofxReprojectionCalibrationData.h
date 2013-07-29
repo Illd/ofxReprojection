@@ -15,7 +15,7 @@ class ofxReprojectionCalibrationData {
         // This matrix mainly saved for checking this matrix against other methods.
 		void updateMatrix();
 		ofMatrix4x4 getMatrix();
-		void setMatrix( ofMatrix4x4 inputMatrix);
+		void setMatrix(ofMatrix4x4 inputMatrix);
 
         int getCamWidth();
         int getCamHeight();

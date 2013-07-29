@@ -11,11 +11,14 @@ class guiRepro
 	// Main
 	ofxPanel main;
 
+
+    ofxToggle gUsetransform;
+    ofxToggle gUsetexture;
 	ofxToggle drawMeasure;
     ofxFloatSlider radius;
 	ofxVec2Slider center;
 	ofxIntSlider circleResolution;
-	ofxToggle filled;
+
 	ofxButton twoCircles;
 	ofxButton ringButton;
 	ofxLabel screenSize;

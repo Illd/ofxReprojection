@@ -3,7 +3,7 @@
 <cam_img_height>480</cam_img_height>
 <projector_img_height>768</projector_img_height>
 <projector_img_width>1024</projector_img_width>
-<ref_max_depth>5535</ref_max_depth>
+<ref_max_depth>2376</ref_max_depth>
 <campoints>
     <pointset n="0">
         <point n="0">

@@ -6,8 +6,8 @@ void testApp::setup()
     ofSetVerticalSync(false);
 
     gui.setup();
-    repro.init(&depthcam, "2013-06-30-20-00-02-291.xml");
-	runrepro = false;
+    //repro.init(&depthcam, "2013-06-30-20-00-02-291.xml");
+	runrepro = true;
     if (runrepro) {
         depthcam.init();
         depthcam.open();
@@ -32,6 +32,14 @@ void testApp::draw()
     gui.draw();
     // DRAWING ROUTINES
     if (runrepro) {
+        ofPushMatrix();
+
+        depthcam.getDepthTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+        depthcam.getTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+
+        repro.draw(depthcam.getDepthTextureReference(), depthcam.getTextureReference() , gui.gUsetransform, gui.gUsetexture);
+        ofPopMatrix();
+        /*
         ofSetColor(255,255,255,255);
         depthcam.draw(20,20);
 
@@ -67,7 +75,10 @@ void testApp::draw()
             ofDrawBitmapString("RIGHT_KNEE: " + ofToString(depthcam.playerjoints[userid][RIGHT_KNEE]), 20 + spacer, heightmenu + 20*j++);
             ofDrawBitmapString("RIGHT_FOOT: " + ofToString(depthcam.playerjoints[userid][RIGHT_FOOT]), 20 + spacer, heightmenu + 20*j++);
         }
+        */
     }
+
+
 }
 
 
