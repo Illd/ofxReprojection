@@ -7,7 +7,7 @@ void guiRepro::setup()
     main.setup("Main controls"); // most of the time you don't need a name
     //main.setDefaultHeight(22);
     main.add(gUsetransform.setup("Use transform", false));
-    main.add(gUsetexture.setup("Use texture", false));
+    main.add(gUsetexture.setup("Use blue texture", false));
     /*
 	main.add(radius.setup( "radius", 140, 10, 300 ));
 	main.add(center.setup("center",ofVec2f(ofGetWidth()*.5,ofGetHeight()*.5),ofVec2f(0,0),ofVec2f(ofGetWidth(),ofGetHeight())));

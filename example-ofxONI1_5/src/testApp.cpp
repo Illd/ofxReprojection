@@ -17,6 +17,8 @@ void testApp::setup()
 
     skeletonfbo.allocate(640*2, 480*2, GL_RGBA);
 
+    drawfbo.allocate(1024, 768, GL_RGBA);
+
     skeletonfbo.begin();
 	ofClear(255,255,255, 0);
     skeletonfbo.end();
@@ -32,10 +34,11 @@ void testApp::update()
 
 void testApp::draw()
 {
+    ofClear(255,255,255, 0);
     ofSetColor(0,0,0,255);
     ofDrawBitmapString(ofToString(ofGetFrameRate()),20,20);
     // GUI ROUTINES
-    gui.draw();
+
     // DRAWING ROUTINES
     if (runrepro) {
         ofPushMatrix();
@@ -48,24 +51,35 @@ void testApp::draw()
         skeletonfbo.begin();
         ofScale(2,2,2);
         ofClear(255,255,255, 0);
+        if (gui.gUsetexture) {
+            depthcam.drawDepth(0,0);
+        } else {
+
+        depthcam.drawGrayDepth(0,0);
+        ofSetColor(255,255,255,100);
         depthcam.drawPlayers(0,0);
+        ofSetColor(255,255,255,100);
+        //depthcam.draw(0,0);
+        ofPushMatrix();
         depthcam.drawSkeletons(0,0);
+        ofPopMatrix();
+        }
         skeletonfbo.end();
         skeletonfbo.getTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 
-        repro.draw(depthcam.getDepthTextureReference(), skeletonfbo.getTextureReference() , gui.gUsetransform, gui.gUsetexture);
-        //repro.draw(depthcam.getDepthTextureReference(), depthcam.getPlayersTextureReference() , gui.gUsetransform, gui.gUsetexture);
-        ofSetColor(255,0,0,255);
-        skeletonfbo.draw(0,0);
-
-
+        drawfbo.begin();
+        ofClear(255,255,255, 0);
+        ofSetColor(255,255,255,255);
+        repro.draw(depthcam.getDepthTextureReference(), skeletonfbo.getTextureReference() , gui.gUsetransform, false);
         repro.end();
-        ofPushStyle();
+        drawfbo.end();
+
+        drawfbo.draw(0,0);
 
 
-        ofPopStyle();
+        //repro.draw(depthcam.getDepthTextureReference(), depthcam.getPlayersTextureReference() , gui.gUsetransform, gui.gUsetexture);
 
-        ofPopMatrix();
+        gui.draw();
         /*
         ofSetColor(255,255,255,255);
         depthcam.draw(20,20);

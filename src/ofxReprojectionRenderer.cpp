@@ -85,7 +85,7 @@ void ofxReprojectionRenderer::draw(ofTexture depthTexture, ofTexture userTexture
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    ofScale(1,-1,1); // Pixel/image format -> GL coord.sys.
+    ofScale(1,1,1); // Pixel/image format -> GL coord.sys.
 
     if(use_transform)
     {
@@ -105,7 +105,7 @@ void ofxReprojectionRenderer::draw(ofTexture depthTexture, ofTexture userTexture
 
     shader.begin();
 
-    float ps = 2*max(projectionMatrix(0,0), projectionMatrix(1,1));
+    float ps = max(projectionMatrix(0,0), projectionMatrix(1,1));
 
     shader.setUniform1f("ps",ps);
 

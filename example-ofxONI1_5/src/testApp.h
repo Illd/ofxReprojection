@@ -20,6 +20,7 @@ public:
 	ofxReprojection repro;
 	bool runrepro;
     ofFbo skeletonfbo;
+    ofFbo drawfbo;
 
     guiRepro gui;
 
