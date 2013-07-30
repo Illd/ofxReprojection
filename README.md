@@ -1,6 +1,6 @@
 Draft
 =====
-ofxReprojection is made by [Bjørnar Steinnes Luteberget](https://github.com/luteberget) and [Tom Andreas Nærland](https://github.com/tomana). 
+Do not expect it to be working. ofxReprojection is made by [Bjørnar Steinnes Luteberget](https://github.com/luteberget) and [Tom Andreas Nærland](https://github.com/tomana). 
 
 Screenshot
 =====
