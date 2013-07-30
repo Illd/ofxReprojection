@@ -1,11 +1,14 @@
-Draft and fork of the main repo luteberget/ofxReprojection
+Draft
 =====
-This project is not nearly complete. Do not expect it to be working.
+Do not expect it to be working yet. ofxReprojection is made by [Bjørnar Steinnes Luteberget](https://github.com/luteberget) and [Tom Andreas Nærland](https://github.com/tomana). 
 
-![ScreenShot](https://raw.github.com/tomana/ofxReprojection/screenshot.png)
+Screenshot of progress.
+=====
+example-ONI1_5 running at 250fps on a laptop with Nvidia fx880m, i7-820QM.
+![ScreenShot](https://raw.github.com/tomana/ofxReprojection/master/screenshot.png)
 
 ofxReprojection
-===============
+==============
 
 Toolkit for dynamic projection mapping using a depth cam and projector. 
 
