@@ -1,4 +1,4 @@
-Draft and fork of the main repo luteberget/ofxReprojection
+Draft and fork of the main repo located at luteberget/ofxReprojection
 =====
 This project is not nearly complete. Do not expect it to be working.
 
