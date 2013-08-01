@@ -3,7 +3,7 @@
 ofxReprojectionCalibration::ofxReprojectionCalibration() {
 }
 
-bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxGLFWWindow *projector_win, ofxReprojectionCalibrationConfig config) {
+bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibrationConfig config) {
 
 	if(cam == NULL) {
 		ofLogWarning("ofxReprojection") << "Valid ofxBase3DVideo providing both color and depth image must be passed to constructor ofxReprojectionCalibration";
@@ -12,9 +12,10 @@ bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxGLFWWindow *projec
 		this->cam = cam;
 	}
 
-	this->config = config;
+    cam_h = cam->getPixelsRef().getHeight();
+    cam_w = cam->getPixelsRef().getWidth();
 
-	this->projector_win = projector_win;
+	this->config = config;
 
 	chess_rows = 4;
 	chess_cols = 6;
@@ -35,7 +36,7 @@ ofxReprojectionCalibration::~ofxReprojectionCalibration() {
 const cv::Mat ofxReprojectionCalibration::lm_affinerow = (cv::Mat_<double>(1,4) << 0,0,0,1);
 
 void ofxReprojectionCalibration::lm_evaluate_camera_matrix(const double *par, int m_dat, const void *data, double *fvec, int *info) {
-	
+
 	// Calculate Ax = b for each 3d measurement x
 
 	// Matrix A
@@ -47,7 +48,7 @@ void ofxReprojectionCalibration::lm_evaluate_camera_matrix(const double *par, in
 
 	void* data_kinect_voidp    = (*datasets)[0];
 	void* data_projector_voidp = (*datasets)[1];
-	
+
 	vector< cv::Point3f > *data_kinect       = (vector< cv::Point3f >*)data_kinect_voidp;
 	vector< cv::Point2f > *data_projector    = (vector< cv::Point2f >*)data_projector_voidp;
 
@@ -97,193 +98,146 @@ void ofxReprojectionCalibration::makechessboard(uchar* pixels, int img_width, in
 	}
 }
 
-static ofxReprojectionCalibrationData loadDataFromFile(string filename) {
-	// string filename;
-	// if(arg_filename.empty()) {
-	// 	ofFileDialogResult filedialog = ofSystemLoadDialog("Load calibration measurements.",false,"~");
-	// 	cout << "opening " << filedialog.getPath() << endl;
-	// 	filename = filedialog.getPath();
-	// }  else {
-	// 	filename = arg_filename;
-	// }
-	// 
-	// cv::FileStorage fs(filename, cv::FileStorage::READ);
-	// string timestamp; fs["timestamp"] >> timestamp;
+ofVec3f ofxReprojectionCalibration::pixel3f_to_world3fData( ofVec3f p, ofxReprojectionCalibrationData data) {
+	if(p.z < 1.0e-5f) {
+		return ofVec3f(0,0,0);
+	} else {
+		float x = (2.0*((double)p.x) - ((double)data.getCamWidth()))/((double)data.getCamWidth());
+		float y = (2.0*((double)p.y) - ((double)data.getCamHeight()))/((double)data.getCamHeight());
+		//float z = (2.0*((double)p.z) - ((double)ref_max_depth))/((double)ref_max_depth);
+		float z = ((double)p.z / (double)data.getRefMaxDepth());
 
-	// cout << "Loading measurements from timestamp " << timestamp << endl;
-
-	// int stored_kinect_width, stored_kinect_height;
-	// fs["kinect_width"] >> stored_kinect_width;
-	// fs["kinect_height"] >> stored_kinect_height;
-
-	// if(kinect_height != stored_kinect_height  ||  kinect_width != stored_kinect_width) {
-	// 	cout << "Error: stored measurements dimensions do not match Kinect input." << endl;
-	// }
-
-	// int stored_projector_width, stored_projector_height;
-	// fs["projector_width"] >> stored_projector_width;
-	// fs["projector_height"] >> stored_projector_height;
-
-	// if(projector_height != stored_projector_height  ||  projector_width != stored_projector_width) {
-	// 	cout << "Error: stored measurements dimensions do not match projector input." << endl;
-	// }
-
-	// fs["ref_max_depth"] >> ref_max_depth;
-	// kinect.ref_max_depth = ref_max_depth;
-
-	// cv::FileNode fn_measurements  = fs["measurements"];
-	// cv::FileNodeIterator it = fn_measurements.begin();
-
-	// vector< vector<cv::Point3f> > measurements; {
-	// 	for(int i = 0; it != fn_measurements.end(); it++, i++) {
-	// 		vector<cv::Point3f> measurement;
-
-	// 		cv::FileNodeIterator it2 = (*it).begin();
-	// 		for(int j = 0; it2 != (*it).end(); it2++, j++) {
-	// 			vector<double> point;
-	// 			(*it2) >> point;
-	// 			cv::Point3f p = cv::Point3f(point[0], point[1], point[2]);
-	// 			measurement.push_back(p);
-	// 			//cout << "measurement " << p << endl;
-	// 		}
-	// 		measurements.push_back(measurement);
-	// 	}
-	// }
-
-	// vector< vector<cv::Point2f> > projpoints; {
-	// 	cv::FileNode fn_projpoints  = fs["projpoints"];
-	// 	cv::FileNodeIterator it = fn_projpoints.begin();
-
-	// 	for(int i = 0; it != fn_projpoints.end(); it++, i++) {
-	// 		vector<cv::Point2f> projpoint;
-
-	// 		cv::FileNodeIterator it2 = (*it).begin();
-	// 		for(int j = 0; it2 != (*it).end(); it2++, j++) {
-	// 			vector<double> point;
-	// 			(*it2) >> point;
-	// 			cv::Point2f p = cv::Point2f(point[0], point[1]);
-	// 			projpoint.push_back(p);
-	// 		}
-	// 		projpoints.push_back(projpoint);
-	// 	}
-	// }
-
-	// fs.release();
-
-
-	ofxReprojectionCalibrationData data;
-	return data;
+		return ofVec3f(x,y,z);
+	}
 }
 
-static ofMatrix4x4 calculateReprojectionTransform(ofxReprojectionCalibrationData data) {
-// 
-// 	// Put all measured points in one vector.
-// 	//
-// 	vector<cv::Point3f> measurements_all; {
-// 		for(uint i  = 0; i < measurements.size(); i++) {
-// 			for(uint j = 0; j < measurements[i].size(); j++) {
-// 				measurements_all.push_back(measurements[i][j]);
-// 			}
-// 		}
+ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReprojectionCalibrationData data) {
+
+
+    cout << "hello?" << endl;
+    vector< vector< ofVec3f > > measurements = data.getCamPoints();
+    vector< vector< ofVec2f > > projpoints = data.getProjectorPoints();
+
+ 	// Put all measured points in one vector.
+ 	//
+ 	vector<ofVec3f> measurements_all; {
+ 		for(uint i  = 0; i < measurements.size(); i++) {
+ 			for(uint j = 0; j < measurements[i].size(); j++) {
+ 				measurements_all.push_back(measurements[i][j]);
+ 			}
+ 		}
+ 	}
+
+ 	vector<ofVec2f> projpoints_all; {
+ 		for(uint i  = 0; i < projpoints.size(); i++) {
+ 			for(uint j = 0; j < projpoints[i].size(); j++) {
+ 				projpoints_all.push_back(projpoints[i][j]);
+ 			}
+ 		}
+ 	}
+
+ 	// Transform measurement coodinates into world coordinates.
+ 	//
+// 	for(int i = 0; i < measurements_all.size(); i++) {
+// 		measurements_all[i] = pixel3f_to_world3fData(measurements_all[i], data);
 // 	}
-// 	vector<cv::Point2f> projpoints_all; {
-// 		for(uint i  = 0; i < projpoints.size(); i++) {
-// 			for(uint j = 0; j < projpoints[i].size(); j++) {
-// 				projpoints_all.push_back(projpoints[i][j]);
-// 			}
-// 		}
-// 	}
-// 
-// 	// Transform measurement coodinates into world coordinates.
-// 	//
-// 	for(uint i = 0; i < measurements_all.size(); i++) {
-// 		measurements_all[i] = kinect.pixel3f_to_world3f(measurements_all[i]);
-// 	}
-// 	for(uint i = 0; i < projpoints_all.size(); i++) {
+// 	for(int i = 0; i < projpoints_all.size(); i++) {
 // 		// Transform projector coordinates? (not necessary)
 // 	}
-// 
-// 
-// 	// Try calculating full 4x4 (affine) projection/camera matrix 
-// 	// by fitting the data to a matrix by LM least squares (lmmin.c).
-// 	// Two last rows should be (0,0,0,0; 0,0,0,1), so find the
-// 	// unknown 2x4 matrix.
-// 
-// 	vector<void*> lm_cam_data;
-// 
-// 	lm_cam_data.push_back((void*) &(measurements_all)); 
-// 	lm_cam_data.push_back((void*) &(projpoints_all)); 
-// 
-// 	lm_status_struct lm_cam_status;
-// 	lm_control_struct lm_cam_control = lm_control_double;
-// 	lm_cam_control.printflags = 3;
-// 
-// 	int n_par = 2*4;
-// 
-// 	lmmin(n_par, lm_cam_params, measurements_all.size()*3, (const void*)&lm_cam_data, 
-// 		lm_evaluate_camera_matrix,
-// 		&lm_cam_control, &lm_cam_status, NULL);
-// 
-// 	// Copy to openFrameworks matrix type.
-// 	ofprojmat.set(
-// 		       	lm_cam_params[0], lm_cam_params[1], lm_cam_params[2], lm_cam_params[3],
-// 		       	lm_cam_params[4], lm_cam_params[5], lm_cam_params[6], lm_cam_params[7],
-// 			0,0,0,0,
-// 		       	0,0,0,1
-// 	);
-// 
-// 
+
+
+ 	// Try calculating full 4x4 (affine) projection/camera matrix
+ 	// by fitting the data to a matrix by LM least squares (lmmin.c).
+ 	// Two last rows should be (0,0,0,0; 0,0,0,1), so find the
+ 	// unknown 2x4 matrix.
+
+ 	vector<void*> lm_cam_data;
+
+ 	lm_cam_data.push_back((void*) &(measurements_all));
+ 	lm_cam_data.push_back((void*) &(projpoints_all));
+
+ 	lm_status_struct lm_cam_status;
+ 	lm_control_struct lm_cam_control = lm_control_double;
+ 	lm_cam_control.printflags = 3;
+
+ 	int n_par = 2*4;
+
+ 	// some temporary params.
+    double lm_cam_params[2*4] = {
+        0.5,	0.5,	0.5, 0.1,
+        0.5,	0.5,	0.5, 0.1};
+
+ 	lmmin(n_par, lm_cam_params, measurements_all.size()*3, (const void*)&lm_cam_data,
+ 		lm_evaluate_camera_matrix,
+ 		&lm_cam_control, &lm_cam_status, NULL);
+
+ 	// Copy to openFrameworks matrix type.
+ 	ofMatrix4x4 ofprojmat;
+
+ 	ofprojmat.set(
+ 		       	lm_cam_params[0], lm_cam_params[1], lm_cam_params[2], lm_cam_params[3],
+ 		       	lm_cam_params[4], lm_cam_params[5], lm_cam_params[6], lm_cam_params[7],
+                0,0,0,0,
+ 		       	0,0,0,1
+ 	);
+
+
 	ofMatrix4x4 ofidentitymat;
  	ofidentitymat.set(1,0,0,0,   0,1,0,0,   0,0,1,0,    0,0,0,1);
-	return ofidentitymat;
-// 	cout << "set identitymat to " << endl << ofidentitymat << endl;
-// 
-// 
-// 	// Calculate reprojection error.
-// 	double cum_err_2 = 0;
-// 	for(uint i = 0; i < measurements_all.size(); i++) {
-// 		ofVec3f v(
-// 				measurements_all[i].x,
-// 				measurements_all[i].y,
-// 				measurements_all[i].z
-// 			);
-// 		cv::Point2f projpoint = projpoints_all[i];
-// 		ofVec3f u = ofprojmat*v;
-// 		double error = sqrt(pow(u.x-projpoint.x,2)+pow(u.y-projpoint.y,2));
-// 
-// 
-// 		// Print all measured values with reprojection, for debugging.
-// 		cout << measurements_all[i] << " " << projpoint << " " << u << " " << error << " " <<  endl;
-// 
-// 		cum_err_2 += error*error;
-// 	}
-// 	double rms = sqrt(cum_err_2/ measurements_all.size() );
-// 
-// 
-// 	cout << "Calculated transformation:" << endl;
-// 	cout << ofprojmat << endl;
-// 	cout << "Calculated RMS reprojection error: " << rms << endl;
-// 
+	//return ofidentitymat;
+ 	cout << "set identitymat to " << endl << ofidentitymat << endl;
+    cout << "hello3" << endl;
+
+ 	// Calculate reprojection error.
+ 	double cum_err_2 = 0;
+ 	for(uint i = 0; i < measurements_all.size(); i++) {
+ 		ofVec3f v(
+ 				measurements_all[i].x,
+ 				measurements_all[i].y,
+ 				measurements_all[i].z
+ 			);
+ 		ofVec2f projpoint = projpoints_all[i];
+ 		ofVec3f u = ofprojmat*v;
+ 		double error = sqrt(pow(u.x-projpoint.x,2)+pow(u.y-projpoint.y,2));
+
+
+ 		// Print all measured values with reprojection, for debugging.
+ 		cout << measurements_all[i] << " " << projpoint << " " << u << " " << error << " " <<  endl;
+
+ 		cum_err_2 += error*error;
+ 	}
+ 	double rms = sqrt(cum_err_2/ measurements_all.size() );
+
+    cout << "hello4" << endl;
+
+ 	cout << "Calculated transformation:" << endl;
+ 	cout << ofprojmat << endl;
+ 	cout << "Calculated RMS reprojection error: " << rms << endl;
+
+ 	return ofprojmat;
+
 }
 
 
 // TODO: work through this to fit into ofxReprojectionCalibration
 void ofxReprojectionCalibration::update() {
-	cam->update();
+	//cam->update();
+	if(true) {
 	if(cam->isFrameNew()) {
 
 		// Convert color image to OpenCV image.
 		unsigned char *pPixelsUC = (unsigned char*) cam->getPixels();
-		cv::Mat chessdetectimage(cam_h,cam_w,CV_8UC(3), pPixelsUC); 
+		cv::Mat chessdetectimage(cam_h, cam_w, CV_8UC(3), pPixelsUC);
 
 		vector<cv::Point2f> chesscorners;
 
 		cv::Mat gray;
 		cv::cvtColor(chessdetectimage, gray, CV_BGR2GRAY);
 
+
 		// // Draw image with equialized histogram for inspection purposes.
-		// // This image seems to be worse for detecting the chess board. 
-		// // But it is sometimes recommended as an option to 
+		// // This image seems to be worse for detecting the chess board.
+		// // But it is sometimes recommended as an option to
 		// // findChessboardCorners (cv::CALIB_CB_NORMALIZE_IMAGE)
 		// cv::Mat gray2;
 		// cv::equalizeHist(gray,gray2);
@@ -294,6 +248,7 @@ void ofxReprojectionCalibration::update() {
 		if(measurement_pause and (ofGetSystemTime() - measurement_pause_time > config.measurement_pause_length)) {
 			measurement_pause = false;
 		}
+
 
 		if(!measurement_pause) {
 			chessfound =  cv::findChessboardCorners(gray, cv::Size(chess_cols,chess_rows), chesscorners,
@@ -310,8 +265,8 @@ void ofxReprojectionCalibration::update() {
 
 			// Calculate matrix elements for solving planar regression (multiple linear regression)
 			// to find R^2-value of plane (how planar is the chess board?).
-			// 
-			// This test is not strictly needed, but in case you are using a flat board to 
+			//
+			// This test is not strictly needed, but in case you are using a flat board to
 			// move around for the chessboard to be projected on, then this will be a test
 			// that can give an indication of whether the measurements are good.
 			// Can be disabled in config.use_planar_condition.
@@ -325,7 +280,7 @@ void ofxReprojectionCalibration::update() {
 			double sumYZ = 0;
 			double sumXZ = 0;
 			double n = 0;
-			
+
 			chessfound_includes_depth = true;
 			for(uint i = 0; i < chesscorners.size(); i++) {
 				float *pDPixel = (float*) cam->getDistancePixels();
@@ -416,8 +371,8 @@ void ofxReprojectionCalibration::update() {
 						double tot = chesscorners_depth[i].z-sumZ/n;
 						sstot += tot*tot;
 
-						double fz = plane(0,0)*chesscorners_depth[i].x 
-							  + plane(0,1)*chesscorners_depth[i].y 
+						double fz = plane(0,0)*chesscorners_depth[i].x
+							  + plane(0,1)*chesscorners_depth[i].y
 							  + plane(0,2);
 						double res = chesscorners_depth[i].z - fz;
 						ssres += res*res;
@@ -425,7 +380,7 @@ void ofxReprojectionCalibration::update() {
 
 					plane_r2 = 1 - ssres/sstot;
 
-					if(config.use_planar_condition) { 
+					if(config.use_planar_condition) {
 						chessfound_planar = plane_r2 > config.planar_threshold;
 					} else {
 						chessfound_planar = true;
@@ -437,13 +392,14 @@ void ofxReprojectionCalibration::update() {
 			/* color_image.setFromPixels(pPixelsUC, kinect_width, kinect_height, OF_IMAGE_COLOR); */
 		}
 
-		// If chessboard is found, depth data exists and planarity check is satisfied, 
+		// If chessboard is found, depth data exists and planarity check is satisfied,
 		// add this measurement to the stability buffer corner_history.
 
 		bool frame_ok = chessfound && chessfound_includes_depth && chessfound_planar;
 		if(!frame_ok) chesscorners_depth.clear();
 
-		stability_buffer_i = (stability_buffer_i + 1)%(corner_history.size());
+		stability_buffer_i = (stability_buffer_i + 1)%(corner_history.capacity());
+
 		corner_history[stability_buffer_i] = chesscorners_depth;
 
 		// Count number of acceptable frames in stability buffer corner_history.
@@ -513,7 +469,7 @@ void ofxReprojectionCalibration::update() {
 				for(uint i = 0; i < corner_history[0].size(); i++) {
 					cv::Vec<float, 3> corner;
 					for(uint j= 0 ; j < 3; j ++) {
-						double mean = 0; 
+						double mean = 0;
 						for(uint k = 0; k < corner_history.size(); k++) {
 							cv::Vec<float, 3> corner_history_vector = corner_history[k][i];
 							mean += corner_history_vector[j];
@@ -521,7 +477,7 @@ void ofxReprojectionCalibration::update() {
 						mean /= corner_history.size();
 						corner[j] = mean;
 					}
-					
+
 					cv::Point3f cornerp = corner;
 					measurement_mean.push_back(cornerp);
 				}
@@ -531,7 +487,6 @@ void ofxReprojectionCalibration::update() {
 
 				//valid_measurements.push_back(measurement_mean);
 				// TODO: data.add_measurement(measurement_mean);
-
 
 				vector<cv::Point2f> chessboard_points;
 				for(int y = 0; y < chess_rows; y++) {
@@ -548,11 +503,14 @@ void ofxReprojectionCalibration::update() {
 				//all_chessboard_points.push_back(chessboard_points);
 				// TODO: data.add_projpoints(chessboard_points);
 
-				
+
 				measurement_pause = true;
 				measurement_pause_time = ofGetSystemTime();
+
 			}
 		}
+	}
+
 	}
 }
 
@@ -570,9 +528,9 @@ void ofxReprojectionCalibration::drawCalibrationStatusScreen(){
 
 	// color_image_debug.draw(kinect_width,kinect_height);
 
-	// string str = "framerate is ";                       
-	// str += ofToString(ofGetFrameRate(), 2)+"fps"; 
-	// 
+	// string str = "framerate is ";
+	// str += ofToString(ofGetFrameRate(), 2)+"fps";
+	//
 	// ofDrawBitmapString(str, 20,kinect_height+20);
 
 	// ostringstream msg; msg << "Valid measurements: " << valid_measurements.size();
@@ -618,24 +576,24 @@ void ofxReprojectionCalibration::drawCalibrationStatusScreen(){
 
 	// 				if(!chessfound_enough_frames) {
 	// 					ofSetColor(c_error);
-	// 					ostringstream msg; msg << "Values for " << num_ok_frames 
+	// 					ostringstream msg; msg << "Values for " << num_ok_frames
 	// 						<< "/" << NUM_STABILITY_FRAMES << " frames";
 	// 					ofDrawBitmapString(msg.str(), 20, kinect_height+100);
 	// 				} else {
 	// 					ofSetColor(c_success);
-	// 					ostringstream msg; msg << "Values for " << num_ok_frames 
+	// 					ostringstream msg; msg << "Values for " << num_ok_frames
 	// 						<< "/" << NUM_STABILITY_FRAMES << " frames";
 	// 					ofDrawBitmapString(msg.str(), 20, kinect_height+100);
 
 	// 					if(!chessfound_variance_ok) {
 	// 						ofSetColor(c_error);
-	// 						ostringstream msg; msg << "Variance too high (xy " << largest_variance_xy 
+	// 						ostringstream msg; msg << "Variance too high (xy " << largest_variance_xy
 	// 							<< " (" << VARIANCE_THRESHOLD_XY << "), z " << largest_variance_z
 	// 							<< " (" << VARIANCE_THRESHOLD_Z << ")).";
 	// 						ofDrawBitmapString(msg.str(), 20, kinect_height+120);
 	// 					} else {
 	// 						ofSetColor(c_success);
-	// 						ostringstream msg; msg << "Variance OK (xy " << largest_variance_xy 
+	// 						ostringstream msg; msg << "Variance OK (xy " << largest_variance_xy
 	// 							<< " (" << VARIANCE_THRESHOLD_XY << "), z " << largest_variance_z
 	// 							<< " (" << VARIANCE_THRESHOLD_Z << ")).";
 	// 						ofDrawBitmapString(msg.str(), 20, kinect_height+120);
@@ -647,7 +605,7 @@ void ofxReprojectionCalibration::drawCalibrationStatusScreen(){
 	// }
 
 	// ofSetColor(255,255,255);
-	// 	
+	//
 
 
 
@@ -680,7 +638,7 @@ static void saveDataToFile(ofxReprojectionCalibrationData data, string filename)
 	// 	}
 	// 	fs << "]";
 
-	// } 
+	// }
 
 	// fs << "]";
 
@@ -693,7 +651,7 @@ static void saveDataToFile(ofxReprojectionCalibrationData data, string filename)
 	// 	}
 	// 	fs << "]";
 
-	// } 
+	// }
 
 	// fs << "]";
 
@@ -701,9 +659,18 @@ static void saveDataToFile(ofxReprojectionCalibrationData data, string filename)
 }
 
 bool ofxReprojectionCalibration::loadData(string filename) {
-	*data = loadDataFromFile(filename);
+cout << "loading"<< endl;
+	data = loadDataFromFile(filename);
+	cout << "done" << endl;
+	cout << data.getRefMaxDepth() << endl;
 	return true;
 }
 
+ofxReprojectionCalibrationData ofxReprojectionCalibration::getData() {
+    return data;
+}
+
 void ofxReprojectionCalibration::finalize() {
+    data.setMatrix(calculateReprojectionTransform(data));
+    cout << data.getMatrix() << endl;
 }
