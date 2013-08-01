@@ -3,8 +3,8 @@
 ofxGLFWWindow::ofxGLFWWindow(int w, int h, string title, GLFWmonitor* monitor, GLFWwindow* share) {
 	this->w = w; this->h = h;
 	begin_is_next = true;
-
-	window = glfwCreateWindow(w,h,title.c_str(),monitor, share);
+	window = glfwCreateWindow(100,100,title.c_str(), NULL , NULL);
+	glfwShowWindow(window);
 }
 
 ofxGLFWWindow::~ofxGLFWWindow() {
@@ -34,6 +34,11 @@ GLFWmonitor* ofxGLFWWindow::glfwGetSecondaryMonitor() {
 	return NULL;
 }
 
+GLFWmonitor* ofxGLFWWindow::glfwGetMainMonitor() {
+	GLFWmonitor* primary = glfwGetPrimaryMonitor();
+	return primary;
+}
+
 void ofxGLFWWindow::begin() {
 	// begin() and end() should be called in pairs, if two begin() or two end() are
 	// called in a row, something is wrong with the usage.
@@ -49,8 +54,8 @@ void ofxGLFWWindow::begin() {
 	// Make this window's context current.
 	glfwMakeContextCurrent(window);
 
-	// Any drawing performed after this function should be on 
-	// this ofxGLFWWindow instead of the default (e.g. the 
+	// Any drawing performed after this function should be on
+	// this ofxGLFWWindow instead of the default (e.g. the
 }
 
 void ofxGLFWWindow::end() {
