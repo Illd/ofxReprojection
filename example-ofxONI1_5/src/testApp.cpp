@@ -47,6 +47,7 @@ void testApp::draw()
         depthcam.getDepthTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
         depthcam.getTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
         depthcam.getPlayersTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+        depthcam.getGrayTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 
         skeletonfbo.begin();
         ofScale(2,2,2);
@@ -70,7 +71,7 @@ void testApp::draw()
         drawfbo.begin();
         ofClear(255,255,255, 0);
         ofSetColor(255,255,255,255);
-        repro.draw(depthcam.getDepthTextureReference(), skeletonfbo.getTextureReference() , gui.gUsetransform, false);
+        repro.draw(depthcam.getDepthTextureReference(), skeletonfbo.getTextureReference() , float(gui.gPointsize), gui.gUsetransform, false);
         repro.end();
         drawfbo.end();
 

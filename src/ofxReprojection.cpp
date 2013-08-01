@@ -45,8 +45,8 @@ void ofxReprojection::update() {
 void ofxReprojection::end() {
     renderer.end();
 }
-void ofxReprojection::draw(ofTexture depthTexture, ofTexture userTexture, bool use_transform, bool use_depthimage) {
-    renderer.draw(depthTexture, userTexture, use_transform, use_depthimage);
+void ofxReprojection::draw(ofTexture depthTexture, ofTexture userTexture, float pointsize, bool use_transform, bool use_depthimage) {
+    renderer.draw(depthTexture, userTexture, pointsize, use_transform, use_depthimage);
 }
 
 

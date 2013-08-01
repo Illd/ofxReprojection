@@ -16,7 +16,7 @@ public:
 		bool init(ofxBase3DVideo* cam, string calibration_file = "");
 		void update();
 		void drawCalibrationStatusScreen();
-        void draw(ofTexture depthTexture, ofTexture userTexture, bool use_transform, bool use_depthimage);
+        void draw(ofTexture depthTexture, ofTexture userTexture, float pointsize, bool use_transform, bool use_depthimage);
         void end();
 private:
 		bool bCalibrationStage;
