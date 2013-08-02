@@ -1,3 +1,0 @@
-ofxXmlSettings
-ofxOpenCv
-ofxReprojection

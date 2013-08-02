@@ -7,10 +7,9 @@
 #include "ofxBase3DVideo.h"
 #include "ofxReprojectionCalibrationData.h"
 #include "ofxReprojectionCalibrationConfig.h"
+#include "lmmin.h"
 
-#include "ofxGLFWWindow.h"
-
-// 
+//
 // This class takes care of the calibration of depth cam and projector.
 //
 // The constructor takes a ofxBase3DVideo object which supplies the depth cam images
@@ -24,8 +23,7 @@ public:
 	ofxReprojectionCalibration();
 	~ofxReprojectionCalibration();
 
-	bool init(  	ofxBase3DVideo *cam, 
-			ofxGLFWWindow *projector_win, 
+	bool init(  	ofxBase3DVideo *cam,
 			ofxReprojectionCalibrationConfig config = ofxReprojectionCalibrationConfig());
 	void update();
 
@@ -35,7 +33,7 @@ public:
 
 	bool loadData(string filename);
 
-	static ofxReprojectionCalibrationData loadDataFromFile(string filename) {
+    ofxReprojectionCalibrationData loadDataFromFile(string filename) {
 		return ofxReprojectionCalibrationData::loadFromFile(filename);
 	}
 	static void saveDataToFile(ofxReprojectionCalibrationData data, string filename);
@@ -48,16 +46,19 @@ public:
 	static const cv::Mat lm_affinerow;
 	static void lm_evaluate_camera_matrix(const double *par, int m_dat, const void *data, double *fvec, int *info);
 
+    // helper
+    static ofVec3f pixel3f_to_world3fData( ofVec3f p, ofxReprojectionCalibrationData data);
+
+    ofxReprojectionCalibrationData getData();
+
 private:
 	ofxBase3DVideo* cam;
-	ofxReprojectionCalibrationData *data;
+	ofxReprojectionCalibrationData data;
 	ofxReprojectionCalibrationConfig config;
 
 	int stability_buffer_i;
 	int cam_w, cam_h;
 	int projector_w, projector_h;
-
-	ofxGLFWWindow *projector_win;
 
 	bool chessfound;
 	bool chessfound_includes_depth;
@@ -65,7 +66,7 @@ private:
 	bool chessfound_enough_frames;
 	bool chessfound_variance_ok;
 
-	
+
 	int chess_rows;
 	int chess_cols;
 	int chess_x;
@@ -75,8 +76,6 @@ private:
 	int chess_brightness;
 
 	vector< vector<cv::Point3f> > corner_history;
-
-
 
 	bool measurement_pause;
 	unsigned long measurement_pause_time;
