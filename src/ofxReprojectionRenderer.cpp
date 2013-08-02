@@ -75,7 +75,7 @@ void ofxReprojectionRenderer::end() {
     shader.end();
 
 }
-void ofxReprojectionRenderer::draw(ofTexture depthTexture, ofTexture userTexture, bool use_transform, bool use_depthimage)
+void ofxReprojectionRenderer::draw(ofTexture depthTexture, ofTexture userTexture, float pointsize, bool use_transform, bool use_depthimage)
 {
 
 
@@ -107,7 +107,7 @@ void ofxReprojectionRenderer::draw(ofTexture depthTexture, ofTexture userTexture
 
     float ps = max(projectionMatrix(0,0), projectionMatrix(1,1));
 
-    shader.setUniform1f("ps",ps);
+    shader.setUniform1f("ps",pointsize);
 
     if(use_transform)
     {
@@ -131,6 +131,7 @@ void ofxReprojectionRenderer::draw(ofTexture depthTexture, ofTexture userTexture
     outputgrid.draw();
 
 
+
 }
 
 
@@ -148,23 +149,23 @@ void ofxReprojectionRenderer::generate_grid()
 
 
             // Points for adding 2 triangles:
-            // kinect_grid.addVertex(ofVec3f(x+skip,y+skip,2));
-            // kinect_grid.addVertex(ofVec3f(x,y+skip,2));
+//             outputgrid.addVertex(ofVec3f(x+skip,y+skip,2));
+//             outputgrid.addVertex(ofVec3f(x,y+skip,2));
+//
+//             outputgrid.addVertex(ofVec3f(x,y,2));
+//             outputgrid.addVertex(ofVec3f(x+skip,y,2));
+//             outputgrid.addVertex(ofVec3f(x+skip,y+skip,2));
 
-            // kinect_grid.addVertex(ofVec3f(x,y,2));
-            // kinect_grid.addVertex(ofVec3f(x+skip,y,2));
-            // kinect_grid.addVertex(ofVec3f(x+skip,y+skip,2));
 
-
-            outputgrid.addTexCoord(ofVec2f(x,y));
+            outputgrid.addTexCoord(ofVec2f(x*2.0,y*2.0));
 
             // Points for adding 2 triangles:
-            // kinect_grid.addTexCoord(ofVec2f(x+skip,y+skip));
-            // kinect_grid.addTexCoord(ofVec2f(x,y+skip));
-
-            // kinect_grid.addTexCoord(ofVec2f(x,y));
-            // kinect_grid.addTexCoord(ofVec2f(x+skip,y));
-            // kinect_grid.addTexCoord(ofVec2f(x+skip,y+skip));
+//             outputgrid.addTexCoord(ofVec2f(x+skip,y+skip));
+//             outputgrid.addTexCoord(ofVec2f(x,y+skip));
+//
+//             outputgrid.addTexCoord(ofVec2f(x,y));
+//             outputgrid.addTexCoord(ofVec2f(x+skip,y));
+//             outputgrid.addTexCoord(ofVec2f(x+skip,y+skip));
         }
     }
 

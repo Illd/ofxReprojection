@@ -15,7 +15,7 @@ class guiRepro
     ofxToggle gUsetransform;
     ofxToggle gUsetexture;
 	ofxToggle drawMeasure;
-    ofxFloatSlider radius;
+    ofxFloatSlider gPointsize;
 	ofxVec2Slider center;
 	ofxIntSlider circleResolution;
 
