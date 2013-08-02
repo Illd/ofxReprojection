@@ -13,23 +13,26 @@ class ofxProjector {
 		~ofxProjector();
 
 		bool init(GLFWmonitor* input_monitor = NULL, GLFWwindow* sharecontext = NULL);
+		//bool init(unsigned int monitor_n = 0, GLFWwindow* sharecontext = NULL);
 		
 		bool open();
 
-		void close() { delete window; }
+		void close() { if(bOpen) delete window; bOpen = false;}
 
-		void begin() { window->begin(); }
-		void end()   { window->end();   }
+		void begin() { if(bOpen) window->begin(); }
+		void end()   { if(bOpen) window->end();   }
 
 		int getWidth() { return w; }
 		int getHeight() { return h; }
 
-	private:
 		ofxGLFWWindow* window;
+	private:
 		GLFWmonitor* monitor;
 		GLFWwindow* sharecontext;
 
 		int w;
 		int h;
+
+		bool bOpen;
 
 };

@@ -17,7 +17,7 @@
 
 class ofxGLFWWindow {
 	public:
-		ofxGLFWWindow(int w, int h, string title, GLFWmonitor* monitor, GLFWwindow* share);
+		ofxGLFWWindow(int w, int h, string title, GLFWmonitor* monitor = NULL, GLFWwindow* share = NULL);
 		~ofxGLFWWindow();
 
 		// void setFullscreen(bool b);
@@ -29,14 +29,22 @@ class ofxGLFWWindow {
 		// Get first monitor which is not the primary monitor. Returns NULL 
 		// if number of monitors available is less than two.
 		static GLFWmonitor* glfwGetSecondaryMonitor();
+		static GLFWmonitor* glfwGetMonitorNo(int n);
 
 		void begin();
 		void end();
 	private:
 		GLFWwindow* window;
 		GLFWwindow* savecontext;
+		
+		ofPtr<ofBaseRenderer> renderer;
+		ofPtr<ofBaseRenderer> saverenderer;
 
 		int w,h;
 
 		bool begin_is_next;
+		bool bSetupScreen;
+
+		bool bUseSharedContext;
+		bool firstDraw;
 };

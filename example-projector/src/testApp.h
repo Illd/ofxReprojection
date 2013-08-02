@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxProjector.h"
+#include "ofxONI2.h"
 
 class testApp : public ofBaseApp{
 	
@@ -21,6 +22,7 @@ class testApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
-		ofxProjector* projector;
+		ofxProjector projector;
+		ofxONI2 depthcam;
 };
 

@@ -76,7 +76,11 @@
 # add a runtime path to search for those shared libraries, since they aren't 
 # incorporated directly into the final executable application binary.
 ################################################################################
-PROJECT_LDFLAGS=-Wl,-rpath=./libs -lopencv_calib3d -lopencv_imgproc -lopencv_core
+PROJECT_LDFLAGS=-Wl,-rpath=./libs
+PROJECT_LDFLAGS += -lopencv_calib3d -lopencv_imgproc -lopencv_core 
+PROJECT_LDFLAGS += -lOpenNI2
+PROJECT_LDFLAGS += -lNiTE2
+PROJECT_LDFLAGS += -Wl,-rpath=./ -Lbin/
 
 ################################################################################
 # PROJECT DEFINES
@@ -104,7 +108,7 @@ PROJECT_LDFLAGS=-Wl,-rpath=./libs -lopencv_calib3d -lopencv_imgproc -lopencv_cor
 #
 #   Note: Leave a leading space when adding list items with the += operator
 ################################################################################
-# PROJECT_CFLAGS = 
+PROJECT_CFLAGS = -I/home/bjornlu/openni/Include -I/home/bjornlu/nite/Include
 
 ################################################################################
 # PROJECT OPTIMIZATION CFLAGS

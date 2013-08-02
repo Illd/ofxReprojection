@@ -1,9 +1,11 @@
 #include "ofxProjector.h"
 
 ofxProjector::ofxProjector() {
+	bOpen = false;
 }
 
 ofxProjector::~ofxProjector() {
+	if(bOpen) close();
 }
 
 bool ofxProjector::init(GLFWmonitor* input_monitor, GLFWwindow* sharecontext) {
@@ -15,6 +17,7 @@ bool ofxProjector::init(GLFWmonitor* input_monitor, GLFWwindow* sharecontext) {
 			ofLogWarning("ofxProjector") << "Could not find secondary screen";
 			return false;
 		}
+		ofLogVerbose("ofxProjector") << "Found secondary monitor";
 		monitor = secondary;
 	}
 
@@ -31,17 +34,19 @@ bool ofxProjector::init(GLFWmonitor* input_monitor, GLFWwindow* sharecontext) {
 
 	w = vidmode->width;
 	h = vidmode->height;
+	this->sharecontext = sharecontext;
 
 	return true;
 }
 
 bool ofxProjector::open() {
-	window = new ofxGLFWWindow(w,h,"Projector window (openFrameworks)", monitor, sharecontext);
+	window = new ofxGLFWWindow(w,h,"Projector window (openFrameworks)", NULL, sharecontext);
 
 	if(window == NULL) {
 		ofLogWarning("ofxProjector") << "Could not open fullscreen window on projector screen.";
 		return false;
 	}
 
+	bOpen = true;
 	return true;
 }
