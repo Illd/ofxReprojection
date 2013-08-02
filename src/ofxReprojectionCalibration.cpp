@@ -113,8 +113,6 @@ ofVec3f ofxReprojectionCalibration::pixel3f_to_world3fData( ofVec3f p, ofxReproj
 
 ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReprojectionCalibrationData data) {
 
-
-    cout << "hello?" << endl;
     vector< vector< ofVec3f > > measurements = data.getCamPoints();
     vector< vector< ofVec2f > > projpoints = data.getProjectorPoints();
 
@@ -186,7 +184,6 @@ ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReproj
  	ofidentitymat.set(1,0,0,0,   0,1,0,0,   0,0,1,0,    0,0,0,1);
 	//return ofidentitymat;
  	cout << "set identitymat to " << endl << ofidentitymat << endl;
-    cout << "hello3" << endl;
 
  	// Calculate reprojection error.
  	double cum_err_2 = 0;
@@ -207,8 +204,6 @@ ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReproj
  		cum_err_2 += error*error;
  	}
  	double rms = sqrt(cum_err_2/ measurements_all.size() );
-
-    cout << "hello4" << endl;
 
  	cout << "Calculated transformation:" << endl;
  	cout << ofprojmat << endl;
