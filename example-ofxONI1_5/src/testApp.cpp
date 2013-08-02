@@ -7,7 +7,7 @@ void testApp::setup()
 
     gui.setup();
     //repro.init(&depthcam, "2013-06-30-20-00-02-291.xml");
-	runrepro = true;
+	runrepro = false;
     if (runrepro) {
         depthcam.init();
         depthcam.open();
@@ -55,7 +55,6 @@ void testApp::draw()
         if (gui.gUsetexture) {
             depthcam.drawDepth(0,0);
         } else {
-
         depthcam.drawGrayDepth(0,0);
         ofSetColor(255,255,255,100);
         depthcam.drawPlayers(0,0);
@@ -63,6 +62,22 @@ void testApp::draw()
         //depthcam.draw(0,0);
         ofPushMatrix();
         depthcam.drawSkeletons(0,0);
+        for (int i = 0; i < depthcam.activeplayers.size(); i++)
+        {
+            int j = 0;
+            int userid = depthcam.activeplayers.at(i);
+            ofColor usercolor = ofColor(oniColors[depthcam.activeplayers.at(i)][0]*255,oniColors[depthcam.activeplayers.at(i)][1]*255, oniColors[depthcam.activeplayers.at(i)][2]*255);
+            ofSetColor(usercolor);
+            ofSetPolyMode(OF_POLY_WINDING_NONZERO);
+            ofFill();
+            ofBeginShape();
+            ofVertex(depthcam.playerjoints[userid][LEFT_SHOULDER].x, depthcam.playerjoints[userid][LEFT_SHOULDER].y);
+            ofVertex(depthcam.playerjoints[userid][RIGHT_SHOULDER].x, depthcam.playerjoints[userid][RIGHT_SHOULDER].y);
+            ofVertex(depthcam.playerjoints[userid][RIGHT_HIP].x, depthcam.playerjoints[userid][RIGHT_HIP].y);
+            ofVertex(depthcam.playerjoints[userid][LEFT_HIP].x,depthcam.playerjoints[userid][LEFT_HIP].y);
+            ofEndShape();
+            ofNoFill();
+        }
         ofPopMatrix();
         }
         skeletonfbo.end();
@@ -77,26 +92,18 @@ void testApp::draw()
 
         drawfbo.draw(0,0);
 
-
         //repro.draw(depthcam.getDepthTextureReference(), depthcam.getPlayersTextureReference() , gui.gUsetransform, gui.gUsetexture);
-
-        gui.draw();
-        /*
-        ofSetColor(255,255,255,255);
-        depthcam.draw(20,20);
-
-        ofSetColor(255,255,255,100);
-        depthcam.drawDepth(20, 20);
-
-        ofSetColor(255,255,255,100);
-
 
         ofSetColor(0,0,0,255);
         ofDrawBitmapString(ofToString(depthcam.activeplayers.size()),100,20);
         for (int i = 0; i < depthcam.activeplayers.size(); i++)
         {
+
             int j = 0;
             int userid = depthcam.activeplayers.at(i);
+            ofColor usercolor = ofColor(oniColors[depthcam.activeplayers.at(i)][0]*255,oniColors[depthcam.activeplayers.at(i)][1]*255, oniColors[depthcam.activeplayers.at(i)][2]*255);
+            ofSetColor(usercolor);
+            ofRect(1080, 20, 20, 20);
             int heightmenu =  depthcam.getHeight() + 100;
             ofDrawBitmapString("HEAD: " + ofToString(depthcam.playerjoints[userid][HEAD]), 20, heightmenu + 20*j++);
             ofDrawBitmapString("TORSO: " + ofToString(depthcam.playerjoints[userid][TORSO]), 20, heightmenu + 20*j++);
@@ -116,9 +123,10 @@ void testApp::draw()
             ofDrawBitmapString("RIGHT_KNEE: " + ofToString(depthcam.playerjoints[userid][RIGHT_KNEE]), 20 + spacer, heightmenu + 20*j++);
             ofDrawBitmapString("RIGHT_FOOT: " + ofToString(depthcam.playerjoints[userid][RIGHT_FOOT]), 20 + spacer, heightmenu + 20*j++);
         }
-        */
+
     }
 
+    gui.draw();
 
 }
 
