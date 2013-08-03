@@ -49,12 +49,12 @@ public:
     // helper
     static ofVec3f pixel3f_to_world3fData( ofVec3f p, ofxReprojectionCalibrationData data);
 
-    ofxReprojectionCalibrationData getData();
 
-private:
 	ofxBase3DVideo* cam;
 	ofxReprojectionCalibrationData data;
 	ofxReprojectionCalibrationConfig config;
+
+private:
 
 	int stability_buffer_i;
 	int cam_w, cam_h;

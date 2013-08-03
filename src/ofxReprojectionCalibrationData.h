@@ -12,19 +12,18 @@ class ofxReprojectionCalibrationData {
 		static ofxReprojectionCalibrationData loadFromFile(string filename);
 		void saveToFile(string filename);
 
-        // This matrix mainly saved for checking this matrix against other methods.
 		void updateMatrix();
 		ofMatrix4x4 getMatrix();
 		void setMatrix(ofMatrix4x4 inputMatrix);
 
-        int getCamWidth();
-        int getCamHeight();
-        int getProjectorWidth();
-        int getProjectorHeight();
-        float getRefMaxDepth();
+		int getCamWidth();
+		int getCamHeight();
+		int getProjectorWidth();
+		int getProjectorHeight();
+		float getRefMaxDepth();
 
-        vector< vector< ofVec3f > > getCamPoints();
-        vector< vector< ofVec2f > > getProjectorPoints();
+		vector< vector< ofVec3f > > getCamPoints();
+		vector< vector< ofVec2f > > getProjectorPoints();
 
 	private:
 		vector< vector< ofVec3f > > campoints;

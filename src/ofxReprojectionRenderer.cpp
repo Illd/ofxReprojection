@@ -5,6 +5,12 @@
 ofxReprojectionRenderer::ofxReprojectionRenderer()
 {
 
+	useTransform = true;
+	useDepthImage = true;
+	pointsize = 4.0;
+
+	drawMethod = OFX_REPROJECTION_RENDERER_DRAW_METHOD_POINTS;
+
     string shaderstring = STRINGIFY(
 
                               \#version 120
@@ -60,11 +66,28 @@ ofxReprojectionRenderer::ofxReprojectionRenderer()
     }
                           );
 
+			  ofLogVerbose("ofxReprojection") << "Renderer shader string: " << shaderstring;
+
 }
+
 
 ofxReprojectionRenderer::~ofxReprojectionRenderer()
 {
 
+}
+
+bool ofxReprojectionRenderer::init(ofxBase3DVideo *cam) {
+	if(cam == NULL) {
+		ofLogWarning("ofxReprojection") << "Valid ofxBase3DVideo providing both color and depth image must be passed to constructor ofxReprojectionRenderer";
+		return false;
+	} else {
+		this->cam = cam;
+	}
+
+	cam_height = cam->getPixelsRef().getHeight();
+	cam_width = cam->getPixelsRef().getWidth();
+
+	return true;
 }
 
 void ofxReprojectionRenderer::begin() {
@@ -75,7 +98,7 @@ void ofxReprojectionRenderer::end() {
     shader.end();
 
 }
-void ofxReprojectionRenderer::draw(ofTexture depthTexture, ofTexture userTexture, float pointsize, bool use_transform, bool use_depthimage)
+void ofxReprojectionRenderer::draw(ofTexture tex) 
 {
 
 
@@ -87,7 +110,7 @@ void ofxReprojectionRenderer::draw(ofTexture depthTexture, ofTexture userTexture
     glLoadIdentity();
     ofScale(1,1,1); // Pixel/image format -> GL coord.sys.
 
-    if(use_transform)
+    if(useTransform)
     {
 
         glOrtho(0, projector_width, 0, projector_height,1,-100*ref_max_depth);
@@ -109,7 +132,9 @@ void ofxReprojectionRenderer::draw(ofTexture depthTexture, ofTexture userTexture
 
     shader.setUniform1f("ps",pointsize);
 
-    if(use_transform)
+    ofTexture depthTexture = cam->getDepthTextureReference();
+
+    if(useTransform)
     {
         shader.setUniformMatrix4f("kinproj_transform", projectionMatrix);
     }
@@ -119,13 +144,13 @@ void ofxReprojectionRenderer::draw(ofTexture depthTexture, ofTexture userTexture
     }
 
     shader.setUniformTexture("depth_map", depthTexture, 0);
-    if(use_depthimage)
+    if(useDepthImage)
     {
         shader.setUniformTexture("color_image", depthTexture, 1);
     }
     else
     {
-        shader.setUniformTexture("color_image", userTexture, 1);
+        shader.setUniformTexture("color_image", tex, 1);
     }
 
     outputgrid.draw();
@@ -179,11 +204,9 @@ void ofxReprojectionRenderer::setProjectionMatrix(ofMatrix4x4 m)
 
 }
 
-void ofxReprojectionRenderer::setProjectionInfo(int proj_w, int proj_h, int cam_w, int cam_h, float max_depth) {
+void ofxReprojectionRenderer::setProjectionInfo(int proj_w, int proj_h, float max_depth) {
     projector_width = proj_w;
     projector_height = proj_w;
-    cam_width = cam_w;
-    cam_height = cam_h;
     ref_max_depth = max_depth;
     shader.load("shader.vert","shader.frag");
 }

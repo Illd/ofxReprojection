@@ -661,10 +661,6 @@ cout << "loading"<< endl;
 	return true;
 }
 
-ofxReprojectionCalibrationData ofxReprojectionCalibration::getData() {
-    return data;
-}
-
 void ofxReprojectionCalibration::finalize() {
     data.setMatrix(calculateReprojectionTransform(data));
     cout << data.getMatrix() << endl;

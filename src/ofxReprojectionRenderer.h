@@ -2,31 +2,41 @@
 
 #include "ofMain.h"
 
+#include "ofxBase3DVideo.h"
+
+enum ofxReprojectionRendererDrawMethod { OFX_REPROJECTION_RENDERER_DRAW_METHOD_POINTS };
+
 class ofxReprojectionRenderer {
 	public:
 		ofxReprojectionRenderer();
 		~ofxReprojectionRenderer();
 
-		void setProjectionMatrix(ofMatrix4x4 m);
-        void setProjectionInfo(int proj_w, int proj_h, int cam_w, int cam_h, float max_depth);
+		bool init(ofxBase3DVideo *cam);
 
-		// Example function which draws depth picture
-		void draw(ofTexture depthTexture, ofTexture userTexture, float pointsize, bool use_transform, bool use_depthimage);
+		void setProjectionMatrix(ofMatrix4x4 m);
+		void setProjectionInfo(int proj_w, int proj_h, float max_depth);
 
 		// Draws transformed 2d image
-		void draw2D(ofImage i);
-		void draw2D(unsigned char* p, int pw, int ph);
+		void draw(ofTexture tex);
+		void draw(ofImage img);
+		void draw(unsigned char* pixels, int pw, int ph);
 
 		// Draws transformed 3D object
 		void begin();
 		void end();
 
-        void generate_grid();
-        unsigned int indices[640][480];
-        short xyz[640][480][3];
+		void generate_grid();
+
+		void enableTransform() { useTransform = true; }
+		void disableTransform() { useTransform = false; }
+		void setTransformEnabled(bool b) { useTransform = b; }
+
+		void setDrawMethod(ofxReprojectionRendererDrawMethod d) { drawMethod = d; }
+		
 
 	private:
-        ofVboMesh outputgrid;
+		ofxBase3DVideo *cam;
+		ofVboMesh outputgrid;
 		ofShader shader;
 		ofMatrix4x4 projectionMatrix;
 		ofMatrix4x4 identityMatrix;
@@ -36,7 +46,11 @@ class ofxReprojectionRenderer {
 		int cam_height;
 		int ref_max_depth;
 
+		bool useTransform;
+		float pointsize;
+		bool useDepthImage;
 
-
+		ofxReprojectionRendererDrawMethod drawMethod;
 };
+
 

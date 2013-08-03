@@ -7,31 +7,32 @@ ofxReprojection::ofxReprojection() {
 ofxReprojection::~ofxReprojection() {
 }
 
-bool ofxReprojection::init(ofxBase3DVideo* cam, string calibration_file) {
+bool ofxReprojection::init(ofxBase3DVideo* cam, string calibrationDataFilename) {
 
 	ofLogVerbose("ofxReprojection") << "initing ofxReprojection object";
-	if(calibration_file != "") {
-		calibration.loadData(calibration_file);
-		calibration.finalize();
-		bCalibrationStage = false;
+
+	if(calibrationDataFilename != "") {
+		ofLogVerbose("ofxReprojection") << "calibrationDataFilename supplied, loading and finalizing calibration.";
+		calibration.loadData(calibrationDataFilename);
+		finalizeCalibration();
 	} else {
-        bCalibrationStage = true;
-        calibration.init(cam);
-        cout << "inited" << endl;
+		ofLogVerbose("ofxReprojection") << "calibrationDataFilename not supplied, initing calibration.";
+		calibration.init(cam);
 	}
 
 	this->cam = cam;
-	renderer.setProjectionMatrix(calibration.getData().getMatrix());
-
-    renderer.setProjectionInfo( calibration.getData().getProjectorWidth(),
-                                calibration.getData().getProjectorHeight(),
-                                calibration.getData().getCamHeight(),
-                                calibration.getData().getCamWidth(),
-                                calibration.getData().getRefMaxDepth());
-
-    renderer.generate_grid();
 
 	return true;
+}
+
+void ofxReprojection::finalizeCalibration() {
+	calibration.finalize();
+	renderer.init(cam);
+	renderer.setProjectionMatrix(calibration.data.getMatrix());
+	renderer.setProjectionInfo( calibration.data.getProjectorWidth(),
+				calibration.data.getProjectorHeight(),
+				calibration.data.getRefMaxDepth());
+	renderer.generate_grid();
 }
 
 void ofxReprojection::update() {
@@ -42,14 +43,26 @@ void ofxReprojection::update() {
 	}
 }
 
-void ofxReprojection::end() {
-    renderer.end();
+void ofxReprojection::draw(ofTexture tex) {
+    renderer.draw(tex);
 }
-void ofxReprojection::draw(ofTexture depthTexture, ofTexture userTexture, float pointsize, bool use_transform, bool use_depthimage) {
-    renderer.draw(depthTexture, userTexture, pointsize, use_transform, use_depthimage);
+
+void ofxReprojection::draw() {
 }
 
 
 void ofxReprojection::drawCalibrationStatusScreen() {
 	calibration.drawCalibrationStatusScreen();
+}
+
+void ofxReprojection::drawCalibrationImage() {
+}
+
+void ofxReprojection::drawCalibrationDepthImage() {
+}
+
+void ofxReprojection::drawCalibrationStatusMessages() {
+}
+
+void ofxReprojection::drawChessboard() {
 }
