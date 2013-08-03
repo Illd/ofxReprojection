@@ -24,6 +24,13 @@ public:
 
         void end();
 
+        ofMatrix4x4 getProjectionMatrix() {return renderer.getProjectionMatrix();}
+        int getProjWidth() { return renderer.getProjWidth();}
+        int getProjHeight() { return renderer.getProjHeight();}
+        int getCamWidth() { return renderer.getCamWidth();}
+        int getCamHeight() {return renderer.getCamHeight();}
+        float getMaxDepth() {return renderer.getMaxDepth();}
+
 private:
 		bool bCalibrationStage;
 		ofxBase3DVideo* cam;

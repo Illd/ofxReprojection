@@ -10,6 +10,13 @@ class ofxReprojectionRenderer {
 		void setProjectionMatrix(ofMatrix4x4 m);
         void setProjectionInfo(int proj_w, int proj_h, int cam_w, int cam_h, float max_depth);
 
+        ofMatrix4x4 getProjectionMatrix() {return projectionMatrix;}
+        int getProjWidth() { return projector_width;}
+        int getProjHeight() { return projector_height;}
+        int getCamWidth() { return cam_width;}
+        int getCamHeight() {return cam_height;}
+        float getMaxDepth() {return ref_max_depth;}
+
 		// Example function which draws depth picture
 		void draw(ofTexture depthTexture, ofTexture userTexture, float pointsize, bool use_transform, bool use_depthimage);
 

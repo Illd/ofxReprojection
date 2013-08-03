@@ -16,6 +16,9 @@ public:
 	void keyPressed(int key);
 	void exit();
 
+    void drawWithTransformedCoords();
+
+
 	ofxONI1_5 depthcam;
 	ofxReprojection repro;
 	bool runrepro;

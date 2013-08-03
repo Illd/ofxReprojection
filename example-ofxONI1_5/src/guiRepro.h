@@ -8,6 +8,10 @@ class guiRepro
 		void setup();
 		void draw();
         void update();
+
+        void saveConfig();
+        void loadConfig();
+
 	// Main
 	ofxPanel main;
 
@@ -15,6 +19,9 @@ class guiRepro
     ofxToggle gUsetransform;
     ofxToggle gUsetexture;
 	ofxToggle drawMeasure;
+	ofxButton gSaveConfig;
+	ofxButton gLoadConfig;
+
     ofxFloatSlider gPointsize;
 	ofxVec2Slider center;
 	ofxIntSlider circleResolution;

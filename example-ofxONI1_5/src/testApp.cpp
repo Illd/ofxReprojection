@@ -5,10 +5,12 @@ void testApp::setup()
     ofSetLogLevel(OF_LOG_VERBOSE);
     ofSetVerticalSync(false);
 
+
     gui.setup();
     //repro.init(&depthcam, "2013-06-30-20-00-02-291.xml");
-	runrepro = false;
-    if (runrepro) {
+    runrepro = true;
+    if (runrepro)
+    {
         depthcam.init();
         depthcam.open();
         repro.init(&depthcam, "2013-06-30-20-00-02-291.xml");
@@ -20,15 +22,16 @@ void testApp::setup()
     drawfbo.allocate(1024, 768, GL_RGBA);
 
     skeletonfbo.begin();
-	ofClear(255,255,255, 0);
+    ofClear(255,255,255, 0);
     skeletonfbo.end();
 }
 
 void testApp::update()
 {
-    if (runrepro) {
+    if (runrepro)
+    {
         depthcam.update();
-        //repro.update();
+        repro.update();
     }
 }
 
@@ -40,7 +43,8 @@ void testApp::draw()
     // GUI ROUTINES
 
     // DRAWING ROUTINES
-    if (runrepro) {
+    if (runrepro)
+    {
         ofPushMatrix();
         ofSetColor(255,255,255,255);
 
@@ -52,33 +56,20 @@ void testApp::draw()
         skeletonfbo.begin();
         ofScale(2,2,2);
         ofClear(255,255,255, 0);
-        if (gui.gUsetexture) {
-            depthcam.drawDepth(0,0);
-        } else {
-        depthcam.drawGrayDepth(0,0);
-        ofSetColor(255,255,255,100);
-        depthcam.drawPlayers(0,0);
-        ofSetColor(255,255,255,100);
-        //depthcam.draw(0,0);
-        ofPushMatrix();
-        depthcam.drawSkeletons(0,0);
-        for (int i = 0; i < depthcam.activeplayers.size(); i++)
+        if (gui.gUsetexture)
         {
-            int j = 0;
-            int userid = depthcam.activeplayers.at(i);
-            ofColor usercolor = ofColor(oniColors[depthcam.activeplayers.at(i)][0]*255,oniColors[depthcam.activeplayers.at(i)][1]*255, oniColors[depthcam.activeplayers.at(i)][2]*255);
-            ofSetColor(usercolor);
-            ofSetPolyMode(OF_POLY_WINDING_NONZERO);
-            ofFill();
-            ofBeginShape();
-            ofVertex(depthcam.playerjoints[userid][LEFT_SHOULDER].x, depthcam.playerjoints[userid][LEFT_SHOULDER].y);
-            ofVertex(depthcam.playerjoints[userid][RIGHT_SHOULDER].x, depthcam.playerjoints[userid][RIGHT_SHOULDER].y);
-            ofVertex(depthcam.playerjoints[userid][RIGHT_HIP].x, depthcam.playerjoints[userid][RIGHT_HIP].y);
-            ofVertex(depthcam.playerjoints[userid][LEFT_HIP].x,depthcam.playerjoints[userid][LEFT_HIP].y);
-            ofEndShape();
-            ofNoFill();
+            depthcam.drawDepth(0,0);
         }
-        ofPopMatrix();
+        else
+        {
+            depthcam.drawGrayDepth(0,0);
+            ofSetColor(255,255,255,100);
+            depthcam.drawPlayers(0,0);
+            ofSetColor(255,255,255,100);
+            //depthcam.draw(0,0);
+            ofPushMatrix();
+            depthcam.drawSkeletons(0,0);
+            ofPopMatrix();
         }
         skeletonfbo.end();
         skeletonfbo.getTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
@@ -86,8 +77,12 @@ void testApp::draw()
         drawfbo.begin();
         ofClear(255,255,255, 0);
         ofSetColor(255,255,255,255);
+
+
+
         repro.draw(depthcam.getDepthTextureReference(), skeletonfbo.getTextureReference() , float(gui.gPointsize), gui.gUsetransform, false);
         repro.end();
+        drawWithTransformedCoords();
         drawfbo.end();
 
         drawfbo.draw(0,0);
@@ -103,7 +98,7 @@ void testApp::draw()
             int userid = depthcam.activeplayers.at(i);
             ofColor usercolor = ofColor(oniColors[depthcam.activeplayers.at(i)][0]*255,oniColors[depthcam.activeplayers.at(i)][1]*255, oniColors[depthcam.activeplayers.at(i)][2]*255);
             ofSetColor(usercolor);
-            ofRect(1080, 20, 20, 20);
+            ofRect(1080+ 22*i, 20, 20, 20);
             int heightmenu =  depthcam.getHeight() + 100;
             ofDrawBitmapString("HEAD: " + ofToString(depthcam.playerjoints[userid][HEAD]), 20, heightmenu + 20*j++);
             ofDrawBitmapString("TORSO: " + ofToString(depthcam.playerjoints[userid][TORSO]), 20, heightmenu + 20*j++);
@@ -131,6 +126,72 @@ void testApp::draw()
 }
 
 
+void testApp::drawWithTransformedCoords()
+{
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    ofScale(1,1,1); // Pixel/image format -> GL coord.sys.
+
+    ofMatrix4x4 m;
+
+    if(gui.gUsetransform)
+    {
+
+        glOrtho(0, repro.getProjWidth(), 0, repro.getProjHeight(),1,-100*repro.getMaxDepth());
+        m = repro.getProjectionMatrix();
+    }
+    else
+    {
+        glOrtho(0, repro.getCamWidth(),0, repro.getCamHeight(),1,-100*repro.getMaxDepth());
+        m.makeIdentityMatrix();
+    }
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+
+    for (int i = 0; i < depthcam.activeplayers.size(); i++)
+    {
+        int j = 0;
+        int userid = depthcam.activeplayers.at(i);
+
+
+        ofVec3f head = m*depthcam.playerjoints[userid][HEAD];
+        ofVec3f torso = m*depthcam.playerjoints[userid][TORSO];
+        ofVec3f neck = m*depthcam.playerjoints[userid][NECK];
+        ofVec3f lshoulder = m*depthcam.playerjoints[userid][LEFT_SHOULDER];
+        ofVec3f lelbow = m*depthcam.playerjoints[userid][LEFT_ELBOW];
+        ofVec3f lhand = m*depthcam.playerjoints[userid][LEFT_HAND];
+        ofVec3f rshoulder = m*depthcam.playerjoints[userid][RIGHT_SHOULDER];
+        ofVec3f relbow = m*depthcam.playerjoints[userid][RIGHT_ELBOW];
+        ofVec3f rhand = m*depthcam.playerjoints[userid][RIGHT_HAND];
+        ofVec3f lhip = m*depthcam.playerjoints[userid][LEFT_HIP];
+        ofVec3f lknee = m*depthcam.playerjoints[userid][LEFT_KNEE];
+        ofVec3f lfoot = m*depthcam.playerjoints[userid][LEFT_FOOT];
+        ofVec3f rhip = m*depthcam.playerjoints[userid][RIGHT_HIP];
+        ofVec3f rknee = m*depthcam.playerjoints[userid][RIGHT_KNEE];
+        ofVec3f rfoot = m*depthcam.playerjoints[userid][RIGHT_FOOT];
+
+
+
+        ofPushStyle();
+        ofColor usercolor = ofColor(oniColors[depthcam.activeplayers.at(i)][0]*255,oniColors[depthcam.activeplayers.at(i)][1]*255, oniColors[depthcam.activeplayers.at(i)][2]*255);
+        ofSetColor(usercolor);
+        ofSetPolyMode(OF_POLY_WINDING_NONZERO);
+
+        ofFill();
+        ofBeginShape();
+        ofVertex(lshoulder);
+        ofVertex(rshoulder);
+        ofVertex(rhip);
+        ofVertex(lhip);
+        ofEndShape();
+        ofPopStyle();
+    }
+
+}
+
 void testApp::keyPressed(int key)
 {
     //depthcam.close();
@@ -138,7 +199,8 @@ void testApp::keyPressed(int key)
 
 void testApp::exit()
 {
-    if (runrepro) {
+    if (runrepro)
+    {
         cout << "killed stuff that won't close" << endl;
         system("killall -9 XnSensorServer");
         system("killall -9 XnVSceneServer_1_5_2");
