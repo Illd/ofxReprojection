@@ -12,8 +12,8 @@ bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibr
 		this->cam = cam;
 	}
 
-    cam_h = cam->getPixelsRef().getHeight();
-    cam_w = cam->getPixelsRef().getWidth();
+	camHeight = cam->getPixelsRef().getHeight();
+	camWidth = cam->getPixelsRef().getWidth();
 
 	this->config = config;
 
@@ -21,8 +21,8 @@ bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibr
 	chess_cols = 6;
 	chess_x = 100;
 	chess_y = 100;
-	chess_width = ((int)(0.8f*projector_w));
-	chess_height = ((int)(0.8f*projector_h));
+	chess_width = 400; 
+	chess_height = 400;
 	chess_brightness = 255;
 
 	corner_history.reserve(config.num_stability_frames);
@@ -217,12 +217,12 @@ ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReproj
 // TODO: work through this to fit into ofxReprojectionCalibration
 void ofxReprojectionCalibration::update() {
 	//cam->update();
-	if(true) {
+
 	if(cam->isFrameNew()) {
 
 		// Convert color image to OpenCV image.
 		unsigned char *pPixelsUC = (unsigned char*) cam->getPixels();
-		cv::Mat chessdetectimage(cam_h, cam_w, CV_8UC(3), pPixelsUC);
+		cv::Mat chessdetectimage(camHeight, camWidth, CV_8UC(3), pPixelsUC);
 
 		vector<cv::Point2f> chesscorners;
 
@@ -293,10 +293,10 @@ void ofxReprojectionCalibration::update() {
 
 				// Check that all relevant depth values are valid;
 				vector<int> depth_values_test;
-				depth_values_test.push_back(imgx1+imgy1*cam_w);
-				depth_values_test.push_back(imgx1+imgy2*cam_w);
-				depth_values_test.push_back(imgx2+imgy1*cam_w);
-				depth_values_test.push_back(imgx2+imgy2*cam_w);
+				depth_values_test.push_back(imgx1+imgy1*camWidth);
+				depth_values_test.push_back(imgx1+imgy2*camWidth);
+				depth_values_test.push_back(imgx2+imgy1*camWidth);
+				depth_values_test.push_back(imgx2+imgy2*camWidth);
 
 				for(uint j = 0; j < depth_values_test.size(); j++) {
 					int value = (int)pDPixel[depth_values_test[j]];
@@ -312,11 +312,11 @@ void ofxReprojectionCalibration::update() {
 
 				// Bilinear interpolation to find z in depth map from fractional coords.
 				// (The detected corners have sub-pixel precision.)
-				interp_x1  = (imgx2-(float)p.x)/((float)(imgx2-imgx1))*((float)pDPixel[imgx1+imgy1*cam_w]);
-				interp_x1 += ((float)p.x-imgx1)/((float)(imgx2-imgx1))*((float)pDPixel[imgx2+imgy1*cam_w]);
+				interp_x1  = (imgx2-(float)p.x)/((float)(imgx2-imgx1))*((float)pDPixel[imgx1+imgy1*camWidth]);
+				interp_x1 += ((float)p.x-imgx1)/((float)(imgx2-imgx1))*((float)pDPixel[imgx2+imgy1*camWidth]);
 
-				interp_x2  = (imgx2-(float)p.x)/((float)(imgx2-imgx1))*((float)pDPixel[imgx2+imgy1*cam_w]);
-				interp_x2 += ((float)p.x-imgx1)/((float)(imgx2-imgx1))*((float)pDPixel[imgx2+imgy2*cam_w]);
+				interp_x2  = (imgx2-(float)p.x)/((float)(imgx2-imgx1))*((float)pDPixel[imgx2+imgy1*camWidth]);
+				interp_x2 += ((float)p.x-imgx1)/((float)(imgx2-imgx1))*((float)pDPixel[imgx2+imgy2*camWidth]);
 
 				interp_z   = (imgy2-(float)p.y)/((float)(imgy2-imgy1)) * interp_x1;
 				interp_z  += ((float)p.y-imgy1)/((float)(imgy2-imgy1)) * interp_x2;
@@ -506,13 +506,13 @@ void ofxReprojectionCalibration::update() {
 		}
 	}
 
-	}
 }
 
 
-
 // TODO: work through this to fit into ofxReprojectionCalibration
-void ofxReprojectionCalibration::drawCalibrationStatusScreen(){
+void ofxReprojectionCalibration::drawStatusScreen(float x, float y, float w, float h){
+
+	ofDrawBitmapString("test",20,20);
 
 	// projector_chessboard.draw(1920,0);
 
@@ -606,6 +606,9 @@ void ofxReprojectionCalibration::drawCalibrationStatusScreen(){
 
 }
 
+void ofxReprojectionCalibration::drawChessboard(float x, float y, float w, float h) {
+}
+
 
 // TODO: update with new XML format
 static void saveDataToFile(ofxReprojectionCalibrationData data, string filename) {
@@ -664,4 +667,13 @@ cout << "loading"<< endl;
 void ofxReprojectionCalibration::finalize() {
     data.setMatrix(calculateReprojectionTransform(data));
     cout << data.getMatrix() << endl;
+}
+
+void ofxReprojectionCalibration::setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition) {
+	this->projectorWidth = projectorWidth;
+	this->projectorHeight = projectorHeight;
+	this->projectorPosition = projectorPosition;
+
+	chess_width = ((int)(0.8f*projectorWidth));
+	chess_height = ((int)(0.8f*projectorHeight));
 }

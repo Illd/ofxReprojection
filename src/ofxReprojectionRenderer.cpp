@@ -9,64 +9,54 @@ ofxReprojectionRenderer::ofxReprojectionRenderer()
 	useDepthImage = true;
 	pointsize = 4.0;
 
+	drawX = 0;
+	drawY = 0;
+	drawWidth = 0;
+	drawHeight = 0;
+
 	drawMethod = OFX_REPROJECTION_RENDERER_DRAW_METHOD_POINTS;
 
-    string shaderstring = STRINGIFY(
+	string vertexshader = 	"#version 120\n"
+				"#extension GL_ARB_texture_rectangle : enable\n" 
+				STRINGIFY(
 
-                              \#version 120
-                          \#extension GL_ARB_texture_rectangle : enable
+		uniform sampler2DRect depth_map;
+		uniform sampler2DRect color_image;
+		uniform mat4 kinproj_transform;
+		uniform float ps;
 
-                              uniform sampler2DRect depth_map;
-                              uniform sampler2DRect color_image;
-                              uniform mat4 kinproj_transform;
-                              uniform float ps;
-                              // uniform float kw;
-                              // uniform float kh;
-                              // uniform float kz;
-                              //
-                              // vec3 pixel_to_world(vec3 p) {
-                              // 	vec3 r;
-                              // 	r.x = 2.0*p.x/kw - 1.0;
-                              // 	r.y = 2.0*p.y/kh - 1.0;
-                              // 	r.z = p.z/kz;
-                              //
-                              // 	return p;
-                              // }
+		void main() {
+			gl_TexCoord[0] = gl_MultiTexCoord0;
 
-                              void main()
-    {
-        gl_TexCoord[0] = gl_MultiTexCoord0;
+			vec4 pos;
 
-        vec4 pos;
+			// Extract color
+			pos = gl_Vertex;
+			gl_FrontColor.rgb = texture2DRect(color_image, pos.xy).rgb;
 
-        // Extract color
-        pos = gl_Vertex;
-        gl_FrontColor.rgb = texture2DRect(color_image, pos.xy).rgb;
+			// Combine pixel XY (gl_vertex) with depth data.
+			vec4 dp = texture2DRect(depth_map, pos.xy);
+			//pos.z  = 100;
 
-        // Combine pixel XY (gl_vertex) with depth data.
-        vec4 dp = texture2DRect(depth_map, pos.xy);
-        //pos.z  = 100;
+			pos.z = 256*(256*256*dp.r + 256*dp.g + dp.b);
 
-        pos.z = 256*(256*256*dp.r + 256*dp.g + dp.b);
-
-        if(abs(pos.z) < 1e-5)
-        {
-            gl_FrontColor.rgb = vec3(0,0,0);
-        }
+			if(abs(pos.z) < 1e-5) {
+				gl_FrontColor.rgb = vec3(0,0,0);
+			}
 
 
-        pos = pos*kinproj_transform;
+			pos = pos*kinproj_transform;
 
-        // Still do depth sorting
-        pos.z = 256*(256*256*dp.r + 256*dp.g + dp.b);
+			// Still do depth sorting
+			pos.z = 256*(256*256*dp.r + 256*dp.g + dp.b);
 
-        gl_Position = gl_ModelViewProjectionMatrix * pos;
+			gl_Position = gl_ModelViewProjectionMatrix * pos;
 
-        gl_PointSize = ps;
-    }
-                          );
+			gl_PointSize = ps;
+		}
+	);
 
-			  ofLogVerbose("ofxReprojection") << "Renderer shader string: " << shaderstring;
+	ofLogVerbose("ofxReprojection") << "Renderer shader string: " << vertexshader;
 
 }
 
@@ -98,7 +88,7 @@ void ofxReprojectionRenderer::end() {
     shader.end();
 
 }
-void ofxReprojectionRenderer::draw(ofTexture tex) 
+void ofxReprojectionRenderer::drawImage(ofTexture tex) 
 {
 
 
@@ -113,7 +103,7 @@ void ofxReprojectionRenderer::draw(ofTexture tex)
     if(useTransform)
     {
 
-        glOrtho(0, projector_width, 0, projector_height,1,-100*ref_max_depth);
+        glOrtho(0, projectorWidth, 0, projectorHeight,1,-100*ref_max_depth);
     }
     else
     {
@@ -204,9 +194,22 @@ void ofxReprojectionRenderer::setProjectionMatrix(ofMatrix4x4 m)
 
 }
 
-void ofxReprojectionRenderer::setProjectionInfo(int proj_w, int proj_h, float max_depth) {
-    projector_width = proj_w;
-    projector_height = proj_w;
-    ref_max_depth = max_depth;
-    shader.load("shader.vert","shader.frag");
+void ofxReprojectionRenderer::setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition) {
+	this->projectorWidth = projectorWidth;
+	this->projectorHeight = projectorHeight;
+	this->projectorPosition = projectorPosition;
+	
+	if(drawWidth == 0) {
+	       drawWidth = projectorWidth;
+	}
+	if(drawHeight == 0) {
+		drawHeight = projectorHeight;
+	}
+}
+
+void ofxReprojectionRenderer::setDrawArea(float x, float y, float w, float h) {
+	drawX = x;
+	drawY = y;
+	drawWidth = w;
+	drawHeight = h;
 }

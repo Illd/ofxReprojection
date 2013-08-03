@@ -4,12 +4,13 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "ofMain.h"
+
 #include "ofxBase3DVideo.h"
 #include "ofxReprojectionCalibrationData.h"
 #include "ofxReprojectionCalibrationConfig.h"
 #include "lmmin.h"
+#include "ofxDirection.h"
 
-//
 // This class takes care of the calibration of depth cam and projector.
 //
 // The constructor takes a ofxBase3DVideo object which supplies the depth cam images
@@ -25,17 +26,26 @@ public:
 
 	bool init(  	ofxBase3DVideo *cam,
 			ofxReprojectionCalibrationConfig config = ofxReprojectionCalibrationConfig());
+
+	void setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition);
+
 	void update();
+
+	void drawStatusScreen(float x, float y, float w, float h);
+	void drawStatusScreen(float x, float y) { drawStatusScreen(x, y, camWidth*2, camHeight*2); }
+	void drawStatusScreen(const ofPoint& point) { drawStatusScreen(point.x, point.y); }
+	void drawStatusScreen(const ofRectangle& rect) { drawStatusScreen(rect.x, rect.y, rect.width, rect.height); }
+
+	void drawChessboard(float x, float y, float w, float h);
+	void drawChessboard(float x, float y) { drawChessboard(x, y, projectorWidth, projectorHeight); }
+	void drawChessboard(const ofPoint& point) { drawChessboard(point.x, point.y); }
+	void drawChessboard(const ofRectangle& rect) { drawChessboard(rect.x, rect.y, rect.width, rect.height); }
 
 	void finalize();
 
-	void drawCalibrationStatusScreen();
-
 	bool loadData(string filename);
 
-    ofxReprojectionCalibrationData loadDataFromFile(string filename) {
-		return ofxReprojectionCalibrationData::loadFromFile(filename);
-	}
+	ofxReprojectionCalibrationData loadDataFromFile(string filename) { return ofxReprojectionCalibrationData::loadFromFile(filename); }
 	static void saveDataToFile(ofxReprojectionCalibrationData data, string filename);
 	static ofMatrix4x4 calculateReprojectionTransform(ofxReprojectionCalibrationData data);
 
@@ -46,8 +56,8 @@ public:
 	static const cv::Mat lm_affinerow;
 	static void lm_evaluate_camera_matrix(const double *par, int m_dat, const void *data, double *fvec, int *info);
 
-    // helper
-    static ofVec3f pixel3f_to_world3fData( ofVec3f p, ofxReprojectionCalibrationData data);
+	// helper
+	static ofVec3f pixel3f_to_world3fData( ofVec3f p, ofxReprojectionCalibrationData data);
 
 
 	ofxBase3DVideo* cam;
@@ -57,15 +67,17 @@ public:
 private:
 
 	int stability_buffer_i;
-	int cam_w, cam_h;
-	int projector_w, projector_h;
+	int camWidth, camHeight;
+
+	int projectorWidth;
+	int projectorHeight;
+	ofxDirection projectorPosition;
 
 	bool chessfound;
 	bool chessfound_includes_depth;
 	bool chessfound_planar;
 	bool chessfound_enough_frames;
 	bool chessfound_variance_ok;
-
 
 	int chess_rows;
 	int chess_cols;
