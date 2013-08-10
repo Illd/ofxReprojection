@@ -8,6 +8,7 @@
 #include "ofxBase3DVideo.h"
 #include "ofxReprojectionCalibrationData.h"
 #include "ofxReprojectionCalibrationConfig.h"
+#include "ofxReprojectionUtils.h"
 #include "lmmin.h"
 #include "ofxDirection.h"
 
@@ -30,6 +31,8 @@ public:
 	void setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition);
 
 	void update();
+	void updateStatusMessages();
+	void updateChessboard();
 
 	void drawStatusScreen(float x, float y, float w, float h);
 	void drawStatusScreen(float x, float y) { drawStatusScreen(x, y, camWidth*2, camHeight*2); }
@@ -52,7 +55,6 @@ public:
 	void reset();
 	void deleteLastMeasurement();
 
-	static void makechessboard(uchar* pixels, int img_width, int img_height, int rows, int cols, int x, int y, int width, int height, char brightness);
 	static const cv::Mat lm_affinerow;
 	static void lm_evaluate_camera_matrix(const double *par, int m_dat, const void *data, double *fvec, int *info);
 
@@ -65,6 +67,10 @@ public:
 	ofxReprojectionCalibrationConfig config;
 
 private:
+	ofTexture colorImage;
+	ofTexture depthImage;
+	ofFbo statusMessagesImage;
+	ofFbo chessboard;
 
 	int stability_buffer_i;
 	int camWidth, camHeight;
@@ -96,6 +102,8 @@ private:
 	uint num_ok_frames;
 	float largest_variance_xy;
 	float largest_variance_z;
+
+	int refMaxDepth;
 
 
 };

@@ -17,15 +17,20 @@ bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibr
 
 	this->config = config;
 
-	chess_rows = 4;
-	chess_cols = 6;
+	chess_rows = 5;
+	chess_cols = 7;
 	chess_x = 100;
 	chess_y = 100;
 	chess_width = 400; 
 	chess_height = 400;
 	chess_brightness = 255;
 
+	refMaxDepth = -1;
+
 	corner_history.reserve(config.num_stability_frames);
+
+	statusMessagesImage.allocate(camWidth, camHeight, GL_RGB);
+	depthImage.allocate(camWidth, camHeight, GL_RGB);
 
 	return true;
 }
@@ -68,34 +73,30 @@ void ofxReprojectionCalibration::lm_evaluate_camera_matrix(const double *par, in
 	}
 }
 
+void ofxReprojectionCalibration::updateChessboard() {
+	ofPushStyle();
+	chessboard.begin();
 
+	ofClear(chess_brightness,chess_brightness,chess_brightness,255);
+	ofSetColor(0,0,0,255);
 
-void ofxReprojectionCalibration::makechessboard(uchar* pixels, int img_width, int img_height, int rows, int cols, int x, int y, int width, int height, char brightness) {
-	uchar bg = brightness;
-	uchar black = 0;
-	uchar white = brightness;
+	for(int x = 0; x < chess_cols; x++) {
+		for(int y = 0; y < chess_rows; y++) {
+			if((x+y)%2 == 0) {
+				ofRectangle a( chess_x + x*chess_width/chess_cols,
+					chess_y + y*chess_height/chess_rows,
+					chess_width/chess_cols,
+					chess_height/chess_rows
+				      );
 
-	for(int i = 0; i < img_width; i++) {
-		for(int j = 0; j < img_height; j++) {
-			uchar color;
-			if( i < x or i >= x+width or j < y or j >= y+height) {
-				color = bg;
-			} else {
-				int nx = (i-x)*(cols+1)/width;
-				int ny = (j-y)*(rows+1)/height;
-
-				int s = pow(-1,nx+ny);
-
-				if( s > 0 ) {
-					color = black;
-				} else {
-					color = white;
-				}
+				ofRect(a);
 			}
-
-			pixels[i + j*img_width ] = color;
 		}
 	}
+
+
+	chessboard.end();
+	ofPopStyle();
 }
 
 ofVec3f ofxReprojectionCalibration::pixel3f_to_world3fData( ofVec3f p, ofxReprojectionCalibrationData data) {
@@ -216,7 +217,9 @@ ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReproj
 
 // TODO: work through this to fit into ofxReprojectionCalibration
 void ofxReprojectionCalibration::update() {
-	//cam->update();
+	if(refMaxDepth < 0) {
+		refMaxDepth = ofxReprojectionUtils::getMaxDepth(cam->getDistancePixels(), camWidth, camHeight);
+	}
 
 	if(cam->isFrameNew()) {
 
@@ -246,7 +249,7 @@ void ofxReprojectionCalibration::update() {
 
 
 		if(!measurement_pause) {
-			chessfound =  cv::findChessboardCorners(gray, cv::Size(chess_cols,chess_rows), chesscorners,
+			chessfound =  cv::findChessboardCorners(gray, cv::Size(chess_cols-1,chess_rows-1), chesscorners,
 				cv::CALIB_CB_ADAPTIVE_THRESH);// + cv::CALIB_CB_FAST_CHECK);
 		}
 
@@ -383,9 +386,12 @@ void ofxReprojectionCalibration::update() {
 				}
 			}
 
-			cv::drawChessboardCorners(chessdetectimage, cv::Size(chess_cols,chess_rows), cv::Mat(chesscorners), chessfound);
+			cv::drawChessboardCorners(chessdetectimage, cv::Size(chess_cols-1,chess_rows-1), cv::Mat(chesscorners), chessfound);
 			/* color_image.setFromPixels(pPixelsUC, kinect_width, kinect_height, OF_IMAGE_COLOR); */
 		}
+
+		// Convert image to ofTexture for drawing status screen.
+		colorImage.loadData(pPixelsUC, camWidth, camHeight, GL_RGB);
 
 		// If chessboard is found, depth data exists and planarity check is satisfied,
 		// add this measurement to the stability buffer corner_history.
@@ -484,10 +490,10 @@ void ofxReprojectionCalibration::update() {
 				// TODO: data.add_measurement(measurement_mean);
 
 				vector<cv::Point2f> chessboard_points;
-				for(int y = 0; y < chess_rows; y++) {
-					for(int x = 0; x < chess_cols; x++) {
-						int px = chess_x + ((int)((x+1)*chess_width/(chess_cols+1)));
-						int py = chess_y + ((int)((y+1)*chess_height/(chess_rows+1)));
+				for(int y = 0; y < chess_rows-1; y++) {
+					for(int x = 0; x < chess_cols-1; x++) {
+						int px = chess_x + ((int)((x+1)*chess_width/(chess_cols)));
+						int py = chess_y + ((int)((y+1)*chess_height/(chess_rows)));
 						cv::Point2f p((float)px,(float)py);
 
 						ofLogVerbose("ofxReprojection") << "chessboard point " << p << endl;
@@ -509,104 +515,119 @@ void ofxReprojectionCalibration::update() {
 }
 
 
-// TODO: work through this to fit into ofxReprojectionCalibration
 void ofxReprojectionCalibration::drawStatusScreen(float x, float y, float w, float h){
 
-	ofDrawBitmapString("test",20,20);
+	ofRectangle topleft = ofRectangle(x,y,w/2,h/2);
+	ofRectangle topright = ofRectangle(x+w/2,y,w/2,h/2);
+	ofRectangle bottomleft = ofRectangle(x,y+h/2,w/2,h/2);
+	ofRectangle bottomright = ofRectangle(x+w/2,y+h/2,w/2,h/2);
 
-	// projector_chessboard.draw(1920,0);
+	colorImage.draw(topleft);
 
-	// kinect.color_image.draw(0,0);
-	// kinect.depth_image.draw(kinect_width,0);
+	if(refMaxDepth > 0) {
+		ofxReprojectionUtils::makeHueDepthImage(cam->getDistancePixels(), camWidth, camHeight, refMaxDepth, depthImage);
+		depthImage.draw(topright.x,topright.y);
+	}
 
-	// ofCircle(kinect_width/2, kinect_height/2, 5);
+	updateStatusMessages();
+	statusMessagesImage.draw(bottomleft.x,bottomleft.y,bottomleft.width,bottomleft.height);
 
-	// color_image_debug.draw(kinect_width,kinect_height);
-
-	// string str = "framerate is ";
-	// str += ofToString(ofGetFrameRate(), 2)+"fps";
-	//
-	// ofDrawBitmapString(str, 20,kinect_height+20);
-
-	// ostringstream msg; msg << "Valid measurements: " << valid_measurements.size();
-	// ofDrawBitmapString(msg.str(), 20, 2*kinect_height-20);
-
-	// ostringstream msg2; msg2 << "Press 'd' to drop last measurement, 'c' to clear, 's' to save and exit." << endl;
-	// ofDrawBitmapString(msg2.str(), 20, 2*kinect_height-40);
-
-	// ostringstream msg3; msg3 << "Planar threshold " << PLANAR_THRESHOLD << ", variance threshold XY " << VARIANCE_THRESHOLD_XY
-	// 				<< " Z " << VARIANCE_THRESHOLD_Z << "." << endl;
-	// ofDrawBitmapString(msg3.str(), 20, 2*kinect_height-60);
-
-	// ofColor c_error(200,0,0);
-	// ofColor c_success(0,200,0);
-	// ofColor c_white(255,255,255);
-
-	// if(measurement_pause) {
-	// 	ofSetColor(c_white);
-	// 	ofDrawBitmapString("Pausing before next measurement...", 20, kinect_height+40);
-	// } else {
-	// 	if(!chessfound) {
-	// 		ofSetColor(c_error);
-	// 		ofDrawBitmapString("Chess board not detected.",20, kinect_height+40);
-	// 	} else {
-	// 		ofSetColor(c_success);
-	// 		ofDrawBitmapString("Chess board detected.",20, kinect_height+40);
-
-	// 		if(!chessfound_includes_depth) {
-	// 			ofSetColor(c_error);
-	// 			ofDrawBitmapString("Depth data for chess board is incomplete.", 20, kinect_height+60);
-	// 		} else {
-	// 			ofSetColor(c_success);
-	// 			ofDrawBitmapString("Depth data complete.", 20, kinect_height+60);
-
-	// 			if(!chessfound_planar) {
-	// 				ofSetColor(c_error);
-	// 				ostringstream msg; msg << "Chessboard is not planar (R^2 = " << plane_r2 << ").";
-	// 				ofDrawBitmapString(msg.str(), 20, kinect_height+80);
-	// 			} else {
-	// 				ofSetColor(c_success);
-	// 				ostringstream msg; msg << "Chessboard is planar (R^2 = " << plane_r2 << ").";
-	// 				ofDrawBitmapString(msg.str(), 20, kinect_height+80);
-
-	// 				if(!chessfound_enough_frames) {
-	// 					ofSetColor(c_error);
-	// 					ostringstream msg; msg << "Values for " << num_ok_frames
-	// 						<< "/" << NUM_STABILITY_FRAMES << " frames";
-	// 					ofDrawBitmapString(msg.str(), 20, kinect_height+100);
-	// 				} else {
-	// 					ofSetColor(c_success);
-	// 					ostringstream msg; msg << "Values for " << num_ok_frames
-	// 						<< "/" << NUM_STABILITY_FRAMES << " frames";
-	// 					ofDrawBitmapString(msg.str(), 20, kinect_height+100);
-
-	// 					if(!chessfound_variance_ok) {
-	// 						ofSetColor(c_error);
-	// 						ostringstream msg; msg << "Variance too high (xy " << largest_variance_xy
-	// 							<< " (" << VARIANCE_THRESHOLD_XY << "), z " << largest_variance_z
-	// 							<< " (" << VARIANCE_THRESHOLD_Z << ")).";
-	// 						ofDrawBitmapString(msg.str(), 20, kinect_height+120);
-	// 					} else {
-	// 						ofSetColor(c_success);
-	// 						ostringstream msg; msg << "Variance OK (xy " << largest_variance_xy
-	// 							<< " (" << VARIANCE_THRESHOLD_XY << "), z " << largest_variance_z
-	// 							<< " (" << VARIANCE_THRESHOLD_Z << ")).";
-	// 						ofDrawBitmapString(msg.str(), 20, kinect_height+120);
-	// 					}
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// }
-
-	// ofSetColor(255,255,255);
-	//
-
-
+	chessboard.draw(bottomright.x,bottomright.y,bottomright.width,bottomright.height);
 
 }
 
+void ofxReprojectionCalibration::updateStatusMessages() {
+	int height = statusMessagesImage.getHeight();
+
+	ofPushStyle();
+
+	statusMessagesImage.begin();
+	ofClear(25,25,25,255);
+	ofColor(0,0,0,255);
+
+
+	string str = "framerate is ";
+	str += ofToString(ofGetFrameRate(), 2)+"fps";
+	
+	ofDrawBitmapString(str, 20,20);
+
+	ostringstream msg; msg << "Valid measurements: " << data.getCamPoints().size();
+	ofDrawBitmapString(msg.str(), 20, height-20);
+
+	ostringstream msg2; msg2 << "Press 'd' to drop last measurement, 'c' to clear, 's' to save and exit." << endl;
+	ofDrawBitmapString(msg2.str(), 20, height-40);
+
+	ostringstream msg3; msg3 << "Planar threshold " << config.planar_threshold
+	       			<< ", variance threshold XY " << config.variance_threshold_xy
+					<< " Z " << config.variance_threshold_z << "." << endl;
+	ofDrawBitmapString(msg3.str(), 20, height-60);
+
+	ofColor c_error(200,0,0);
+	ofColor c_success(0,200,0);
+	ofColor c_white(255,255,255);
+
+	if(measurement_pause) {
+		ofSetColor(c_white);
+		ofDrawBitmapString("Pausing before next measurement...", 20, 40);
+	} else {
+		if(!chessfound) {
+			ofSetColor(c_error);
+			ofDrawBitmapString("Chess board not detected.",20, 40);
+		} else {
+			ofSetColor(c_success);
+			ofDrawBitmapString("Chess board detected.",20, 40);
+
+			if(!chessfound_includes_depth) {
+				ofSetColor(c_error);
+				ofDrawBitmapString("Depth data for chess board is incomplete.", 20, 60);
+			} else {
+				ofSetColor(c_success);
+				ofDrawBitmapString("Depth data complete.", 20, 60);
+
+				if(!chessfound_planar) {
+					ofSetColor(c_error);
+					ostringstream msg; msg << "Chessboard is not planar (R^2 = " << plane_r2 << ").";
+					ofDrawBitmapString(msg.str(), 20, 80);
+				} else {
+					ofSetColor(c_success);
+					ostringstream msg; msg << "Chessboard is planar (R^2 = " << plane_r2 << ").";
+					ofDrawBitmapString(msg.str(), 20, 80);
+
+					if(!chessfound_enough_frames) {
+						ofSetColor(c_error);
+						ostringstream msg; msg << "Values for " << num_ok_frames
+							<< "/" << config.num_stability_frames << " frames";
+						ofDrawBitmapString(msg.str(), 20, 100);
+					} else {
+						ofSetColor(c_success);
+						ostringstream msg; msg << "Values for " << num_ok_frames
+							<< "/" << config.num_stability_frames << " frames";
+						ofDrawBitmapString(msg.str(), 20, 100);
+
+						if(!chessfound_variance_ok) {
+							ofSetColor(c_error);
+							ostringstream msg; msg << "Variance too high (xy " << largest_variance_xy
+								<< " (" << config.variance_threshold_xy << "), z " << largest_variance_z
+								<< " (" << config.variance_threshold_z << ")).";
+							ofDrawBitmapString(msg.str(), 20, 120);
+						} else {
+							ofSetColor(c_success);
+							ostringstream msg; msg << "Variance OK (xy " << largest_variance_xy
+								<< " (" << config.variance_threshold_xy << "), z " << largest_variance_z
+								<< " (" << config.variance_threshold_z << ")).";
+							ofDrawBitmapString(msg.str(), 20, 120);
+						}
+					}
+				}
+			}
+		}
+	}
+	statusMessagesImage.end();
+	ofPopStyle();
+}
+
 void ofxReprojectionCalibration::drawChessboard(float x, float y, float w, float h) {
+	chessboard.draw(x,y,w,h);
 }
 
 
@@ -676,4 +697,6 @@ void ofxReprojectionCalibration::setProjectorInfo(int projectorWidth, int projec
 
 	chess_width = ((int)(0.8f*projectorWidth));
 	chess_height = ((int)(0.8f*projectorHeight));
+	chessboard.allocate(projectorWidth,projectorHeight,GL_LUMINANCE);
+	updateChessboard();
 }
