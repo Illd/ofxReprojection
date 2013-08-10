@@ -57,7 +57,7 @@ ofPoint ofxReprojection::getProjectorPoint() {
 	} else if (projectorPosition == OFX_DIRECTION_RIGHT) {
 		return ofPoint(mainWindowWidth,0);
 	} else {
-		ofLogWarning("ofxReprojectioN") << "getProjectorPoint: projectorPosition UP and DOWN not implemented.";
+		ofLogWarning("ofxReprojection") << "getProjectorPoint: projectorPosition UP and DOWN not implemented.";
 		return ofPoint(0,0);
 	}
 }
@@ -68,7 +68,7 @@ ofPoint ofxReprojection::getMainWindowPoint() {
 	} else if (projectorPosition == OFX_DIRECTION_RIGHT) {
 		return ofPoint(0,0);
 	} else {
-		ofLogWarning("ofxReprojectioN") << "getProjectorPoint: projectorPosition UP and DOWN not implemented.";
+		ofLogWarning("ofxReprojection") << "getProjectorPoint: projectorPosition UP and DOWN not implemented.";
 		return ofPoint(0,0);
 	}
 }
