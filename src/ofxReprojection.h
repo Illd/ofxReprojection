@@ -29,7 +29,6 @@ public:
 			calibration.loadData(filename);
 		}
 
-		void initGui();
 
 		// Updates the calibration object.
 		void update();
@@ -99,4 +98,6 @@ private:
 		ofxPanel calibrationGui;
 
 		ofxHighlightRects highlighter;
+
+		void initGui();
 };

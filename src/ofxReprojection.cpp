@@ -58,6 +58,7 @@ void ofxReprojection::initGui() {
 
 void ofxReprojection::setKeysEnabled(bool enable) {
 	calibration.setKeysEnabled(enable);
+	renderer.setKeysEnabled(enable);
 }
 
 void ofxReprojection::setGuiEnabled(bool enable) {
@@ -68,19 +69,28 @@ void ofxReprojection::finalizeCalibration() {
 	calibration.finalize();
 	renderer.init(cam);
 	renderer.setProjectionMatrix(calibration.data.getMatrix());
+	ofLogVerbose("ofxReprojection") << "starting renderer with matrix " << calibration.data.getMatrix();
 	renderer.setDrawArea(getProjectorRectangle());
-	renderer.generate_grid();
+	renderer.generateGrid();
+	renderer.update();
 
 	bCalibrationStage = false;
 }
 
 void ofxReprojection::update() {
-	if(bCalibrationStage != !calibration.isFinalized()) {
-		bCalibrationStage = !calibration.isFinalized();
-	}
 	if(bCalibrationStage) {
 		calibration.update();
-	} 
+	} else {
+		renderer.update();
+	}
+
+	if(bCalibrationStage != !calibration.isFinalized()) {
+		if(calibration.isFinalized()) {
+			finalizeCalibration();
+		} else {
+			bCalibrationStage = true;
+		}
+	}
 }
 
 void ofxReprojection::drawImage(ofTexture tex) {
@@ -136,7 +146,7 @@ void ofxReprojection::drawCalibration() {
 }
 
 void ofxReprojection::drawRenderer() {
-	renderer.drawHueImage();
+	renderer.drawHueDepthImage();
 }
 
 void ofxReprojection::setupProjector(int projectorWidth, int projectorHeight, ofxDirection projectorPosition, bool moveWindow) {

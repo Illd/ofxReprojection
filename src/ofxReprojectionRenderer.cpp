@@ -8,6 +8,8 @@ ofxReprojectionRenderer::ofxReprojectionRenderer()
 	useTransform = true;
 	useDepthImage = true;
 	pointsize = 4.0;
+	
+	refMaxDepth = 1000;
 
 	drawX = 0;
 	drawY = 0;
@@ -16,47 +18,46 @@ ofxReprojectionRenderer::ofxReprojectionRenderer()
 
 	drawMethod = OFX_REPROJECTION_RENDERER_DRAW_METHOD_POINTS;
 
-	string vertexshader = 	"#version 120\n"
+	stringVertexShader2D = 	"#version 120\n"
 				"#extension GL_ARB_texture_rectangle : enable\n" 
 				STRINGIFY(
 
+		// depth_map: R32F format, 32 bit floats in red channel 
+		// (real z values, not normalized)
 		uniform sampler2DRect depth_map;
+
+		// color_image: RBG format
 		uniform sampler2DRect color_image;
-		uniform mat4 kinproj_transform;
-		uniform float ps;
+
+		uniform mat4 transform;
+		uniform float pointsize;
 
 		void main() {
-			gl_TexCoord[0] = gl_MultiTexCoord0;
-
-			vec4 pos;
-
-			// Extract color
-			pos = gl_Vertex;
+			vec4 pos = gl_Vertex;
 			gl_FrontColor.rgb = texture2DRect(color_image, pos.xy).rgb;
-
-			// Combine pixel XY (gl_vertex) with depth data.
-			vec4 dp = texture2DRect(depth_map, pos.xy);
-			//pos.z  = 100;
-
-			pos.z = 256*(256*256*dp.r + 256*dp.g + dp.b);
-
+			float z = texture2DRect(depth_map, pos.xy).r;
+			pos.z = z;
+			pos = pos*transform; 
+			pos.z = z;
+			gl_Position = gl_ModelViewProjectionMatrix * pos;
 			if(abs(pos.z) < 1e-5) {
 				gl_FrontColor.rgb = vec3(0,0,0);
 			}
 
-
-			pos = pos*kinproj_transform;
-
-			// Still do depth sorting
-			pos.z = 256*(256*256*dp.r + 256*dp.g + dp.b);
-
-			gl_Position = gl_ModelViewProjectionMatrix * pos;
-
-			gl_PointSize = ps;
+			gl_PointSize = pointsize;
 		}
 	);
 
-	ofLogVerbose("ofxReprojection") << "Renderer shader string: " << vertexshader;
+	stringFragmentShader2D = "#version 120\n"
+			STRINGIFY(
+		void main() {
+			if(gl_Color.rgb == vec3(0,0,0)) discard; 
+			gl_FragColor = gl_Color;
+		}
+	);
+
+
+
 
 }
 
@@ -68,97 +69,146 @@ ofxReprojectionRenderer::~ofxReprojectionRenderer()
 
 bool ofxReprojectionRenderer::init(ofxBase3DVideo *cam) {
 	if(cam == NULL) {
-		ofLogWarning("ofxReprojection") << "Valid ofxBase3DVideo providing both color and depth image must be passed to constructor ofxReprojectionRenderer";
+		ofLogWarning("ofxReprojection") << "Valid ofxBase3DVideo providing both color "
+		       "and depth image must be passed to constructor ofxReprojectionRenderer";
 		return false;
 	} else {
 		this->cam = cam;
 	}
 
-	cam_height = cam->getPixelsRef().getHeight();
-	cam_width = cam->getPixelsRef().getWidth();
+	camWidth = cam->getPixelsRef().getWidth();
+	camHeight = cam->getPixelsRef().getHeight();
+
+	refMaxDepth = ofxReprojectionUtils::getMaxDepth(cam->getDistancePixels(), camWidth, camHeight);
+
+	depthFloats.allocate(camWidth, camHeight, OF_IMAGE_GRAYSCALE);
+	depthFloats.getTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+
+	ofLogVerbose("ofxReprojection") << "Renderer shader string: " << stringVertexShader2D;
+	shader2D.setupShaderFromSource(GL_VERTEX_SHADER, stringVertexShader2D);
+	shader2D.setupShaderFromSource(GL_FRAGMENT_SHADER, stringFragmentShader2D);
+	shader2D.linkProgram();
+	shader2D.printActiveUniforms();
 
 	return true;
 }
 
+void ofxReprojectionRenderer::update() {
+	depthFloats.setFromPixels(cam->getDistancePixels(), camWidth, camHeight, OF_IMAGE_GRAYSCALE);
+}
+
+void ofxReprojectionRenderer::setKeysEnabled(bool enable) {
+	if(!bKeysEnabled && enable) {
+		ofAddListener(ofEvents().keyPressed, this, &ofxReprojectionRenderer::keyPressed);
+	} else if(bKeysEnabled && !enable) {
+		ofRemoveListener(ofEvents().keyPressed, this, &ofxReprojectionRenderer::keyPressed);
+	}
+
+	bKeysEnabled = enable;
+}
+
+void ofxReprojectionRenderer::keyPressed(ofKeyEventArgs& e) {
+	if(e.key == 't') {
+		toggleTransform();
+	}
+}
+
 void ofxReprojectionRenderer::begin() {
-    shader.begin();
+    shader3D.begin();
 }
 
 void ofxReprojectionRenderer::end() {
-    shader.end();
+    shader3D.end();
 
 }
-void ofxReprojectionRenderer::drawImage(ofTexture tex) 
+
+void ofxReprojectionRenderer::drawHueDepthImage() {
+	if(!huetex.isAllocated()) {
+		huetex.allocate(camWidth,camHeight, GL_RGB);
+	}
+
+	ofxReprojectionUtils::makeHueDepthImage(cam->getDistancePixels(), camWidth, camHeight, refMaxDepth, huetex);
+	drawImage(huetex);
+}
+
+void ofxReprojectionRenderer::drawImage(ofImage &img) {
+	if(!img.isUsingTexture()) {
+		ofLogWarning("ofxReprojection") << "drawImage(ofImage) called with ofImage object "
+		       "not using textures. Texture is needed.";
+	} else {
+		drawImage(img.getTextureReference());
+	}
+}
+
+// Needs input to be RGB image.
+void ofxReprojectionRenderer::drawImage(unsigned char *pixels, int pw, int ph) {
+	if(!temptex.isAllocated() || pw != temptex.getWidth() || ph != temptex.getHeight()) {
+		temptex.allocate(pw,ph,GL_RGB);
+	}
+
+	temptex.loadData(pixels,pw,ph,GL_RGB);
+	drawImage(temptex);
+}
+
+void ofxReprojectionRenderer::drawImage(ofPixels &pix) {
+	if(pix.getNumChannels() != 3) {
+		ofLogWarning("ofxReprojection") << "drawImage(ofPixels) needs RGB input image.";
+	} else {
+		drawImage(pix.getPixels(), pix.getWidth(), pix.getHeight());
+	}
+}
+
+void ofxReprojectionRenderer::drawImage(ofTexture &tex) 
 {
+	// The default coordinate system is [-1,1]x[-1,1],[0,1] 
+	// representing the limits of the camera field of view.
+
+	ofPushStyle();
+	ofSetColor(255,255,255,255);
+
+	output.begin();
+
+	ofMatrix4x4 ortho;
+	if(useTransform) { ortho = ofMatrix4x4::newOrthoMatrix(0,projectorWidth,0,projectorHeight, 0, -10000); }
+	else 		 { ortho = ofMatrix4x4::newOrthoMatrix(0,camWidth,0,camHeight, 0, -10000); }
+	ofSetMatrixMode(OF_MATRIX_PROJECTION);
+	ofLoadMatrix(ortho);
+	ofSetMatrixMode(OF_MATRIX_MODELVIEW);
+	ofLoadIdentityMatrix();
+
+	ofClear(100,120,100,255);
+
+	glEnable(GL_POINT_SPRITE);
+	glEnable(GL_PROGRAM_POINT_SIZE);
 
 
-    // Setup orthographic projection.
-    // Without tranformation, the space is [-1,1]x[-1,1]x[0,1], WRONG
-    // with transformation, the space is [0,1024]x[0,768]x[0].
+	shader2D.begin();
+	shader2D.setUniform1f("pointsize",pointsize);
+	if(useTransform) { shader2D.setUniformMatrix4f("transform", projectionMatrix); }
+	else		 { shader2D.setUniformMatrix4f("transform", identityMatrix); }
+	shader2D.setUniformTexture("depth_map", depthFloats, 0);
+	shader2D.setUniformTexture("color_image", tex, 1);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    ofScale(1,1,1); // Pixel/image format -> GL coord.sys.
+	outputgrid.draw();
 
-    if(useTransform)
-    {
+	shader2D.end();
 
-        glOrtho(0, projectorWidth, 0, projectorHeight,1,-100*ref_max_depth);
-    }
-    else
-    {
-        glOrtho(0, cam_width,0, cam_height,1,-100*ref_max_depth);
-    }
+	output.end();
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    glEnable(GL_POINT_SPRITE);
-    glEnable(GL_PROGRAM_POINT_SIZE);
-
-    shader.begin();
-
-    float ps = max(projectionMatrix(0,0), projectionMatrix(1,1));
-
-    shader.setUniform1f("ps",pointsize);
-
-    ofTexture depthTexture = cam->getDepthTextureReference();
-
-    if(useTransform)
-    {
-        shader.setUniformMatrix4f("kinproj_transform", projectionMatrix);
-    }
-    else
-    {
-        shader.setUniformMatrix4f("kinproj_transform", identityMatrix);
-    }
-
-    shader.setUniformTexture("depth_map", depthTexture, 0);
-    if(useDepthImage)
-    {
-        shader.setUniformTexture("color_image", depthTexture, 1);
-    }
-    else
-    {
-        shader.setUniformTexture("color_image", tex, 1);
-    }
-
-    outputgrid.draw();
-
-
-
+	output.draw(drawX, drawY, drawWidth, drawHeight);
+	ofPopStyle();
 }
 
 
-void ofxReprojectionRenderer::generate_grid()
+void ofxReprojectionRenderer::generateGrid()
 {
     outputgrid.clear();
     outputgrid.setMode(OF_PRIMITIVE_POINTS);
 
     int skip = 1;
-    for(int y = 0; y < cam_height - skip; y += skip)
+    for(int y = 0; y < camHeight - skip; y += skip)
     {
-        for(int x = 0; x < cam_width - skip; x += skip)
+        for(int x = 0; x < camWidth - skip; x += skip)
         {
             outputgrid.addVertex(ofVec3f(x,y,2));
 
@@ -172,7 +222,7 @@ void ofxReprojectionRenderer::generate_grid()
 //             outputgrid.addVertex(ofVec3f(x+skip,y+skip,2));
 
 
-            outputgrid.addTexCoord(ofVec2f(x*2.0,y*2.0));
+            outputgrid.addTexCoord(ofVec2f(x,y));
 
             // Points for adding 2 triangles:
 //             outputgrid.addTexCoord(ofVec2f(x+skip,y+skip));
@@ -205,6 +255,8 @@ void ofxReprojectionRenderer::setProjectorInfo(int projectorWidth, int projector
 	if(drawHeight == 0) {
 		drawHeight = projectorHeight;
 	}
+
+	output.allocate(projectorWidth,projectorHeight, GL_RGB);
 }
 
 void ofxReprojectionRenderer::setDrawArea(float x, float y, float w, float h) {
