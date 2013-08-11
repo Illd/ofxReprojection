@@ -33,7 +33,7 @@ class ofxReprojectionUtils {
 
 			unsigned char *outPixels = new unsigned char[3*width*height];
 
-			for(unsigned int i = 0; i < width*height; i++) {
+			for(int i = 0; i < width*height; i++) {
 				ofColor c = ofColor::black;
 				float relativeDepth;
 				if(pixels[i] > 0) {
@@ -55,7 +55,7 @@ class ofxReprojectionUtils {
 		template<typename T>
 		static int getMaxDepth(T* pixels, int width, int height) {
 			int max = 0;
-			for(unsigned int i= 0; i  < width*height; i++) {
+			for(int i= 0; i < width*height; i++) {
 				if(pixels[i] > max) {
 					max = (int)pixels[i];
 				}
