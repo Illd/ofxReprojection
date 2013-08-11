@@ -1,6 +1,7 @@
 #include "ofxReprojectionCalibration.h"
 
 ofxReprojectionCalibration::ofxReprojectionCalibration() {
+	bFinalized = false;
 }
 
 bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibrationConfig config) {
@@ -36,6 +37,56 @@ bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibr
 }
 
 ofxReprojectionCalibration::~ofxReprojectionCalibration() {
+}
+
+void ofxReprojectionCalibration::setKeysEnabled(bool enable) {
+	if(!bKeysEnabled && enable) {
+		ofAddListener(ofEvents().keyPressed, this, &ofxReprojectionCalibration::keyPressed);
+	} else if(bKeysEnabled && !enable) {
+		ofRemoveListener(ofEvents().keyPressed, this, &ofxReprojectionCalibration::keyPressed);
+	}
+
+	bKeysEnabled = enable;
+}
+
+void ofxReprojectionCalibration::keyPressed(ofKeyEventArgs& e) {
+	if(!bFinalized) {
+		if(e.key == 'd') {
+			deleteLastMeasurement();
+		}
+		if(e.key == 'c') {
+			clear();
+		}
+		if(e.key == 's') {
+			saveFile();
+		}
+		if(e.key == 'l') {
+			loadFile();
+		}
+		if(e.key == 'f') {
+			finalize();
+		}
+	} else {
+		if(e.key == 'c') {
+			unfinalize();
+		}
+	}
+}
+
+void ofxReprojectionCalibration::deleteLastMeasurement() {
+	data.deleteLastMeasurement();
+}
+
+void ofxReprojectionCalibration::clear() {
+	data.clear();
+}
+
+void ofxReprojectionCalibration::loadFile() {
+
+}
+
+void ofxReprojectionCalibration::saveFile() {
+
 }
 
 const cv::Mat ofxReprojectionCalibration::lm_affinerow = (cv::Mat_<double>(1,4) << 0,0,0,1);
@@ -112,7 +163,7 @@ ofVec3f ofxReprojectionCalibration::pixel3f_to_world3fData( ofVec3f p, ofxReproj
 	}
 }
 
-ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReprojectionCalibrationData data) {
+ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(const ofxReprojectionCalibrationData &data) {
 
     vector< vector< ofVec3f > > measurements = data.getCamPoints();
     vector< vector< ofVec2f > > projpoints = data.getProjectorPoints();
@@ -465,8 +516,9 @@ void ofxReprojectionCalibration::update() {
 
 				// Measurement is accepted. Calculate the mean and
 				// add to valid_measurements and all_chessboard_points.
+				// Also, convert to openFrameworks vector structs.
 
-				vector<cv::Point3f> measurement_mean;
+				vector<ofVec3f> measurement_mean;
 				for(uint i = 0; i < corner_history[0].size(); i++) {
 					cv::Vec<float, 3> corner;
 					for(uint j= 0 ; j < 3; j ++) {
@@ -479,7 +531,7 @@ void ofxReprojectionCalibration::update() {
 						corner[j] = mean;
 					}
 
-					cv::Point3f cornerp = corner;
+					ofVec3f cornerp = ofVec3f(corner[0],corner[1],corner[2]);
 					measurement_mean.push_back(cornerp);
 				}
 
@@ -487,14 +539,13 @@ void ofxReprojectionCalibration::update() {
 
 
 				//valid_measurements.push_back(measurement_mean);
-				// TODO: data.add_measurement(measurement_mean);
 
-				vector<cv::Point2f> chessboard_points;
+				vector<ofVec2f> chessboard_points;
 				for(int y = 0; y < chess_rows-1; y++) {
 					for(int x = 0; x < chess_cols-1; x++) {
 						int px = chess_x + ((int)((x+1)*chess_width/(chess_cols)));
 						int py = chess_y + ((int)((y+1)*chess_height/(chess_rows)));
-						cv::Point2f p((float)px,(float)py);
+						ofVec2f p((float)px,(float)py);
 
 						ofLogVerbose("ofxReprojection") << "chessboard point " << p << endl;
 						chessboard_points.push_back(p);
@@ -502,7 +553,9 @@ void ofxReprojectionCalibration::update() {
 				}
 
 				//all_chessboard_points.push_back(chessboard_points);
-				// TODO: data.add_projpoints(chessboard_points);
+				//
+
+				data.addMeasurement(measurement_mean, chessboard_points);
 
 
 				measurement_pause = true;
@@ -526,7 +579,7 @@ void ofxReprojectionCalibration::drawStatusScreen(float x, float y, float w, flo
 
 	if(refMaxDepth > 0) {
 		ofxReprojectionUtils::makeHueDepthImage(cam->getDistancePixels(), camWidth, camHeight, refMaxDepth, depthImage);
-		depthImage.draw(topright.x,topright.y);
+		depthImage.draw(topright);
 	}
 
 	updateStatusMessages();
@@ -554,13 +607,16 @@ void ofxReprojectionCalibration::updateStatusMessages() {
 	ostringstream msg; msg << "Valid measurements: " << data.getCamPoints().size();
 	ofDrawBitmapString(msg.str(), 20, height-20);
 
-	ostringstream msg2; msg2 << "Press 'd' to drop last measurement, 'c' to clear, 's' to save and exit." << endl;
-	ofDrawBitmapString(msg2.str(), 20, height-40);
+	if(bKeysEnabled) {
+		ostringstream msg2; msg2 << "Press 'd' to drop last measurement, 'c' to clear, 's' to save file,\n 'l' to load file, "
+			"'f' to finalize." << endl;
+		ofDrawBitmapString(msg2.str(), 20, height-60);
+	}
 
 	ostringstream msg3; msg3 << "Planar threshold " << config.planar_threshold
 	       			<< ", variance threshold XY " << config.variance_threshold_xy
 					<< " Z " << config.variance_threshold_z << "." << endl;
-	ofDrawBitmapString(msg3.str(), 20, height-60);
+	ofDrawBitmapString(msg3.str(), 20, height-80);
 
 	ofColor c_error(200,0,0);
 	ofColor c_success(0,200,0);
@@ -677,17 +733,22 @@ static void saveDataToFile(ofxReprojectionCalibrationData data, string filename)
 	// fs.release();
 }
 
-bool ofxReprojectionCalibration::loadData(string filename) {
-cout << "loading"<< endl;
-	data = loadDataFromFile(filename);
-	cout << "done" << endl;
-	cout << data.getRefMaxDepth() << endl;
-	return true;
+void ofxReprojectionCalibration::loadData(string filename) {
+	data = ofxReprojectionCalibrationData::loadFromFile(filename);
 }
 
 void ofxReprojectionCalibration::finalize() {
-    data.setMatrix(calculateReprojectionTransform(data));
-    cout << data.getMatrix() << endl;
+	if(bFinalized) return;
+
+	data.updateMatrix();
+	cout << data.getMatrix() << endl;
+	bFinalized = true;
+}
+
+void ofxReprojectionCalibration::unfinalize() {
+	if(!bFinalized) return;
+
+	bFinalized = false;
 }
 
 void ofxReprojectionCalibration::setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition) {

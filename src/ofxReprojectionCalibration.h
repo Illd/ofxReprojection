@@ -44,22 +44,30 @@ public:
 	void drawChessboard(const ofPoint& point) { drawChessboard(point.x, point.y); }
 	void drawChessboard(const ofRectangle& rect) { drawChessboard(rect.x, rect.y, rect.width, rect.height); }
 
-	void finalize();
+	// Enable/disable listening to openFrameworks window keypresses (d,c,s and f)
+	// and issuing appropriate commands during calibration stage.
+	void setKeysEnabled(bool enable);
+	void enableKeys() { setKeysEnabled(true); }
+	void disableKeys() { setKeysEnabled(false); }
 
-	bool loadData(string filename);
-
-	ofxReprojectionCalibrationData loadDataFromFile(string filename) { return ofxReprojectionCalibrationData::loadFromFile(filename); }
-	static void saveDataToFile(ofxReprojectionCalibrationData data, string filename);
-	static ofMatrix4x4 calculateReprojectionTransform(ofxReprojectionCalibrationData data);
-
-	void reset();
 	void deleteLastMeasurement();
+	void clear();
+	void loadFile();
+	void saveFile();
+	void finalize();
+	void unfinalize();
+
+	void loadData(string filename);
+
+	static ofMatrix4x4 calculateReprojectionTransform(const ofxReprojectionCalibrationData &data);
 
 	static const cv::Mat lm_affinerow;
 	static void lm_evaluate_camera_matrix(const double *par, int m_dat, const void *data, double *fvec, int *info);
 
 	// helper
 	static ofVec3f pixel3f_to_world3fData( ofVec3f p, ofxReprojectionCalibrationData data);
+
+	bool isFinalized() { return bFinalized; }
 
 
 	ofxBase3DVideo* cam;
@@ -71,6 +79,10 @@ private:
 	ofTexture depthImage;
 	ofFbo statusMessagesImage;
 	ofFbo chessboard;
+
+	void keyPressed(ofKeyEventArgs& e);
+
+	bool bKeysEnabled;
 
 	int stability_buffer_i;
 	int camWidth, camHeight;
@@ -104,6 +116,8 @@ private:
 	float largest_variance_z;
 
 	int refMaxDepth;
+
+	bool bFinalized;
 
 
 };
