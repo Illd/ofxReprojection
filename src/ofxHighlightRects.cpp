@@ -3,7 +3,7 @@
 ofxHighlightRects::ofxHighlightRects() {
 	inited = false;
 
-	stayTime = 1000;
+	stayTime = 2000;
 	fadeTime = 2000;
 	lineWidth = 10;
 
@@ -44,9 +44,8 @@ void ofxHighlightRects::draw(ofEventArgs &e) {
 	std::vector<HighlightRectData>::iterator it = highlights.begin();
 
 	ofPushStyle();
-	ofColor fg = ofColor(255,0,0);
-	ofColor inverse = fg;
-	inverse.invert();
+	ofColor fg = ofColor(90,200,90);
+	ofColor bg = ofColor(0,0,0);
 	ofNoFill();
 
 	while(it != highlights.end()) {
@@ -64,7 +63,7 @@ void ofxHighlightRects::draw(ofEventArgs &e) {
 				       it->rect.x+it->lineWidth-1,
 				       it->rect.y+9+it->lineWidth,
 				       ofColor(fg,alpha),
-				       ofColor(inverse,alpha));
+				       ofColor(bg,alpha));
 		}
 
 		if(it->timestamp + it->stayTime + it->fadeTime < currentTime) {
