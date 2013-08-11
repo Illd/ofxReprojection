@@ -227,7 +227,7 @@ ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(const ofx
  	ofprojmat.set(
  		       	lm_cam_params[0], lm_cam_params[1], lm_cam_params[2], lm_cam_params[3],
  		       	lm_cam_params[4], lm_cam_params[5], lm_cam_params[6], lm_cam_params[7],
-                0,0,0,0,
+			0,0,0,0,
  		       	0,0,0,1
  	);
 
@@ -265,13 +265,12 @@ ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(const ofx
 
 }
 
-
-// TODO: work through this to fit into ofxReprojectionCalibration
 void ofxReprojectionCalibration::update() {
 	if(refMaxDepth < 0) {
 		refMaxDepth = ofxReprojectionUtils::getMaxDepth(cam->getDistancePixels(), camWidth, camHeight);
 	}
 
+	// TODO: separate this into a thread? findChessboardCorners can be very slow.
 	if(cam->isFrameNew()) {
 
 		// Convert color image to OpenCV image.
@@ -301,7 +300,7 @@ void ofxReprojectionCalibration::update() {
 
 		if(!measurement_pause) {
 			chessfound =  cv::findChessboardCorners(gray, cv::Size(chess_cols-1,chess_rows-1), chesscorners,
-				cv::CALIB_CB_ADAPTIVE_THRESH);// + cv::CALIB_CB_FAST_CHECK);
+				cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_FAST_CHECK);
 		}
 
 		vector<cv::Point3f> chesscorners_depth;
