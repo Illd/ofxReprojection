@@ -94,7 +94,10 @@ bool ofxReprojectionRenderer::init(ofxBase3DVideo *cam) {
 }
 
 void ofxReprojectionRenderer::update() {
-	depthFloats.setFromPixels(cam->getDistancePixels(), camWidth, camHeight, OF_IMAGE_GRAYSCALE);
+	if(cam->isFrameNew()) {
+		depthFloats.setFromPixels(cam->getDistancePixels(), camWidth, camHeight, OF_IMAGE_GRAYSCALE);
+		bDepthUpdated = true;
+	}
 }
 
 void ofxReprojectionRenderer::setKeysEnabled(bool enable) {
@@ -124,10 +127,14 @@ void ofxReprojectionRenderer::end() {
 
 void ofxReprojectionRenderer::drawHueDepthImage() {
 	if(!huetex.isAllocated()) {
+		ofLogVerbose("ofxReprojection") << "allocating ofTexture huetext in drawHueDepthImage()";
 		huetex.allocate(camWidth,camHeight, GL_RGB);
 	}
 
-	ofxReprojectionUtils::makeHueDepthImage(cam->getDistancePixels(), camWidth, camHeight, refMaxDepth, huetex);
+	if(bDepthUpdated) {
+		ofxReprojectionUtils::makeHueDepthImage(cam->getDistancePixels(), camWidth, camHeight, refMaxDepth, huetex);
+		bDepthUpdated = false;
+	}
 	drawImage(huetex);
 }
 

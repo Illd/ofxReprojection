@@ -96,6 +96,7 @@ class ofxReprojectionRenderer {
 		void keyPressed(ofKeyEventArgs& e);
 
 		bool bKeysEnabled;
+		bool bDepthUpdated;
 
 };
 
