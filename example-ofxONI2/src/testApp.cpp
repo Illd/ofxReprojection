@@ -8,7 +8,7 @@ void testApp::setup(){
 	ofSetLogLevel(OF_LOG_VERBOSE);
 	ofSetVerticalSync(false);
 
-	depthcam.init();
+	depthcam.init(true,false,false);
 	depthcam.open();
 
 	reprojection.init(&depthcam);
