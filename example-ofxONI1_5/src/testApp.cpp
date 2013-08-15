@@ -17,7 +17,7 @@ void testApp::setup()
     }
     ofEnableAlphaBlending();
 
-    skeletonfbo.allocate(640*2, 480*2, GL_RGBA);
+    skeletonfbo.allocate(640, 480, GL_RGBA);
 
     drawfbo.allocate(1024, 768, GL_RGBA);
 
@@ -54,7 +54,7 @@ void testApp::draw()
         depthcam.getGrayTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 
         skeletonfbo.begin();
-        ofScale(2,2,2);
+        ofScale(1,1,1);
         ofClear(255,255,255, 0);
         if (gui.gUsetexture)
         {
