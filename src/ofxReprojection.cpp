@@ -12,6 +12,14 @@ bool ofxReprojection::init(ofxBase3DVideo* cam, string calibrationDataFilename) 
 
 	ofLogVerbose("ofxReprojection") << "initing ofxReprojection object";
 
+    if(cam == NULL) {
+		ofLogWarning("ofxReprojection") << "Valid ofxBase3DVideo providing both color "
+		       "and depth image must be passed to constructor ofxReprojection";
+		return false;
+	} else {
+		this->cam = cam;
+	}
+
 	if(calibrationDataFilename != "") {
 		ofLogVerbose("ofxReprojection") << "calibrationDataFilename supplied, loading and finalizing calibration.";
 		setKeysEnabled(false);
@@ -23,12 +31,13 @@ bool ofxReprojection::init(ofxBase3DVideo* cam, string calibrationDataFilename) 
 		setKeysEnabled(true);
 	}
 
-	this->cam = cam;
+
 
 	initGui();
 	highlighter.init();
 
 	setGuiEnabled(false);
+
 
 
 	return true;

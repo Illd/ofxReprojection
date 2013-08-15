@@ -22,7 +22,7 @@ bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibr
 	chess_cols = 7;
 	chess_x = 100;
 	chess_y = 100;
-	chess_width = 400; 
+	chess_width = 400;
 	chess_height = 400;
 	chess_brightness = 255;
 
@@ -600,7 +600,7 @@ void ofxReprojectionCalibration::updateStatusMessages() {
 
 	string str = "framerate is ";
 	str += ofToString(ofGetFrameRate(), 2)+"fps";
-	
+
 	ofDrawBitmapString(str, 20,20);
 
 	ostringstream msg; msg << "Valid measurements: " << data.getCamPoints().size();

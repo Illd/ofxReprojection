@@ -76,13 +76,15 @@ public:
         int getCamHeight() {return renderer.getCamHeight();}
         float getMaxDepth() {return renderer.getMaxDepth();}
 
+        ofxReprojectionRenderer renderer;
+
 private:
 		bool bCalibrationStage;
 
 		ofxBase3DVideo* cam;
 		ofxReprojectionCalibration calibration;
 		ofxReprojectionCalibrationData calibrationData;
-		ofxReprojectionRenderer renderer;
+
 
 		int projectorWidth;
 		int projectorHeight;
