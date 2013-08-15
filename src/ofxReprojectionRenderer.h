@@ -6,7 +6,11 @@
 #include "ofxDirection.h"
 #include "ofxReprojectionUtils.h"
 
-enum ofxReprojectionRendererDrawMethod { OFX_REPROJECTION_RENDERER_DRAW_METHOD_POINTS };
+enum ofxReprojectionRenderer2DDrawMethod { 
+	OFXREPROJECTIONRENDERER_2DDRAWMETHOD_UNDEFINED,
+	OFXREPROJECTIONRENDERER_2DDRAWMETHOD_POINTS,
+       	OFXREPROJECTIONRENDERER_2DDRAWMETHOD_TRIANGLES,
+};
 
 class ofxReprojectionRenderer {
 	public:
@@ -38,14 +42,12 @@ class ofxReprojectionRenderer {
 		void begin();
 		void end();
 
-		void generateGrid();
-
 		void enableTransform() { useTransform = true; }
 		void disableTransform() { useTransform = false; }
 		void toggleTransform() { useTransform = !useTransform; }
 		void setTransformEnabled(bool b) { useTransform = b; }
 
-		void setDrawMethod(ofxReprojectionRendererDrawMethod d) { drawMethod = d; }
+		void setDrawMethod(ofxReprojectionRenderer2DDrawMethod d);
 		
 		// Enable/disable listening to openFrameworks window keypresses (t)
 		// and issuing appropriate commands during rendering stage.
@@ -63,9 +65,12 @@ class ofxReprojectionRenderer {
 		ofMatrix4x4 projectionMatrix;
 		ofMatrix4x4 identityMatrix;
 
-		string stringVertexShader2D;
-		string stringFragmentShader2D;
-		string stringGeometryShader2D;
+		string stringVertexShader2DPoints;
+		string stringFragmentShader2DPoints;
+		string stringGeometryShader2DPoints;
+		string stringVertexShader2DTriangles;
+		string stringFragmentShader2DTriangles;
+		string stringGeometryShader2DTriangles;
 
 		int projectorWidth;
 		int projectorHeight;
@@ -84,7 +89,7 @@ class ofxReprojectionRenderer {
 		int drawWidth;
 		int drawHeight;
 
-		ofxReprojectionRendererDrawMethod drawMethod;
+		ofxReprojectionRenderer2DDrawMethod drawMethod;
 
 		ofTexture huetex;
 		ofTexture temptex;

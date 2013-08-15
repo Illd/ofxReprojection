@@ -71,7 +71,6 @@ void ofxReprojection::finalizeCalibration() {
 	renderer.setProjectionMatrix(calibration.data.getMatrix());
 	ofLogVerbose("ofxReprojection") << "starting renderer with matrix " << calibration.data.getMatrix();
 	renderer.setDrawArea(getProjectorRectangle());
-	renderer.generateGrid();
 	renderer.update();
 
 	bCalibrationStage = false;

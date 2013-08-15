@@ -16,9 +16,9 @@ ofxReprojectionRenderer::ofxReprojectionRenderer()
 	drawWidth = 0;
 	drawHeight = 0;
 
-	drawMethod = OFX_REPROJECTION_RENDERER_DRAW_METHOD_POINTS;
+	drawMethod = OFXREPROJECTIONRENDERER_2DDRAWMETHOD_UNDEFINED;
 
-	stringVertexShader2D = 	"#version 120\n"
+	stringVertexShader2DPoints = 	"#version 120\n"
 				"#extension GL_ARB_texture_rectangle : enable\n" 
 				STRINGIFY(
 
@@ -48,7 +48,7 @@ ofxReprojectionRenderer::ofxReprojectionRenderer()
 		}
 	);
 
-	stringFragmentShader2D = "#version 120\n"
+	stringFragmentShader2DPoints = "#version 120\n"
 			STRINGIFY(
 		void main() {
 			if(gl_Color.rgb == vec3(0,0,0)) discard; 
@@ -56,7 +56,13 @@ ofxReprojectionRenderer::ofxReprojectionRenderer()
 		}
 	);
 
+	stringGeometryShader2DPoints = "";
 
+	stringVertexShader2DTriangles = "";
+
+	stringFragmentShader2DTriangles = "";
+
+	stringGeometryShader2DTriangles = "";
 
 
 }
@@ -84,11 +90,10 @@ bool ofxReprojectionRenderer::init(ofxBase3DVideo *cam) {
 	depthFloats.allocate(camWidth, camHeight, OF_IMAGE_GRAYSCALE);
 	depthFloats.getTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 
-	ofLogVerbose("ofxReprojection") << "Renderer shader string: " << stringVertexShader2D;
-	shader2D.setupShaderFromSource(GL_VERTEX_SHADER, stringVertexShader2D);
-	shader2D.setupShaderFromSource(GL_FRAGMENT_SHADER, stringFragmentShader2D);
-	shader2D.linkProgram();
-	shader2D.printActiveUniforms();
+	if(drawMethod == OFXREPROJECTIONRENDERER_2DDRAWMETHOD_UNDEFINED) {
+		drawMethod = OFXREPROJECTIONRENDERER_2DDRAWMETHOD_POINTS;
+	}
+	setDrawMethod(drawMethod);
 
 	return true;
 }
@@ -206,44 +211,6 @@ void ofxReprojectionRenderer::drawImage(ofTexture &tex)
 	ofPopStyle();
 }
 
-
-void ofxReprojectionRenderer::generateGrid()
-{
-    outputgrid.clear();
-    outputgrid.setMode(OF_PRIMITIVE_POINTS);
-
-    int skip = 1;
-    for(int y = 0; y < camHeight - skip; y += skip)
-    {
-        for(int x = 0; x < camWidth - skip; x += skip)
-        {
-            outputgrid.addVertex(ofVec3f(x,y,2));
-
-
-            // Points for adding 2 triangles:
-//             outputgrid.addVertex(ofVec3f(x+skip,y+skip,2));
-//             outputgrid.addVertex(ofVec3f(x,y+skip,2));
-//
-//             outputgrid.addVertex(ofVec3f(x,y,2));
-//             outputgrid.addVertex(ofVec3f(x+skip,y,2));
-//             outputgrid.addVertex(ofVec3f(x+skip,y+skip,2));
-
-
-            outputgrid.addTexCoord(ofVec2f(x,y));
-
-            // Points for adding 2 triangles:
-//             outputgrid.addTexCoord(ofVec2f(x+skip,y+skip));
-//             outputgrid.addTexCoord(ofVec2f(x,y+skip));
-//
-//             outputgrid.addTexCoord(ofVec2f(x,y));
-//             outputgrid.addTexCoord(ofVec2f(x+skip,y));
-//             outputgrid.addTexCoord(ofVec2f(x+skip,y+skip));
-        }
-    }
-
-
-}
-
 void ofxReprojectionRenderer::setProjectionMatrix(ofMatrix4x4 m)
 {
     projectionMatrix = m;
@@ -271,4 +238,75 @@ void ofxReprojectionRenderer::setDrawArea(float x, float y, float w, float h) {
 	drawY = y;
 	drawWidth = w;
 	drawHeight = h;
+}
+
+void ofxReprojectionRenderer::setDrawMethod(ofxReprojectionRenderer2DDrawMethod d) { 
+	drawMethod = d;
+
+	//
+	// Initialize shaders
+	//
+
+	string vshader2d,fshader2d,gshader2d;
+	if(drawMethod == OFXREPROJECTIONRENDERER_2DDRAWMETHOD_POINTS) {
+		vshader2d = stringVertexShader2DPoints;
+		fshader2d = stringFragmentShader2DPoints;
+		gshader2d = "";
+	} else if(drawMethod == OFXREPROJECTIONRENDERER_2DDRAWMETHOD_TRIANGLES) {
+		vshader2d = stringVertexShader2DTriangles;
+		fshader2d = stringFragmentShader2DTriangles;
+		gshader2d = stringGeometryShader2DTriangles;
+	} else {
+		ofLogWarning("ofxReprojection") << "invalid rendering method!";
+		return;
+	}
+
+	ofLogVerbose("ofxReprojection") << "Renderer vertex shader string: " << vshader2d;
+	ofLogVerbose("ofxReprojection") << "Renderer fragment shader string: " << fshader2d;
+	ofLogVerbose("ofxReprojection") << "Renderer geometry shader string: " << gshader2d;
+	shader2D.setupShaderFromSource(GL_VERTEX_SHADER, vshader2d);
+	shader2D.setupShaderFromSource(GL_FRAGMENT_SHADER, fshader2d);
+	if(gshader2d != "") {
+		shader2D.setupShaderFromSource(GL_GEOMETRY_SHADER, gshader2d);
+	}
+	shader2D.linkProgram();
+	shader2D.printActiveUniforms();
+
+	//
+	// Generate grid for 2D drawing
+	//
+
+	outputgrid.clear();
+	if(drawMethod == OFXREPROJECTIONRENDERER_2DDRAWMETHOD_POINTS) {
+		outputgrid.setMode(OF_PRIMITIVE_POINTS);
+		int skip = 1;
+		for(int y = 0; y < camHeight - skip; y += skip) {
+			for(int x = 0; x < camWidth - skip; x += skip) {
+				outputgrid.addVertex(ofVec3f(x,y,2));
+				outputgrid.addTexCoord(ofVec2f(x,y));
+			}
+		}
+	} else if (drawMethod == OFXREPROJECTIONRENDERER_2DDRAWMETHOD_TRIANGLES) {
+		outputgrid.setMode(OF_PRIMITIVE_TRIANGLES);
+		int skip = 1;
+		for(int y = 0; y < camHeight - skip; y += skip) {
+			for(int x = 0; x < camWidth - skip; x += skip) {
+				outputgrid.addVertex(ofVec3f(x,y,2));
+				outputgrid.addVertex(ofVec3f(x+skip,y+skip,2));
+				outputgrid.addVertex(ofVec3f(x,y+skip,2));
+
+				outputgrid.addVertex(ofVec3f(x,y,2));
+				outputgrid.addVertex(ofVec3f(x+skip,y,2));
+				outputgrid.addVertex(ofVec3f(x+skip,y+skip,2));
+
+				outputgrid.addTexCoord(ofVec2f(x,y));
+				outputgrid.addTexCoord(ofVec2f(x+skip,y+skip));
+				outputgrid.addTexCoord(ofVec2f(x,y+skip));
+
+				outputgrid.addTexCoord(ofVec2f(x,y));
+				outputgrid.addTexCoord(ofVec2f(x+skip,y));
+				outputgrid.addTexCoord(ofVec2f(x+skip,y+skip));
+			}
+		}
+	}
 }
