@@ -2,10 +2,6 @@ Draft
 =====
 Do not expect it to be working yet. ofxReprojection is made by [Bjørnar Steinnes Luteberget](https://github.com/luteberget) and [Tom Andreas Nærland](https://github.com/tomana). 
 
-Screenshot of progress.
-=====
-example-ONI1_5 running at 250fps on a laptop with Nvidia fx880m, i7-820QM.
-![ScreenShot](https://raw.github.com/tomana/ofxReprojection/master/screenshot.png)
 
 ofxReprojection
 ==============

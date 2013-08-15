@@ -157,7 +157,7 @@ void ofxReprojectionRenderer::generate_grid()
 //             outputgrid.addVertex(ofVec3f(x+skip,y+skip,2));
 
 
-            outputgrid.addTexCoord(ofVec2f(x*2.0,y*2.0));
+            outputgrid.addTexCoord(ofVec2f(x,y));
 
             // Points for adding 2 triangles:
 //             outputgrid.addTexCoord(ofVec2f(x+skip,y+skip));
