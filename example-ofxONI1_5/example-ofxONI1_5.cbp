@@ -287,10 +287,13 @@
 		<Unit filename="../src/lmmin.h">
 			<Option virtualFolder="ofxReprojection/" />
 		</Unit>
-		<Unit filename="../src/ofxGLFWWindow.cpp">
+		<Unit filename="../src/ofxDirection.h">
 			<Option virtualFolder="ofxReprojection/" />
 		</Unit>
-		<Unit filename="../src/ofxGLFWWindow.h">
+		<Unit filename="../src/ofxHighlightRects.cpp">
+			<Option virtualFolder="ofxReprojection/" />
+		</Unit>
+		<Unit filename="../src/ofxHighlightRects.h">
 			<Option virtualFolder="ofxReprojection/" />
 		</Unit>
 		<Unit filename="../src/ofxReprojection.cpp">
@@ -318,6 +321,9 @@
 			<Option virtualFolder="ofxReprojection/" />
 		</Unit>
 		<Unit filename="../src/ofxReprojectionRenderer.h">
+			<Option virtualFolder="ofxReprojection/" />
+		</Unit>
+		<Unit filename="../src/ofxReprojectionUtils.h">
 			<Option virtualFolder="ofxReprojection/" />
 		</Unit>
 		<Unit filename="addons.make">

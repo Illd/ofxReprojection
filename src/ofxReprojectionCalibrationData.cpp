@@ -1,4 +1,5 @@
 #include "ofxReprojectionCalibrationData.h"
+#include "ofxReprojectionCalibration.h"
 
 ofxReprojectionCalibrationData::ofxReprojectionCalibrationData()
 {
@@ -6,15 +7,6 @@ ofxReprojectionCalibrationData::ofxReprojectionCalibrationData()
 
 ofxReprojectionCalibrationData::ofxReprojectionCalibrationData(string filename)
 {
-}
-
-ofxReprojectionCalibrationData::~ofxReprojectionCalibrationData()
-{
-}
-
-ofxReprojectionCalibrationData ofxReprojectionCalibrationData::loadFromFile(string filename)
-{
-
     ofxXmlSettings XML;
 
     if(filename.empty())
@@ -71,7 +63,7 @@ ofxReprojectionCalibrationData ofxReprojectionCalibrationData::loadFromFile(stri
                     measurement.push_back(p);
                     cout << "measurement " << p << endl;
                 }
-                measurements.push_back(measurement);
+                camPoints.push_back(measurement);
                 XML.popTag();
             }
         }
@@ -100,7 +92,7 @@ ofxReprojectionCalibrationData ofxReprojectionCalibrationData::loadFromFile(stri
                     projpoint.push_back(p);
                     cout << "projpoint " << p << endl;
                 }
-                projpoints.push_back(projpoint);
+                projectorPoints.push_back(projpoint);
                 XML.popTag();
             }
         }
@@ -108,64 +100,58 @@ ofxReprojectionCalibrationData ofxReprojectionCalibrationData::loadFromFile(stri
         XML.popTag();
     }
     cout << "came to end" << endl;
-
-    ofxReprojectionCalibrationData r;
-    r.campoints = measurements;
-    r.projectorpoints = projpoints;
-    r.cam_width = stored_cam_img_width;
-    r.cam_height = stored_cam_img_height;
-    r.proj_width = stored_projector_img_width;
-    r.proj_height = stored_projector_img_height;
-    r.ref_max_depth = stored_depth_max;
-    cout << "uploaded" << endl;
-    return r;
 }
 
-void ofxReprojectionCalibrationData::updateMatrix()
+ofxReprojectionCalibrationData::~ofxReprojectionCalibrationData()
 {
 }
 
-vector< vector< ofVec3f > > ofxReprojectionCalibrationData::getCamPoints()
+void ofxReprojectionCalibrationData::updateMatrix() {
+	if(camPoints.size() > 0) {
+		projmat = ofxReprojectionCalibration::calculateReprojectionTransform(*this);
+	} else {
+		projmat = ofMatrix4x4::newIdentityMatrix();
+
+	}
+}
+
+vector< vector< ofVec3f > > ofxReprojectionCalibrationData::getCamPoints() const
 {
-    return campoints;
+    return camPoints;
 
 }
-vector< vector< ofVec2f > > ofxReprojectionCalibrationData::getProjectorPoints()
+vector< vector< ofVec2f > > ofxReprojectionCalibrationData::getProjectorPoints() const
 {
-    return projectorpoints;
+    return projectorPoints;
 }
 
-ofMatrix4x4 ofxReprojectionCalibrationData::getMatrix()
+ofMatrix4x4 ofxReprojectionCalibrationData::getMatrix() const
 {
     return projmat;
 }
 
-void ofxReprojectionCalibrationData::setMatrix( ofMatrix4x4 inputMatrix)
-{
-    projmat = inputMatrix;
-}
 
-int ofxReprojectionCalibrationData::getCamWidth()
+int ofxReprojectionCalibrationData::getCamWidth() const
 {
     return cam_width;
 }
 
-int ofxReprojectionCalibrationData::getCamHeight()
+int ofxReprojectionCalibrationData::getCamHeight() const
 {
     return cam_height;
 }
 
-int ofxReprojectionCalibrationData::getProjectorWidth()
+int ofxReprojectionCalibrationData::getProjectorWidth() const
 {
     return proj_width;
 }
 
-int ofxReprojectionCalibrationData::getProjectorHeight()
+int ofxReprojectionCalibrationData::getProjectorHeight() const
 {
     return proj_height;
 }
 
-float ofxReprojectionCalibrationData::getRefMaxDepth()
+float ofxReprojectionCalibrationData::getRefMaxDepth() const
 {
     return ref_max_depth;
 }

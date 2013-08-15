@@ -2,48 +2,117 @@
 
 #include "ofMain.h"
 
+#include "ofxBase3DVideo.h"
+#include "ofxDirection.h"
+#include "ofxReprojectionUtils.h"
+
+enum ofxReprojectionRenderer2DDrawMethod {
+	OFXREPROJECTIONRENDERER_2DDRAWMETHOD_UNDEFINED,
+	OFXREPROJECTIONRENDERER_2DDRAWMETHOD_POINTS,
+       	OFXREPROJECTIONRENDERER_2DDRAWMETHOD_TRIANGLES,
+};
+
 class ofxReprojectionRenderer {
 	public:
 		ofxReprojectionRenderer();
 		~ofxReprojectionRenderer();
 
+		bool init(ofxBase3DVideo *cam);
+
+		void update();
+
 		void setProjectionMatrix(ofMatrix4x4 m);
-        void setProjectionInfo(int proj_w, int proj_h, int cam_w, int cam_h, float max_depth);
 
         ofMatrix4x4 getProjectionMatrix() {return projectionMatrix;}
-        int getProjWidth() { return projector_width;}
-        int getProjHeight() { return projector_height;}
-        int getCamWidth() { return cam_width;}
-        int getCamHeight() {return cam_height;}
-        float getMaxDepth() {return ref_max_depth;}
+        int getProjWidth() { return projectorWidth;}
+        int getProjHeight() { return projectorHeight;}
+        int getCamWidth() { return camWidth;}
+        int getCamHeight() {return camHeight;}
+        float getMaxDepth() {return refMaxDepth;}
 
 		// Example function which draws depth picture
 		void draw(ofTexture depthTexture, ofTexture userTexture, float pointsize, bool use_transform, bool use_depthimage);
 
+		void setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition);
+
+		void setDrawArea(float x, float y, float w, float h);
+		void setDrawArea(float x, float y) { setDrawArea(x, y, projectorWidth, projectorHeight); }
+		void setDrawArea(const ofPoint& point) { setDrawArea(point.x, point.y); }
+		void setDrawArea(const ofRectangle& rect) { setDrawArea(rect.x, rect.y, rect.width, rect.height); }
+
 		// Draws transformed 2d image
-		void draw2D(ofImage i);
-		void draw2D(unsigned char* p, int pw, int ph);
+		void drawImage(ofTexture &tex);
+		void drawImage(ofImage &img);
+		void drawImage(ofPixels &pix);
+		void drawImage(unsigned char* pixels, int pw, int ph);
+
+		void drawHueDepthImage();
 
 		// Draws transformed 3D object
 		void begin();
 		void end();
 
-        void generate_grid();
-        unsigned int indices[640][480];
-        short xyz[640][480][3];
+		void enableTransform() { useTransform = true; }
+		void disableTransform() { useTransform = false; }
+		void toggleTransform() { useTransform = !useTransform; }
+		void setTransformEnabled(bool b) { useTransform = b; }
+
+		void setDrawMethod(ofxReprojectionRenderer2DDrawMethod d);
+
+		// Enable/disable listening to openFrameworks window keypresses (t)
+		// and issuing appropriate commands during rendering stage.
+		void setKeysEnabled(bool enable);
+		void enableKeys() { setKeysEnabled(true); }
+		void disableKeys() { setKeysEnabled(false); }
+
+		void setPointsize(float p) { pointsize = p; }
 
 	private:
-        ofVboMesh outputgrid;
-		ofShader shader;
+		ofxBase3DVideo *cam;
+		ofVboMesh outputgrid;
+		ofShader shader2D;
+		ofShader shader3D;
 		ofMatrix4x4 projectionMatrix;
 		ofMatrix4x4 identityMatrix;
-		int projector_width;
-		int projector_height;
-		int cam_width;
-		int cam_height;
-		int ref_max_depth;
 
+		string stringVertexShader2DPoints;
+		string stringFragmentShader2DPoints;
+		string stringGeometryShader2DPoints;
+		string stringVertexShader2DTriangles;
+		string stringFragmentShader2DTriangles;
+		string stringGeometryShader2DTriangles;
 
+		int projectorWidth;
+		int projectorHeight;
+		ofxDirection projectorPosition;
+
+		int camWidth;
+		int camHeight;
+		int refMaxDepth;
+
+		bool useTransform;
+		float pointsize;
+		bool useDepthImage;
+
+		int drawX;
+		int drawY;
+		int drawWidth;
+		int drawHeight;
+
+		ofxReprojectionRenderer2DDrawMethod drawMethod;
+
+		ofTexture huetex;
+		ofTexture temptex;
+
+		ofFloatImage depthFloats;
+
+		ofFbo output;
+
+		void keyPressed(ofKeyEventArgs& e);
+
+		bool bKeysEnabled;
+		bool bDepthUpdated;
 
 };
+
 

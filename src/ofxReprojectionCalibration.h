@@ -4,12 +4,14 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "ofMain.h"
+
 #include "ofxBase3DVideo.h"
 #include "ofxReprojectionCalibrationData.h"
 #include "ofxReprojectionCalibrationConfig.h"
+#include "ofxReprojectionUtils.h"
 #include "lmmin.h"
+#include "ofxDirection.h"
 
-//
 // This class takes care of the calibration of depth cam and projector.
 //
 // The constructor takes a ofxBase3DVideo object which supplies the depth cam images
@@ -25,47 +27,75 @@ public:
 
 	bool init(  	ofxBase3DVideo *cam,
 			ofxReprojectionCalibrationConfig config = ofxReprojectionCalibrationConfig());
+
+	void setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition);
+
 	void update();
+	void updateStatusMessages();
+	void updateChessboard();
 
-	void finalize();
+	void drawStatusScreen(float x, float y, float w, float h);
+	void drawStatusScreen(float x, float y) { drawStatusScreen(x, y, camWidth*2, camHeight*2); }
+	void drawStatusScreen(const ofPoint& point) { drawStatusScreen(point.x, point.y); }
+	void drawStatusScreen(const ofRectangle& rect) { drawStatusScreen(rect.x, rect.y, rect.width, rect.height); }
 
-	void drawCalibrationStatusScreen();
+	void drawChessboard(float x, float y, float w, float h);
+	void drawChessboard(float x, float y) { drawChessboard(x, y, projectorWidth, projectorHeight); }
+	void drawChessboard(const ofPoint& point) { drawChessboard(point.x, point.y); }
+	void drawChessboard(const ofRectangle& rect) { drawChessboard(rect.x, rect.y, rect.width, rect.height); }
 
-	bool loadData(string filename);
+	// Enable/disable listening to openFrameworks window keypresses (d,c,s and f)
+	// and issuing appropriate commands during calibration stage.
+	void setKeysEnabled(bool enable);
+	void enableKeys() { setKeysEnabled(true); }
+	void disableKeys() { setKeysEnabled(false); }
 
-    ofxReprojectionCalibrationData loadDataFromFile(string filename) {
-		return ofxReprojectionCalibrationData::loadFromFile(filename);
-	}
-	static void saveDataToFile(ofxReprojectionCalibrationData data, string filename);
-	static ofMatrix4x4 calculateReprojectionTransform(ofxReprojectionCalibrationData data);
-
-	void reset();
 	void deleteLastMeasurement();
+	void clear();
+	void loadFile();
+	void saveFile();
+	void finalize();
+	void unfinalize();
 
-	static void makechessboard(uchar* pixels, int img_width, int img_height, int rows, int cols, int x, int y, int width, int height, char brightness);
+	void loadData(string filename);
+
+	static ofMatrix4x4 calculateReprojectionTransform(const ofxReprojectionCalibrationData &data);
+
 	static const cv::Mat lm_affinerow;
 	static void lm_evaluate_camera_matrix(const double *par, int m_dat, const void *data, double *fvec, int *info);
 
-    // helper
-    static ofVec3f pixel3f_to_world3fData( ofVec3f p, ofxReprojectionCalibrationData data);
+	// helper
+	static ofVec3f pixel3f_to_world3fData( ofVec3f p, ofxReprojectionCalibrationData data);
 
-    ofxReprojectionCalibrationData getData();
+	bool isFinalized() { return bFinalized; }
 
-private:
+
 	ofxBase3DVideo* cam;
 	ofxReprojectionCalibrationData data;
 	ofxReprojectionCalibrationConfig config;
 
+private:
+	ofTexture colorImage;
+	ofTexture depthImage;
+	ofFbo statusMessagesImage;
+	ofFbo chessboard;
+
+	void keyPressed(ofKeyEventArgs& e);
+
+	bool bKeysEnabled;
+
 	int stability_buffer_i;
-	int cam_w, cam_h;
-	int projector_w, projector_h;
+	int camWidth, camHeight;
+
+	int projectorWidth;
+	int projectorHeight;
+	ofxDirection projectorPosition;
 
 	bool chessfound;
 	bool chessfound_includes_depth;
 	bool chessfound_planar;
 	bool chessfound_enough_frames;
 	bool chessfound_variance_ok;
-
 
 	int chess_rows;
 	int chess_cols;
@@ -84,6 +114,10 @@ private:
 	uint num_ok_frames;
 	float largest_variance_xy;
 	float largest_variance_z;
+
+	int refMaxDepth;
+
+	bool bFinalized;
 
 
 };

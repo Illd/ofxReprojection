@@ -1,44 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Debug" />
-	<File name="../../ofxGui/src/ofxPanel.h" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../src/ofxReprojectionCalibrationData.cpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="0" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../../../libs/openFrameworks/3d/ofMesh.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="367" topLine="18" />
-		</Cursor>
-	</File>
-	<File name="../../ofxONI1_5/libs/NITEOpenNI/include/XnBitSet.h" open="0" top="0" tabpos="21" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="0" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../src/ofxReprojection.h" open="0" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="640" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../src/ofxReprojectionCalibration.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="15906" topLine="508" />
-		</Cursor>
-	</File>
-	<File name="../../ofxONI1_5/libs/NITEOpenNI/include/XnCallback.h" open="0" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="0" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../src/ofxGLFWWindow.cpp" open="1" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="333" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../../ofxONI1_5/libs/NITEOpenNI/include/XnArray.h" open="0" top="0" tabpos="20" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="0" topLine="0" />
+			<Cursor1 position="606" topLine="13" />
 		</Cursor>
 	</File>
 	<File name="../../ofxONI1_5/src/ofxONI1_5.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -46,49 +11,9 @@
 			<Cursor1 position="2504" topLine="75" />
 		</Cursor>
 	</File>
-	<File name="../../../libs/openFrameworks/utils/ofConstants.h" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="13498" topLine="491" />
-		</Cursor>
-	</File>
-	<File name="../../ofxONI1_5/src/ofxBase3DVideo.h" open="0" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="448" topLine="0" />
-		</Cursor>
-	</File>
 	<File name="../src/ofxReprojectionCalibrationData.h" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="886" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../../ofxONI1_5/libs/NITEOpenNI/include/XnCppWrapper.h" open="0" top="0" tabpos="23" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="242951" topLine="6668" />
-		</Cursor>
-	</File>
-	<File name="../../ofxGui/src/ofxSlider.h" open="0" top="0" tabpos="46" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1502" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../../ofxGui/src/ofxBaseGui.cpp" open="0" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="92" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="src/guiRepro.cpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="376" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="src/guiRepro.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="183" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../../ofxONI1_5/src/ofxONI1_5.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="8052" topLine="305" />
 		</Cursor>
 	</File>
 	<File name="../../ofxGui/src/ofxGuiGroup.h" open="0" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -96,19 +21,34 @@
 			<Cursor1 position="1671" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="../src/ofxReprojectionRenderer.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../src/ofxReprojectionCalibrationConfig.h" open="0" top="0" tabpos="16" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1076" topLine="0" />
+			<Cursor1 position="535" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="../../ofxGui/src/ofxGui.h" open="0" top="0" tabpos="16" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src/testApp.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="286" topLine="0" />
+			<Cursor1 position="1012" topLine="10" />
 		</Cursor>
 	</File>
-	<File name="../../ofxONI1_5/libs/NITEOpenNI/include/IXnNodeAllocator.h" open="0" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src/testApp.cpp" open="1" top="1" tabpos="6" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="0" topLine="0" />
+			<Cursor1 position="2013" topLine="57" />
+		</Cursor>
+	</File>
+	<File name="../../ofxONI1_5/src/ofxONI1_5.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="8052" topLine="452" />
+		</Cursor>
+	</File>
+	<File name="../src/ofxReprojectionCalibration.h" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="310" topLine="85" />
+		</Cursor>
+	</File>
+	<File name="../../ofxGui/src/ofxSlider.h" open="0" top="0" tabpos="46" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1502" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="addons.make" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -116,19 +56,9 @@
 			<Cursor1 position="57" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="../src/ofxReprojectionRenderer.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../src/ofxReprojectionRenderer.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="612" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../src/ofxGLFWWindow.h" open="1" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="531" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../../../libs/openFrameworks/gl/ofGLUtils.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="385" topLine="0" />
+			<Cursor1 position="6068" topLine="227" />
 		</Cursor>
 	</File>
 	<File name="../../ofxONI1_5/libs/NITEOpenNI/include/XnAlgorithms.h" open="0" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -136,29 +66,34 @@
 			<Cursor1 position="0" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="src/main.cpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../ofxONI1_5/libs/NITEOpenNI/include/XnArray.h" open="0" top="0" tabpos="20" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="164" topLine="0" />
+			<Cursor1 position="0" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="src/testApp.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+	<File name="../src/ofxHighlightRects.cpp" open="1" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="6302" topLine="160" />
+			<Cursor1 position="0" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="../src/ofxReprojectionCalibrationConfig.h" open="0" top="0" tabpos="16" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src/guiRepro.h" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="535" topLine="0" />
+			<Cursor1 position="183" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="src/testApp.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../../libs/openFrameworks/gl/ofGLUtils.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1012" topLine="10" />
+			<Cursor1 position="385" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="../../ofxGui/src/ofxBaseGui.h" open="0" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../../libs/openFrameworks/3d/ofMesh.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="117" topLine="9" />
+			<Cursor1 position="367" topLine="18" />
+		</Cursor>
+	</File>
+	<File name="../src/ofxReprojectionRenderer.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1652" topLine="79" />
 		</Cursor>
 	</File>
 	<File name="../src/ofxReprojection.cpp" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -166,9 +101,49 @@
 			<Cursor1 position="1122" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="../src/ofxReprojectionCalibration.h" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../ofxGui/src/ofxBaseGui.h" open="0" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="923" topLine="15" />
+			<Cursor1 position="117" topLine="9" />
+		</Cursor>
+	</File>
+	<File name="../src/ofxHighlightRects.h" open="1" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src/main.cpp" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="50" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../src/ofxReprojectionCalibration.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="15906" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../../ofxONI1_5/libs/NITEOpenNI/include/XnBitSet.h" open="0" top="0" tabpos="21" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../src/ofxDirection.h" open="1" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="115" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../../ofxGui/src/ofxGui.h" open="0" top="0" tabpos="16" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="286" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../src/ofxReprojection.h" open="0" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="373" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src/guiRepro.cpp" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="376" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="../../ofxGui/src/ofxToggle.h" open="0" top="0" tabpos="21" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -176,9 +151,44 @@
 			<Cursor1 position="54" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="../src/ofxReprojectionCalibrationData.cpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../ofxONI1_5/src/ofxBase3DVideo.h" open="0" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="606" topLine="13" />
+			<Cursor1 position="448" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../../ofxONI1_5/libs/NITEOpenNI/include/IXnNodeAllocator.h" open="0" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../../ofxGui/src/ofxPanel.h" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../../ofxONI1_5/libs/NITEOpenNI/include/XnCallback.h" open="0" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../src/ofxReprojectionUtils.h" open="1" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="28" />
+		</Cursor>
+	</File>
+	<File name="../../ofxONI1_5/libs/NITEOpenNI/include/XnCppWrapper.h" open="0" top="0" tabpos="23" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="242951" topLine="6668" />
+		</Cursor>
+	</File>
+	<File name="../../ofxGui/src/ofxBaseGui.cpp" open="0" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="92" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../../../libs/openFrameworks/utils/ofConstants.h" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="13498" topLine="491" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
