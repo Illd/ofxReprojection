@@ -61,6 +61,10 @@ class ofxReprojectionUtils {
 				}
 			}
 
+			if(max == 0) {
+				max = -1;
+			}
+
 			ofLogVerbose("ofxReprojection") << "ofxReprojectionUtils::getMaxDepth calculated to " << max; 
 			return max;
 		};
