@@ -29,6 +29,7 @@ bool ofxReprojection::init(ofxBase3DVideo* cam, string calibrationDataFilename) 
 		ofLogVerbose("ofxReprojection") << "calibrationDataFilename not supplied, initing calibration.";
 		calibration.init(cam);
 		setKeysEnabled(true);
+		calibration.enableChessboardMouseControl();
 	}
 
 
@@ -37,9 +38,6 @@ bool ofxReprojection::init(ofxBase3DVideo* cam, string calibrationDataFilename) 
 	highlighter.init();
 
 	setGuiEnabled(false);
-
-
-
 	return true;
 }
 

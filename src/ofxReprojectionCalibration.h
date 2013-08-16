@@ -50,6 +50,18 @@ public:
 	void enableKeys() { setKeysEnabled(true); }
 	void disableKeys() { setKeysEnabled(false); }
 
+	// Enable/disable listening to openFrameworks mouse events for
+	// dragging and resizing the chessboard. This assumes that the
+	// chessboard is drawn in the default places in the main window
+	// and in the projector area.
+	void setChessboardMouseControlEnabled(bool enable);
+	void enableChessboardMouseControl() { setChessboardMouseControlEnabled(true); }
+	void disableChessboardMouseControl() { setChessboardMouseControlEnabled(false); }
+
+	void mousePressedChessboard(ofMouseEventArgs &mouse);
+	void mouseDraggedChessboard(ofMouseEventArgs &mouse);
+	void mouseReleasedChessboard(ofMouseEventArgs &mouse);
+
 	void deleteLastMeasurement();
 	void clear();
 	void loadFile();
@@ -83,6 +95,7 @@ private:
 	void keyPressed(ofKeyEventArgs& e);
 
 	bool bKeysEnabled;
+	bool bChessboardMouseControlEnabled;
 
 	int stability_buffer_i;
 	int camWidth, camHeight;
@@ -90,6 +103,14 @@ private:
 	int projectorWidth;
 	int projectorHeight;
 	ofxDirection projectorPosition;
+
+	ofRectangle lastChessboardBig;
+	ofRectangle lastChessboardSmall;
+	bool draggingChessboard;
+	ofRectangle draggingChessboardDrawArea;
+	ofRectangle draggingChessboardRect;
+	ofPoint draggingStartPoint;
+	int draggingButton;
 
 	bool chessfound;
 	bool chessfound_includes_depth;
