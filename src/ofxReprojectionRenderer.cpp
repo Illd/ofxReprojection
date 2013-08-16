@@ -7,9 +7,9 @@ ofxReprojectionRenderer::ofxReprojectionRenderer()
 
 	useTransform = true;
 	useDepthImage = true;
-	pointsize = 4.0;
+	pointsize = 0.2;
 
-	refMaxDepth = 1000;
+	refMaxDepth = -1;
 
 	drawX = 0;
 	drawY = 0;
@@ -58,11 +58,72 @@ ofxReprojectionRenderer::ofxReprojectionRenderer()
 
 	stringGeometryShader2DPoints = "";
 
-	stringVertexShader2DTriangles = "";
+	stringVertexShader2DTriangles = 	"#version 120\n"
+				"#extension GL_ARB_texture_rectangle : enable\n" 
+				STRINGIFY(
 
-	stringFragmentShader2DTriangles = "";
+		// depth_map: R32F format, 32 bit floats in red channel 
+		// (real z values, not normalized)
+		uniform sampler2DRect depth_map;
 
-	stringGeometryShader2DTriangles = "";
+		// color_image: RBG format
+		uniform sampler2DRect color_image;
+
+		uniform mat4 transform;
+
+		void main() {
+			vec4 pos = gl_Vertex;
+			gl_FrontColor.rgb = texture2DRect(color_image, pos.xy).rgb;
+			float z = texture2DRect(depth_map, pos.xy).r;
+			pos.z = z;
+			pos = pos*transform; 
+			pos.z = z;
+			gl_Position = gl_ModelViewProjectionMatrix * pos;
+			if(abs(pos.z) < 1e-5) {
+				gl_FrontColor.rgb = vec3(0,0,0);
+			}
+		}
+	);
+
+	stringFragmentShader2DTriangles = "#version 120\n"
+				STRINGIFY(
+		void main() {
+			gl_FragColor = gl_Color;
+		}
+				);
+
+	// TODO: Clean up this shader a little?
+	stringGeometryShader2DTriangles = "#version 120\n"
+					"#extension GL_EXT_geometry_shader4 : enable\n"
+				STRINGIFY(
+		// Pointsize variable used as maximum length of triangle side.
+		// 0.2 seems like a good value here, but a better measure
+		// for distortion should be used (TODO)
+		uniform float pointsize;
+		void main() {
+			vec3 sumcolor = vec3(1,1,1);
+			for (int i = 0; i < gl_VerticesIn; i++) {
+				if(gl_FrontColorIn[i].rgb == vec3(0,0,0)) {
+					sumcolor = vec3(0,0,0);
+				}
+			}
+
+			float lena = length((gl_PositionIn[1] - gl_PositionIn[0]).xy);
+			float lenb = length((gl_PositionIn[2] - gl_PositionIn[0]).xy);
+			float lenc = length((gl_PositionIn[2] - gl_PositionIn[1]).xy);
+
+			if(sumcolor != vec3(0,0,0) && lena < pointsize && lenb < pointsize && lenc < pointsize) {
+				for (int i = 0; i < gl_VerticesIn; i++) {
+					gl_Position = gl_PositionIn[i];
+					gl_FrontColor = gl_FrontColorIn[i];
+					EmitVertex();
+				}
+
+				EndPrimitive();
+			}
+		}
+
+				);
 
 
 }
@@ -91,7 +152,7 @@ bool ofxReprojectionRenderer::init(ofxBase3DVideo *cam) {
 	depthFloats.getTextureReference().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 
 	if(drawMethod == OFXREPROJECTIONRENDERER_2DDRAWMETHOD_UNDEFINED) {
-		drawMethod = OFXREPROJECTIONRENDERER_2DDRAWMETHOD_POINTS;
+		drawMethod = OFXREPROJECTIONRENDERER_2DDRAWMETHOD_TRIANGLES;
 	}
 	setDrawMethod(drawMethod);
 
@@ -100,6 +161,11 @@ bool ofxReprojectionRenderer::init(ofxBase3DVideo *cam) {
 
 void ofxReprojectionRenderer::update() {
 	if(cam->isFrameNew()) {
+
+		if(refMaxDepth == -1) {
+			refMaxDepth = ofxReprojectionUtils::getMaxDepth(cam->getDistancePixels(), camWidth, camHeight);
+		}
+
 		depthFloats.setFromPixels(cam->getDistancePixels(), camWidth, camHeight, OF_IMAGE_GRAYSCALE);
 		bDepthUpdated = true;
 	}
@@ -181,8 +247,13 @@ void ofxReprojectionRenderer::drawImage(ofTexture &tex)
 	output.begin();
 
 	ofMatrix4x4 ortho;
-	if(useTransform) { ortho = ofMatrix4x4::newOrthoMatrix(0,projectorWidth,0,projectorHeight, 0, -10000); }
-	else 		 { ortho = ofMatrix4x4::newOrthoMatrix(0,camWidth,0,camHeight, 0, -10000); }
+
+	if(useTransform) { 
+		ortho = ofMatrix4x4::newOrthoMatrix(0,projectorWidth,0,projectorHeight, 0, -100000); 
+	} else { 
+		ortho = ofMatrix4x4::newOrthoMatrix(0,camWidth,0,camHeight, 0, -100000); 
+	}
+
 	ofSetMatrixMode(OF_MATRIX_PROJECTION);
 	ofLoadMatrix(ortho);
 	ofSetMatrixMode(OF_MATRIX_MODELVIEW);
@@ -194,9 +265,15 @@ void ofxReprojectionRenderer::drawImage(ofTexture &tex)
 	glEnable(GL_PROGRAM_POINT_SIZE);
 
 	shader2D.begin();
+
 	shader2D.setUniform1f("pointsize",pointsize);
-	if(useTransform) { shader2D.setUniformMatrix4f("transform", projectionMatrix); }
-	else		 { shader2D.setUniformMatrix4f("transform", identityMatrix); }
+
+	if(useTransform) { 
+		shader2D.setUniformMatrix4f("transform", projectionMatrix);
+       	} else { 
+		shader2D.setUniformMatrix4f("transform", identityMatrix); 
+	}
+
 	shader2D.setUniformTexture("depth_map", depthFloats, 0);
 	shader2D.setUniformTexture("color_image", tex, 1);
 
@@ -239,7 +316,14 @@ void ofxReprojectionRenderer::setDrawArea(float x, float y, float w, float h) {
 	drawHeight = h;
 }
 
-void ofxReprojectionRenderer::setDrawMethod(ofxReprojectionRenderer2DDrawMethod d) {
+void ofxReprojectionRenderer::setDrawMethod(ofxReprojectionRenderer2DDrawMethod d) { 
+
+	if(d == OFXREPROJECTIONRENDERER_2DDRAWMETHOD_POINTS) {
+		ofLogVerbose("ofxReprojection") << "setDrawMethod called with drawMethod = points";
+	} else if (d == OFXREPROJECTIONRENDERER_2DDRAWMETHOD_TRIANGLES) {
+		ofLogVerbose("ofxReprojection") << "setDrawMethod called with drawMethod = triangles";
+	}
+
 	drawMethod = d;
 
 	//
@@ -270,6 +354,12 @@ void ofxReprojectionRenderer::setDrawMethod(ofxReprojectionRenderer2DDrawMethod 
 	}
 	shader2D.linkProgram();
 	shader2D.printActiveUniforms();
+
+	if(drawMethod == OFXREPROJECTIONRENDERER_2DDRAWMETHOD_TRIANGLES) {
+		shader2D.setGeometryInputType(GL_TRIANGLES);
+		shader2D.setGeometryOutputType(GL_TRIANGLES);
+		shader2D.setGeometryOutputCount(3);
+	}
 
 	//
 	// Generate grid for 2D drawing
