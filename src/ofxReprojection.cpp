@@ -78,7 +78,7 @@ void ofxReprojection::finalizeCalibration() {
 	calibration.finalize();
 	renderer.init(cam);
 	renderer.setProjectionMatrix(calibration.data.getMatrix());
-	ofLogVerbose("ofxReprojection") << "starting renderer with matrix " << calibration.data.getMatrix();
+	ofLogVerbose("ofxReprojection") << "starting renderer with matrix\n" << calibration.data.getMatrix();
 	renderer.setDrawArea(getProjectorRectangle());
 	renderer.update();
 

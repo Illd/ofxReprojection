@@ -536,9 +536,6 @@ void ofxReprojectionCalibration::update() {
 
 				ofLogVerbose("ofxReprojection") << "Measurement: " << cv::Mat(measurement_mean) << endl;
 
-
-				//valid_measurements.push_back(measurement_mean);
-
 				vector<ofVec2f> chessboard_points;
 				for(int y = 0; y < chess_rows-1; y++) {
 					for(int x = 0; x < chess_cols-1; x++) {
@@ -551,11 +548,7 @@ void ofxReprojectionCalibration::update() {
 					}
 				}
 
-				//all_chessboard_points.push_back(chessboard_points);
-				//
-
 				data.addMeasurement(measurement_mean, chessboard_points);
-
 
 				measurement_pause = true;
 				measurement_pause_time = ofGetSystemTime();
@@ -738,15 +731,12 @@ void ofxReprojectionCalibration::loadData(string filename) {
 
 void ofxReprojectionCalibration::finalize() {
 	if(bFinalized) return;
-
 	data.updateMatrix();
-	cout << data.getMatrix() << endl;
 	bFinalized = true;
 }
 
 void ofxReprojectionCalibration::unfinalize() {
 	if(!bFinalized) return;
-
 	bFinalized = false;
 }
 
