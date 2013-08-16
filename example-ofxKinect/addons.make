@@ -1,0 +1,5 @@
+ofxKinect
+ofxOpenCv
+ofxGui
+ofxXmlSettings
+ofxReprojection
