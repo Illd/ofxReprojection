@@ -9,26 +9,47 @@ class ofxReprojectionCalibrationData {
 		ofxReprojectionCalibrationData(string filename);
 		~ofxReprojectionCalibrationData();
 
-		static ofxReprojectionCalibrationData loadFromFile(string filename);
+		static ofxReprojectionCalibrationData loadFromFile(string filename) { 
+			return ofxReprojectionCalibrationData(filename); 
+		}
+
 		void saveToFile(string filename);
 
-        // This matrix mainly saved for checking this matrix against other methods.
 		void updateMatrix();
-		ofMatrix4x4 getMatrix();
-		void setMatrix(ofMatrix4x4 inputMatrix);
 
-        int getCamWidth();
-        int getCamHeight();
-        int getProjectorWidth();
-        int getProjectorHeight();
-        float getRefMaxDepth();
+		ofMatrix4x4 getMatrix() const;
+		int getCamWidth() const;
+		int getCamHeight() const;
+		int getProjectorWidth() const;
+		int getProjectorHeight() const;
+		float getRefMaxDepth() const;
 
-        vector< vector< ofVec3f > > getCamPoints();
-        vector< vector< ofVec2f > > getProjectorPoints();
+		vector< vector< ofVec3f > > getCamPoints() const;
+		vector< vector< ofVec2f > > getProjectorPoints() const;
+
+		void addMeasurement(vector<ofVec3f> newCamPoints, vector<ofVec2f> newProjectorPoints) {
+			camPoints.push_back(newCamPoints);
+			projectorPoints.push_back(newProjectorPoints);
+			updateMatrix();
+		}
+
+		void clear() {
+			camPoints.clear();
+			projectorPoints.clear();
+			updateMatrix();
+		}
+
+		void deleteLastMeasurement() {
+			if(camPoints.size() > 0) {
+				camPoints.pop_back();
+				projectorPoints.pop_back();
+			}
+			updateMatrix();
+		}
 
 	private:
-		vector< vector< ofVec3f > > campoints;
-		vector< vector< ofVec2f > > projectorpoints;
+		vector< vector< ofVec3f > > camPoints;
+		vector< vector< ofVec2f > > projectorPoints;
 
 		ofMatrix4x4 projmat;
 

@@ -2,12 +2,11 @@
 
 #include "ofMain.h"
 
-
 #undef Status
 #undef STATUS
 
-#include "ofxONI1_5.h"
 #include "ofxReprojection.h"
+#include "ofxONI2.h"
 
 
 class testApp : public ofBaseApp {
@@ -18,7 +17,7 @@ public:
 	void keyPressed(int key);
 	void exit();
 
-	ofxONI1_5 depthcam;
+	ofxONI2 depthcam;
 	ofxReprojection reprojection;
 
 };

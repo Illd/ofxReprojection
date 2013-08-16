@@ -8,7 +8,7 @@ struct ofxReprojectionCalibrationConfig {
 	float planar_threshold;
 	float variance_threshold_xy;
 	float variance_threshold_z;
-	int measurement_pause_length;
+	unsigned int measurement_pause_length;
 
 	ofxReprojectionCalibrationConfig():
 			 num_stability_frames(20),
