@@ -1,9 +1,5 @@
 #include "testApp.h"
 
-#include "ofxGui.h"
-ofParameter<float> pointsize;
-ofxPanel gui;
-
 void testApp::setup(){
 	ofSetLogLevel(OF_LOG_VERBOSE);
 	ofSetVerticalSync(false);
@@ -22,17 +18,12 @@ void testApp::setup(){
 	// Load calibration data to skip the calibration stage.
 	reprojection.loadCalibrationData("2013-06-30-20-00-02-291.xml");
 	//reprojection.finalizeCalibration();
-	//
 	
-	gui.setup("Renderer control", "settings.xml", 10,200);
-	gui.add(pointsize.set("Point size", 10, 0, 50));
-
 }
 
 void testApp::update(){
 	depthcam.update();
 	reprojection.update();
-	reprojection.renderer.setPointsize(pointsize);
 }
 
 void testApp::draw(){
@@ -45,8 +36,6 @@ void testApp::draw(){
 	if(reprojection.isCalibrating()) {
 		reprojection.drawCalibration();
 	} else {
-		gui.draw();
-
 		depthcam.draw(ofRectangle(10,40,640/4,480/4) + reprojection.getMainWindowPoint());
 
 		ofPushStyle();
