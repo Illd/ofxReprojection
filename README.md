@@ -1,4 +1,4 @@
-**Draft**
+### Draft
 ofxReprojection is still at the draft stage. Do not expect it to be working.
 
 
@@ -8,21 +8,24 @@ ofxReprojection
 Toolkit for dynamic projection mapping using a depth cam and projector. 
 
 The depth cam (e.g. the Kinect camera for XBox)
-will give you a 3D image of the world. The projector outputs a 2D image onto the 3D world. By finding a 
+will give you a 3D image of the world. 
+The projector outputs a 2D image onto the 3D world. By finding a 
 tranformation from the 3D point from the camera to the 2D points on the projector, we can analyze the world and 
 project color back onto it. This is done by a camera/projector calibration where a chessboard (or other automatically recognizable
 shape) is projected onto the world, and then filmed by the depth camera. 
 
 By using computer vision methods (provided by the [OpenCV](http://opencv.org/) 2 library), we can 
 automatically identify the chessboard pattern on the camera image. 
+
 ![](/screenshots/opencvChessboardImage.jpg)
-We now have a set of points in the camera's 3D space and 
+
+As the depth cam gives a third corrdinate for each (x,y) point, we now have a set of points in the camera's 3D space and 
 a set of corresponding points in the projector's 2D space (the coordinates of the chessboard we drew using the projector).
 This can be used to estimate a transformation from the higher dimensional space to the lower (3D to 2D). 
 We assume that the transformation is [affine](http://en.wikipedia.org/wiki/Affine_transformation), 
 i.e. that it is linear in [homogenous coordinates](http://en.wikipedia.org/wiki/Homogeneous_coordinates). 
 
-The approximate transformation is found by using a [least squares fit](http://en.wikipedia.org/wiki/Least_squares) to a 4x3 matrix.  
+The approximate transformation is found by using a [least squares fit](http://en.wikipedia.org/wiki/Least_squares) to a 4x3 matrix. 
 The [Levenberg–Marquardt algorithm](http://en.wikipedia.org/wiki/Levenberg%E2%80%93Marquardt_algorithm) 
 (as implemented in the [lmfit](http://apps.jcns.fz-juelich.de/doku/sc/lmfit) C library)
 is used to solve the regression .
