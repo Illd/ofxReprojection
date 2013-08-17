@@ -27,7 +27,7 @@ Requires
 * Depth camera (e.g. Kinect) through an openFrameworks addon offering the ofxBase3DCam interface. Known alternatives:
   * [ofxONI2](https://github.com/luteberget/ofxONI2), which requires OpenNI 2 and optionally NiTE 2. These are experimental releases, and some have problems with them.
   * [ofxONI1_5](https://github.com/tomana/ofxONI1_5), which requires OpenNI 1.5 and optionally NiTE 1.5. These are more stable for some testers.
-  * [ofxKinect](https://github.com/kylemcdonald/ofxKinect), which requires libfreenect. Probably the most stable solution, but does not support NiTE which has the cool user tracker features.
+  * ofxKinect, which is included in openFrameworks. Probably the simplest and most stable solution, but does not support NiTE which has the cool user tracker features.
 * Projector configured as an extended screen/desktop.
 
 Usage
