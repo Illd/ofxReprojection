@@ -41,6 +41,34 @@ bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibr
 ofxReprojectionCalibration::~ofxReprojectionCalibration() {
 }
 
+// void ofxReprojectionCalibration::set3DViewMouseControlEnabled(bool enable) {
+// 	if(!b3DViewMouseControlEnabled && enable) {
+// 		ofAddListener(ofEvents().mousePressed, this, &ofxReprojectionCalibration::mousePressed3DView);
+// 		ofAddListener(ofEvents().mouseDragged, this, &ofxReprojectionCalibration::mouseDragged3DView);
+// 		ofAddListener(ofEvents().mouseReleased, this, &ofxReprojectionCalibration::mouseReleased3DView);
+// 	} else if(b3DViewMouseControlEnabled && !enable) {
+// 		ofRemoveListener(ofEvents().mousePressed, this, &ofxReprojectionCalibration::mousePressed3DView);
+// 		ofRemoveListener(ofEvents().mouseDragged, this, &ofxReprojectionCalibration::mouseDragged3DView);
+// 		ofRemoveListener(ofEvents().mouseReleased, this, &ofxReprojectionCalibration::mouseReleased3DView);
+// 	}
+// 
+// 	b3DViewMouseControlEnabled = enable;
+// }
+// 
+// void ofxReprojectionCalibration::mousePressed3DView(ofMouseEventArgs &mouse) {
+// 	if(bFinalized) return;
+// 	if(last3DViewBig.inside(ofPoint(mouse.x,mouse.y))) {
+// 	}
+// }
+// 
+// void ofxReprojectionCalibration::mousePressed3DView(ofMouseEventArgs &mouse) {
+// 	if(bFinalized) return;
+// }
+// 
+// void ofxReprojectionCalibration::mousePressed3DView(ofMouseEventArgs &mouse) {
+// 	if(bFinalized) return;
+// }
+
 void ofxReprojectionCalibration::setChessboardMouseControlEnabled(bool enable) {
 	if(!bChessboardMouseControlEnabled && enable) {
 		ofAddListener(ofEvents().mousePressed, this, &ofxReprojectionCalibration::mousePressedChessboard);
@@ -663,9 +691,36 @@ void ofxReprojectionCalibration::drawStatusScreen(float x, float y, float w, flo
 	updateStatusMessages();
 	statusMessagesImage.draw(bottomleft.x,bottomleft.y,bottomleft.width,bottomleft.height);
 
-	chessboard.draw(bottomright.x,bottomright.y,bottomright.width,bottomright.height);
-	lastChessboardSmall = bottomright;
+	//chessboard.draw(bottomright.x,bottomright.y,bottomright.width,bottomright.height);
+	//lastChessboardSmall = bottomright;
+	//
+	
+	draw3DView(bottomright);
 
+}
+
+void ofxReprojectionCalibration::draw3DView(float x, float y, float w, float h) {
+	if(!fbo3DView.isAllocated()) {
+		fbo3DView.allocate(camWidth, camHeight, GL_RGB);
+	}
+
+
+	ofRectangle rect = ofRectangle(x,y,w,h);
+	//cout << "setting area " << rect << endl;
+	cam3DView.setArea(rect);
+	ofPushStyle();
+	fbo3DView.begin();
+	cam3DView.begin();
+
+	ofClear(100);
+	ofSetColor(255,0,0,255);
+	ofDrawBox(50,50,0,10,20,10);
+
+	cam3DView.end();
+	fbo3DView.end();
+	ofSetColor(255,255,255,255);
+	fbo3DView.draw(x,y,w,h);
+	ofPopStyle();
 }
 
 void ofxReprojectionCalibration::updateStatusMessages() {

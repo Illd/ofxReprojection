@@ -11,6 +11,7 @@
 #include "ofxReprojectionUtils.h"
 #include "lmmin.h"
 #include "ofxDirection.h"
+#include "ofxEasyCamArea.h"
 
 // This class takes care of the calibration of depth cam and projector.
 //
@@ -43,6 +44,19 @@ public:
 	void drawChessboard(float x, float y) { drawChessboard(x, y, projectorWidth, projectorHeight); }
 	void drawChessboard(const ofPoint& point) { drawChessboard(point.x, point.y); }
 	void drawChessboard(const ofRectangle& rect) { drawChessboard(rect.x, rect.y, rect.width, rect.height); }
+
+	void draw3DView(float x, float y, float w, float h);
+	void draw3DView(float x, float y) { draw3DView(x, y, camWidth, camHeight); }
+	void draw3DView(const ofPoint& point) { draw3DView(point.x, point.y); }
+	void draw3DView(const ofRectangle& rect) { draw3DView(rect.x, rect.y, rect.width, rect.height); }
+
+	void set3DViewMouseControlEnabled(bool enable);
+	void enable3DViewMouseControl() { set3DViewMouseControlEnabled(true); }
+	void disable3DViewMouseControl() { set3DViewMouseControlEnabled(false); }
+
+	// void mousePressed3DView(ofMouseEventArgs &mouse);
+	// void mouseDragged3DView(ofMouseEventArgs &mouse);
+	// void mouseReleased3DView(ofMouseEventArgs &mouse);
 
 	// Enable/disable listening to openFrameworks window keypresses (d,c,s and f)
 	// and issuing appropriate commands during calibration stage.
@@ -104,6 +118,8 @@ private:
 	int projectorHeight;
 	ofxDirection projectorPosition;
 
+	//ofRectangle last3DView;
+
 	ofRectangle lastChessboardBig;
 	ofRectangle lastChessboardSmall;
 	bool draggingChessboard;
@@ -139,6 +155,9 @@ private:
 	int refMaxDepth;
 
 	bool bFinalized;
+
+	ofxEasyCamArea cam3DView;
+	ofFbo fbo3DView;
 
 
 };
