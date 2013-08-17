@@ -75,13 +75,6 @@ class ofxReprojectionRenderer {
 		ofMatrix4x4 projectionMatrix;
 		ofMatrix4x4 identityMatrix;
 
-		string stringVertexShader2DPoints;
-		string stringFragmentShader2DPoints;
-		string stringGeometryShader2DPoints;
-		string stringVertexShader2DTriangles;
-		string stringFragmentShader2DTriangles;
-		string stringGeometryShader2DTriangles;
-
 		int projectorWidth;
 		int projectorHeight;
 		ofxDirection projectorPosition;

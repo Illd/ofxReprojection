@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 
+#define STRINGIFY(A) #A
 
 // Collection of static methods used in various places in ofxReprojection
 // and in projects using this addon.
@@ -9,6 +10,13 @@
 class ofxReprojectionUtils {
 
 	public:
+		static const string stringVertexShader2DPoints;
+		static const string stringFragmentShader2DPoints;
+		static const string stringGeometryShader2DPoints;
+		static const string stringVertexShader2DTriangles;
+		static const string stringFragmentShader2DTriangles;
+		static const string stringGeometryShader2DTriangles;
+
 
 		// makeHueDepthImage:
 		// Numeric type T should contain pixels in mm (or any size really,
