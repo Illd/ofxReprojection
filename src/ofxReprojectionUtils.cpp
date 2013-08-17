@@ -1,6 +1,12 @@
-
 #include "ofxReprojectionUtils.h"
 
+
+
+//
+//
+// GPU Shader programs as strings
+//
+//
 
 const string ofxReprojectionUtils::stringVertexShader2DPoints = 	"#version 120\n"
 			"#extension GL_ARB_texture_rectangle : enable\n"
@@ -110,5 +116,61 @@ const string ofxReprojectionUtils::stringGeometryShader2DTriangles = "#version 1
 	}
 
 			);
+
+
+const string ofxReprojectionUtils::stringVertexShaderCalibration3DView = 	"#version 120\n"
+			"#extension GL_ARB_texture_rectangle : enable\n" 
+			STRINGIFY(
+
+	// depth_map: R32F format, 32 bit floats in red channel 
+	// (real z values, not normalized)
+	uniform sampler2DRect depth_map;
+
+	// color_image: RBG format
+	uniform sampler2DRect color_image;
+
+	void main() {
+		vec4 pos = gl_Vertex;
+		gl_FrontColor.rgb = texture2DRect(color_image, pos.xy).rgb;
+		float z = texture2DRect(depth_map, pos.xy).r / 20.0;
+		pos.z = z;
+		gl_Position = gl_ModelViewProjectionMatrix * pos;
+		if(abs(pos.z) < 1e-5) {
+			gl_FrontColor.rgb = vec3(0,0,0);
+		}
+	}
+);
+
+const string ofxReprojectionUtils::stringFragmentShaderCalibration3DView = "#version 120\n"
+			STRINGIFY(
+	void main() {
+		gl_FragColor = gl_Color;
+	}
+			);
+
+// TODO: Clean up this shader a little?
+const string ofxReprojectionUtils::stringGeometryShaderCalibration3DView = "#version 120\n"
+				"#extension GL_EXT_geometry_shader4 : enable\n"
+			STRINGIFY(
+	void main() {
+		vec3 sumcolor = vec3(1,1,1);
+		for (int i = 0; i < gl_VerticesIn; i++) {
+			if(gl_FrontColorIn[i].rgb == vec3(0,0,0)) {
+				sumcolor = vec3(0,0,0);
+			}
+		}
+		if(sumcolor != vec3(0,0,0)) {
+			for (int i = 0; i < gl_VerticesIn; i++) {
+				gl_Position = gl_PositionIn[i];
+				gl_FrontColor = gl_FrontColorIn[i];
+				EmitVertex();
+			}
+
+			EndPrimitive();
+		}
+	}
+
+			);
+
 
 

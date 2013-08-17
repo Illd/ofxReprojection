@@ -28,6 +28,7 @@ public:
 
 	bool init(  	ofxBase3DVideo *cam,
 			ofxReprojectionCalibrationConfig config = ofxReprojectionCalibrationConfig());
+	void init3DView();
 
 	void setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition);
 
@@ -76,6 +77,7 @@ public:
 	void mouseDraggedChessboard(ofMouseEventArgs &mouse);
 	void mouseReleasedChessboard(ofMouseEventArgs &mouse);
 
+
 	void deleteLastMeasurement();
 	void clear();
 	void loadFile();
@@ -106,10 +108,13 @@ private:
 	ofFbo statusMessagesImage;
 	ofFbo chessboard;
 
+	ofFloatImage depthFloats;
+
 	void keyPressed(ofKeyEventArgs& e);
 
 	bool bKeysEnabled;
 	bool bChessboardMouseControlEnabled;
+	bool bUse3DView;
 
 	int stability_buffer_i;
 	int camWidth, camHeight;
@@ -158,6 +163,10 @@ private:
 
 	ofxEasyCamArea cam3DView;
 	ofFbo fbo3DView;
+
+	ofVboMesh grid3DView;
+
+	ofShader shader3DView;
 
 
 };

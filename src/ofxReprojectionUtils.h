@@ -16,6 +16,9 @@ class ofxReprojectionUtils {
 		static const string stringVertexShader2DTriangles;
 		static const string stringFragmentShader2DTriangles;
 		static const string stringGeometryShader2DTriangles;
+		static const string stringVertexShaderCalibration3DView;
+		static const string stringFragmentShaderCalibration3DView;
+		static const string stringGeometryShaderCalibration3DView;
 
 
 		// makeHueDepthImage:

@@ -5,6 +5,7 @@ ofxReprojectionCalibration::ofxReprojectionCalibration() {
 	bKeysEnabled = false;
 	bChessboardMouseControlEnabled = false;
 	draggingChessboard = false;
+	bUse3DView = true;
 }
 
 bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibrationConfig config) {
@@ -34,6 +35,10 @@ bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibr
 
 	statusMessagesImage.allocate(camWidth, camHeight, GL_RGB);
 	depthImage.allocate(camWidth, camHeight, GL_RGB);
+
+	if(bUse3DView) {
+		init3DView();
+	}
 
 	return true;
 }
@@ -386,6 +391,7 @@ void ofxReprojectionCalibration::update() {
 
 	// TODO: separate this into a thread? findChessboardCorners can be very slow.
 	if(cam->isFrameNew()) {
+		depthFloats.setFromPixels(cam->getDistancePixels(), camWidth, camHeight, OF_IMAGE_GRAYSCALE);
 
 		// Convert color image to OpenCV image.
 		unsigned char *pPixelsUC = (unsigned char*) cam->getPixels();
@@ -706,20 +712,28 @@ void ofxReprojectionCalibration::draw3DView(float x, float y, float w, float h) 
 
 
 	ofRectangle rect = ofRectangle(x,y,w,h);
-	//cout << "setting area " << rect << endl;
 	cam3DView.setArea(rect);
 	ofPushStyle();
 	fbo3DView.begin();
+	ofClear(75);
+	ofSetColor(255,255,255,255);
+
+	shader3DView.begin();
+	shader3DView.setUniformTexture("depth_map", depthFloats, 0);
+	shader3DView.setUniformTexture("color_image", colorImage, 1);
+
 	cam3DView.begin();
 
-	ofClear(100);
-	ofSetColor(255,0,0,255);
-	ofDrawBox(50,50,0,10,20,10);
+	grid3DView.draw();
 
 	cam3DView.end();
+
+	shader3DView.end();
 	fbo3DView.end();
+
 	ofSetColor(255,255,255,255);
 	fbo3DView.draw(x,y,w,h);
+
 	ofPopStyle();
 }
 
@@ -893,3 +907,44 @@ void ofxReprojectionCalibration::setProjectorInfo(int projectorWidth, int projec
 	chessboard.allocate(projectorWidth,projectorHeight,GL_LUMINANCE);
 	updateChessboard();
 }
+
+void ofxReprojectionCalibration::init3DView() {
+
+	shader3DView.setupShaderFromSource(GL_VERTEX_SHADER,
+			ofxReprojectionUtils::stringVertexShaderCalibration3DView);
+	shader3DView.setupShaderFromSource(GL_FRAGMENT_SHADER,
+			ofxReprojectionUtils::stringFragmentShaderCalibration3DView);
+	shader3DView.setupShaderFromSource(GL_GEOMETRY_SHADER,
+			ofxReprojectionUtils::stringGeometryShaderCalibration3DView);
+
+	shader3DView.linkProgram();
+	shader3DView.printActiveUniforms();
+
+	shader3DView.setGeometryInputType(GL_TRIANGLES);
+	shader3DView.setGeometryOutputType(GL_TRIANGLES);
+	shader3DView.setGeometryOutputCount(3);
+
+	grid3DView.clear();
+	grid3DView.setMode(OF_PRIMITIVE_TRIANGLES);
+	int skip = 1;
+	for(int y = 0; y < camHeight - skip; y += skip) {
+		for(int x = 0; x < camWidth - skip; x += skip) {
+			grid3DView.addVertex(ofVec3f(x,y,2));
+			grid3DView.addVertex(ofVec3f(x+skip,y+skip,2));
+			grid3DView.addVertex(ofVec3f(x,y+skip,2));
+
+			grid3DView.addVertex(ofVec3f(x,y,2));
+			grid3DView.addVertex(ofVec3f(x+skip,y,2));
+			grid3DView.addVertex(ofVec3f(x+skip,y+skip,2));
+
+			grid3DView.addTexCoord(ofVec2f(x,y));
+			grid3DView.addTexCoord(ofVec2f(x+skip,y+skip));
+			grid3DView.addTexCoord(ofVec2f(x,y+skip));
+
+			grid3DView.addTexCoord(ofVec2f(x,y));
+			grid3DView.addTexCoord(ofVec2f(x+skip,y));
+			grid3DView.addTexCoord(ofVec2f(x+skip,y+skip));
+		}
+	}
+}
+
