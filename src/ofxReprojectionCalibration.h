@@ -10,7 +10,6 @@
 #include "ofxReprojectionCalibrationConfig.h"
 #include "ofxReprojectionUtils.h"
 #include "lmmin.h"
-#include "ofxDirection.h"
 
 // This class takes care of the calibration of depth cam and projector.
 //
@@ -28,7 +27,7 @@ public:
 	bool init(  	ofxBase3DVideo *cam,
 			ofxReprojectionCalibrationConfig config = ofxReprojectionCalibrationConfig());
 
-	void setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition);
+	void setProjectorInfo(int projectorWidth, int projectorHeight);
 
 	void update();
 	void updateStatusMessages();
@@ -102,7 +101,6 @@ private:
 
 	int projectorWidth;
 	int projectorHeight;
-	ofxDirection projectorPosition;
 
 	ofRectangle lastChessboardBig;
 	ofRectangle lastChessboardSmall;

@@ -8,7 +8,7 @@ void testApp::setup(){
 	ofSetLogLevel(OF_LOG_VERBOSE);
 	ofSetVerticalSync(false);
 
-	depthcam.init(true,false,false);
+	depthcam.init(true,true,false);
 	depthcam.open();
 
 	reprojection.init(&depthcam);
@@ -23,6 +23,7 @@ void testApp::setup(){
 	reprojection.loadCalibrationData("2013-06-30-20-00-02-291.xml");
 	//reprojection.finalizeCalibration();
 	//
+    reprojection.renderer.setDrawMethod(OFXREPROJECTIONRENDERER_2DDRAWMETHOD_POINTS);
 
 	gui.setup("Renderer control", "settings.xml", 10,200);
 	gui.add(pointsize.set("Point size", 10, 0, 50));
@@ -60,7 +61,8 @@ void testApp::draw(){
 		// onto the world. Will be drawn at the projector location defined by
 		// setupProjector(). Also, reprojection.renderer.setDrawArea can be used
 		// to specify rendering area manually.
-		reprojection.drawRenderer();
+		//reprojection.drawRenderer();
+		reprojection.drawImage(depthcam.getDepthTextureReference());
 	}
 
 }

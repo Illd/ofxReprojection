@@ -8,7 +8,10 @@
 #   The location of your root openFrameworks installation
 #       (default) OF_ROOT = ../../.. 
 ################################################################################
-# OF_ROOT = ../../..
+OF_ROOT = ../../..
+
+OPENNI = $(OF_ROOT)/../OpenNI-Linux-x64-2.2
+NITE = $(OF_ROOT)/../NiTE-Linux-x64-2.2
 
 ################################################################################
 # PROJECT ROOT
@@ -76,11 +79,12 @@
 # add a runtime path to search for those shared libraries, since they aren't 
 # incorporated directly into the final executable application binary.
 ################################################################################
+
 PROJECT_LDFLAGS=-Wl,-rpath=./libs
 PROJECT_LDFLAGS += -lopencv_calib3d -lopencv_imgproc -lopencv_core 
+PROJECT_LDFLAGS += -Wl,-rpath=./ -Lbin/
 PROJECT_LDFLAGS += -lOpenNI2
 PROJECT_LDFLAGS += -lNiTE2
-PROJECT_LDFLAGS += -Wl,-rpath=./ -Lbin/
 
 ################################################################################
 # PROJECT DEFINES
@@ -108,7 +112,7 @@ PROJECT_LDFLAGS += -Wl,-rpath=./ -Lbin/
 #
 #   Note: Leave a leading space when adding list items with the += operator
 ################################################################################
-PROJECT_CFLAGS = -I/home/bjornlu/openni/Include -I/home/bjornlu/nite/Include
+PROJECT_CFLAGS = -I/usr/include   -I$(OPENNI)/Include -I$(OPENNI)/Include/Linux-x86/  -I$(NITE)/Include
 
 ################################################################################
 # PROJECT OPTIMIZATION CFLAGS

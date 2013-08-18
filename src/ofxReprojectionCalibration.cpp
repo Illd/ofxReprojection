@@ -24,15 +24,15 @@ bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibr
 	chess_cols = 7;
 	chess_x = 100;
 	chess_y = 100;
-	chess_width = 400;
-	chess_height = 400;
+	chess_width = 200;
+	chess_height = 200;
 	chess_brightness = 255;
 
 	refMaxDepth = -1;
 
 	corner_history.reserve(config.num_stability_frames);
 
-	statusMessagesImage.allocate(camWidth, camHeight, GL_RGB);
+	statusMessagesImage.allocate(512, 384, GL_RGB);
 	depthImage.allocate(camWidth, camHeight, GL_RGB);
 
 	return true;
@@ -651,20 +651,32 @@ void ofxReprojectionCalibration::drawStatusScreen(float x, float y, float w, flo
 	ofRectangle topleft = ofRectangle(x,y,w/2,h/2);
 	ofRectangle topright = ofRectangle(x+w/2,y,w/2,h/2);
 	ofRectangle bottomleft = ofRectangle(x,y+h/2,w/2,h/2);
-	ofRectangle bottomright = ofRectangle(x+w/2,y+h/2,w/2,h/2);
 
-	colorImage.draw(topleft);
+	ofRectangle bottomright = ofRectangle(x+w/2,y+h/2,w/2,h/4);
+
+    ofRectangle top = ofRectangle(x,y,w,h/2);
+    ofRectangle bottom = ofRectangle(x,y+h/2,w,h/2);
+
+    ofPushStyle();
+    ofSetColor(255,255,255,255);
+	colorImage.draw(top);
 
 	if(refMaxDepth > 0) {
 		ofxReprojectionUtils::makeHueDepthImage(cam->getDistancePixels(), camWidth, camHeight, refMaxDepth, depthImage);
-		depthImage.draw(topright);
+		ofSetColor(255,255,255,80);
+		depthImage.draw(top);
 	}
 
+    ofSetColor(255,255,255,255);
 	updateStatusMessages();
-	statusMessagesImage.draw(bottomleft.x,bottomleft.y,bottomleft.width,bottomleft.height);
+	statusMessagesImage.draw(bottom.x,bottom.y,bottom.width,bottom.height);
+
+    ofSetColor(255,255,255,20);
 
 	chessboard.draw(bottomright.x,bottomright.y,bottomright.width,bottomright.height);
 	lastChessboardSmall = bottomright;
+
+	ofPopStyle();
 
 }
 
@@ -828,10 +840,9 @@ void ofxReprojectionCalibration::unfinalize() {
 	bFinalized = false;
 }
 
-void ofxReprojectionCalibration::setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition) {
+void ofxReprojectionCalibration::setProjectorInfo(int projectorWidth, int projectorHeight) {
 	this->projectorWidth = projectorWidth;
 	this->projectorHeight = projectorHeight;
-	this->projectorPosition = projectorPosition;
 
 	chess_width = ((int)(0.8f*projectorWidth));
 	chess_height = ((int)(0.8f*projectorHeight));

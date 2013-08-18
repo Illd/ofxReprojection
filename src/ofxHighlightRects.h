@@ -15,7 +15,11 @@ class ofxHighlightRects {
 		void setFadeTime(float f) { fadeTime = f; }
 		void setLineWidth(float f) { lineWidth = f; }
 
-	private:
+        void setNewRectDimensions(string name, ofRectangle rect);
+
+
+
+    private:
 
 		float stayTime;
 		float fadeTime;
@@ -32,6 +36,6 @@ class ofxHighlightRects {
 			int lineWidth;
 		};
 
-		std::vector< HighlightRectData > highlights;
+        std::vector< HighlightRectData > highlights;
 		bool inited;
 };

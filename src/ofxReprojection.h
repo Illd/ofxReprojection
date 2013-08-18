@@ -10,7 +10,6 @@
 
 #include "ofxReprojectionCalibration.h"
 #include "ofxReprojectionRenderer.h"
-#include "ofxDirection.h"
 #include "ofxHighlightRects.h"
 
 #include "ofxGui.h"
@@ -49,14 +48,14 @@ public:
 		void disableGui() { setGuiEnabled(false); }
 
 		// Will use ofSetWindowShape to include the projector in the current window.
-		void setupProjector(int projectorWidth, int projectorHeight, ofxDirection projectorPosition, bool moveWindow = false);
-		void setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition);
+		void setupProjector(int projectorWidth, int projectorHeight);
+		void setProjectorInfo(int projectorWidth, int projectorHeight);
 
 		// Info about the window segments
 		ofPoint getProjectorPoint();
-		ofPoint getMainWindowPoint();
+		ofPoint getStatusWindowPoint();
 		ofRectangle getProjectorRectangle();
-		ofRectangle getMainWindowRectangle();
+		ofRectangle getStatusWindowRectangle();
 
 		// Default draw function, draws the default calibration screen when in
 		// calibration mode, and draws the depth/hue image when in rendering mode.
@@ -65,6 +64,9 @@ public:
 		void drawCalibration();
 		void drawRenderer();
 		void drawImage(ofTexture tex);
+		void drawStatusScreen(int x, int y, int w, int h);
+		void drawChessboard(int x, int y, int w, int h);
+
 
 		bool isCalibrating() { return bCalibrationStage; }
 
@@ -78,19 +80,25 @@ public:
 
         ofxReprojectionRenderer renderer;
 
+
 private:
 		bool bCalibrationStage;
 
 		ofxBase3DVideo* cam;
-		ofxReprojectionCalibration calibration;
+
+        ofxReprojectionCalibration calibration;
 		ofxReprojectionCalibrationData calibrationData;
 
 
 		int projectorWidth;
 		int projectorHeight;
-		int mainWindowWidth;
-		int mainWindowHeight;
-		ofxDirection projectorPosition;
+		int statusWindowWidth;
+		int statusWindowHeight;
+		ofPoint projectorPosition;
+		ofPoint statusWindowPosition;
+
+        ofRectangle lastStatusWindowRectangle;
+        ofRectangle lastProjectorWindow;
 
 		bool bGuiEnabled;
 

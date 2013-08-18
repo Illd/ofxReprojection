@@ -59,10 +59,10 @@ ofxReprojectionRenderer::ofxReprojectionRenderer()
 	stringGeometryShader2DPoints = "";
 
 	stringVertexShader2DTriangles = 	"#version 120\n"
-				"#extension GL_ARB_texture_rectangle : enable\n" 
+				"#extension GL_ARB_texture_rectangle : enable\n"
 				STRINGIFY(
 
-		// depth_map: R32F format, 32 bit floats in red channel 
+		// depth_map: R32F format, 32 bit floats in red channel
 		// (real z values, not normalized)
 		uniform sampler2DRect depth_map;
 
@@ -76,7 +76,7 @@ ofxReprojectionRenderer::ofxReprojectionRenderer()
 			gl_FrontColor.rgb = texture2DRect(color_image, pos.xy).rgb;
 			float z = texture2DRect(depth_map, pos.xy).r;
 			pos.z = z;
-			pos = pos*transform; 
+			pos = pos*transform;
 			pos.z = z;
 			gl_Position = gl_ModelViewProjectionMatrix * pos;
 			if(abs(pos.z) < 1e-5) {
@@ -248,10 +248,10 @@ void ofxReprojectionRenderer::drawImage(ofTexture &tex)
 
 	ofMatrix4x4 ortho;
 
-	if(useTransform) { 
-		ortho = ofMatrix4x4::newOrthoMatrix(0,projectorWidth,0,projectorHeight, 0, -100000); 
-	} else { 
-		ortho = ofMatrix4x4::newOrthoMatrix(0,camWidth,0,camHeight, 0, -100000); 
+	if(useTransform) {
+		ortho = ofMatrix4x4::newOrthoMatrix(0,projectorWidth,0,projectorHeight, 0, -100000);
+	} else {
+		ortho = ofMatrix4x4::newOrthoMatrix(0,camWidth,0,camHeight, 0, -100000);
 	}
 
 	ofSetMatrixMode(OF_MATRIX_PROJECTION);
@@ -268,10 +268,10 @@ void ofxReprojectionRenderer::drawImage(ofTexture &tex)
 
 	shader2D.setUniform1f("pointsize",pointsize);
 
-	if(useTransform) { 
+	if(useTransform) {
 		shader2D.setUniformMatrix4f("transform", projectionMatrix);
-       	} else { 
-		shader2D.setUniformMatrix4f("transform", identityMatrix); 
+       	} else {
+		shader2D.setUniformMatrix4f("transform", identityMatrix);
 	}
 
 	shader2D.setUniformTexture("depth_map", depthFloats, 0);
@@ -294,13 +294,12 @@ void ofxReprojectionRenderer::setProjectionMatrix(ofMatrix4x4 m)
 
 }
 
-void ofxReprojectionRenderer::setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition) {
+void ofxReprojectionRenderer::setProjectorInfo(int projectorWidth, int projectorHeight) {
 	this->projectorWidth = projectorWidth;
 	this->projectorHeight = projectorHeight;
-	this->projectorPosition = projectorPosition;
 
 	if(drawWidth == 0) {
-	       drawWidth = projectorWidth;
+        drawWidth = projectorWidth;
 	}
 	if(drawHeight == 0) {
 		drawHeight = projectorHeight;
@@ -316,7 +315,7 @@ void ofxReprojectionRenderer::setDrawArea(float x, float y, float w, float h) {
 	drawHeight = h;
 }
 
-void ofxReprojectionRenderer::setDrawMethod(ofxReprojectionRenderer2DDrawMethod d) { 
+void ofxReprojectionRenderer::setDrawMethod(ofxReprojectionRenderer2DDrawMethod d) {
 
 	if(d == OFXREPROJECTIONRENDERER_2DDRAWMETHOD_POINTS) {
 		ofLogVerbose("ofxReprojection") << "setDrawMethod called with drawMethod = points";

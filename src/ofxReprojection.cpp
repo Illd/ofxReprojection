@@ -32,13 +32,22 @@ bool ofxReprojection::init(ofxBase3DVideo* cam, string calibrationDataFilename) 
 		calibration.enableChessboardMouseControl();
 	}
 
-
-
 	initGui();
-	highlighter.init();
+
 
 	setGuiEnabled(false);
-	return true;
+
+
+	// Standard values for status window
+    statusWindowWidth = 512;
+    statusWindowHeight =768;
+    statusWindowPosition = ofPoint(0,0);
+    projectorPosition = ofPoint(512,0);
+
+    highlighter.init();
+
+    	return true;
+
 }
 
 void ofxReprojection::initGui() {
@@ -112,25 +121,11 @@ void ofxReprojection::draw() {
 }
 
 ofPoint ofxReprojection::getProjectorPoint() {
-	if(projectorPosition == OFX_DIRECTION_LEFT) {
-		return ofPoint(0,0);
-	} else if (projectorPosition == OFX_DIRECTION_RIGHT) {
-		return ofPoint(mainWindowWidth,0);
-	} else {
-		ofLogWarning("ofxReprojection") << "getProjectorPoint: projectorPosition UP and DOWN not implemented.";
-		return ofPoint(0,0);
-	}
+    return projectorPosition;
 }
 
-ofPoint ofxReprojection::getMainWindowPoint() {
-	if(projectorPosition == OFX_DIRECTION_LEFT) {
-		return ofPoint(projectorWidth,0);
-	} else if (projectorPosition == OFX_DIRECTION_RIGHT) {
-		return ofPoint(0,0);
-	} else {
-		ofLogWarning("ofxReprojection") << "getProjectorPoint: projectorPosition UP and DOWN not implemented.";
-		return ofPoint(0,0);
-	}
+ofPoint ofxReprojection::getStatusWindowPoint() {
+    return statusWindowPosition;
 }
 
 ofRectangle ofxReprojection::getProjectorRectangle() {
@@ -138,74 +133,57 @@ ofRectangle ofxReprojection::getProjectorRectangle() {
 	return ofRectangle(projectorPoint.x, projectorPoint.y, projectorWidth, projectorHeight);
 }
 
-ofRectangle ofxReprojection::getMainWindowRectangle() {
-	ofPoint mainWindowPoint = getMainWindowPoint();
-	return ofRectangle(mainWindowPoint.x, mainWindowPoint.y, mainWindowWidth, mainWindowHeight);
+ofRectangle ofxReprojection::getStatusWindowRectangle() {
+	ofPoint statusWindowPoint = getStatusWindowPoint();
+	return ofRectangle(statusWindowPoint.x, statusWindowPoint.y, statusWindowWidth, statusWindowHeight);
 }
 
 void ofxReprojection::drawCalibration() {
-	calibration.drawStatusScreen(getMainWindowRectangle());
+	calibration.drawStatusScreen(getStatusWindowRectangle());
 	calibration.drawChessboard(getProjectorRectangle());
 	if(bGuiEnabled) {
 		calibrationGui.draw();
 	}
 }
 
+void ofxReprojection::drawStatusScreen(int x, int y, int w, int h) {
+    statusWindowWidth = w;
+    statusWindowHeight = h;
+    statusWindowPosition = ofPoint(x,y);
+    highlighter.setNewRectDimensions("Main/status window", getStatusWindowRectangle());
+
+    calibration.drawStatusScreen(getStatusWindowRectangle());
+}
+
+void ofxReprojection::drawChessboard(int x, int y, int w, int h) {
+    projectorWidth = w;
+    projectorHeight = h;
+    projectorPosition = ofPoint(x,y);
+    highlighter.setNewRectDimensions("Projector area", getProjectorRectangle());
+
+    calibration.drawChessboard(getProjectorRectangle());
+}
+
+
 void ofxReprojection::drawRenderer() {
 	renderer.drawHueDepthImage();
 }
 
-void ofxReprojection::setupProjector(int projectorWidth, int projectorHeight, ofxDirection projectorPosition, bool moveWindow) {
-	ofPoint windowsize = ofGetWindowSize();
-	mainWindowWidth = (int)windowsize.x;
-	mainWindowHeight = (int)windowsize.y;
-
-	setProjectorInfo(projectorWidth, projectorHeight, projectorPosition);
-
-	ofPoint newwindowsize = ofGetWindowSize();
-	if(projectorPosition == OFX_DIRECTION_LEFT or projectorPosition == OFX_DIRECTION_RIGHT) {
-		newwindowsize.x += projectorWidth;
-		if(newwindowsize.y < projectorHeight) {
-			newwindowsize.y = projectorHeight;
-		}
-	} else {
-		ofLogError("ofxReprojection") << "projectorPosition DOWN or UP not implemented.";
-	}
-
-	ofLogVerbose("ofxReprojection") << "Resizing window from " << windowsize << " to " << newwindowsize;
-
-	ofSetWindowShape(newwindowsize.x, newwindowsize.y);
-
-	if(moveWindow) {
-		ofPoint screensize = ofPoint();
-		screensize.x = ofGetScreenWidth();
-		screensize.y = ofGetScreenHeight();
-
-		ofLogVerbose("ofxReprojection") << "Found screen size " << screensize;
-
-		if(projectorPosition == OFX_DIRECTION_LEFT) {
-			ofSetWindowPosition(-projectorWidth,0);
-		} else if(projectorPosition == OFX_DIRECTION_RIGHT) {
-			ofSetWindowPosition(screensize.x - windowsize.x, 0);
-			ofLogVerbose("ofxReprojection") << "moving window to " << ofPoint(screensize.x-windowsize.x,0);
-		} else {
-			ofLogError("ofxReprojection") << "projectorPosition DOWN or UP not implemented.";
-		}
-	}
+void ofxReprojection::setupProjector(int projectorWidth, int projectorHeight) {
+	setProjectorInfo(projectorWidth, projectorHeight);
 }
 
-void ofxReprojection::setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition) {
+void ofxReprojection::setProjectorInfo(int projectorWidth, int projectorHeight) {
 	this->projectorWidth = projectorWidth;
 	this->projectorHeight = projectorHeight;
-	this->projectorPosition = projectorPosition;
 
-	calibration.setProjectorInfo(projectorWidth, projectorHeight, projectorPosition);
-	renderer.setProjectorInfo(projectorWidth, projectorHeight, projectorPosition);
+	calibration.setProjectorInfo(projectorWidth, projectorHeight);
+	renderer.setProjectorInfo(projectorWidth, projectorHeight);
 
 	highlighter.highlightRect("Projector area", getProjectorRectangle());
-	highlighter.highlightRect("Main/status window", getMainWindowRectangle());
+	highlighter.highlightRect("Main/status window", getStatusWindowRectangle());
 
-	ofRectangle mainwin = getMainWindowRectangle();
+	ofRectangle mainwin = getStatusWindowRectangle();
 	ofRectangle guishape = calibrationGui.getShape();
 	ofPoint guipoint(mainwin.x + mainwin.width/2 - guishape.width -2, mainwin.y + mainwin.height/2 +2);
 	calibrationGui.setPosition(guipoint);
