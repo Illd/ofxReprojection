@@ -56,20 +56,20 @@ ofxReprojectionCalibration::~ofxReprojectionCalibration() {
 // 		ofRemoveListener(ofEvents().mouseDragged, this, &ofxReprojectionCalibration::mouseDragged3DView);
 // 		ofRemoveListener(ofEvents().mouseReleased, this, &ofxReprojectionCalibration::mouseReleased3DView);
 // 	}
-// 
+//
 // 	b3DViewMouseControlEnabled = enable;
 // }
-// 
+//
 // void ofxReprojectionCalibration::mousePressed3DView(ofMouseEventArgs &mouse) {
 // 	if(bFinalized) return;
 // 	if(last3DViewBig.inside(ofPoint(mouse.x,mouse.y))) {
 // 	}
 // }
-// 
+//
 // void ofxReprojectionCalibration::mousePressed3DView(ofMouseEventArgs &mouse) {
 // 	if(bFinalized) return;
 // }
-// 
+//
 // void ofxReprojectionCalibration::mousePressed3DView(ofMouseEventArgs &mouse) {
 // 	if(bFinalized) return;
 // }
@@ -700,7 +700,7 @@ void ofxReprojectionCalibration::drawStatusScreen(float x, float y, float w, flo
 	//chessboard.draw(bottomright.x,bottomright.y,bottomright.width,bottomright.height);
 	//lastChessboardSmall = bottomright;
 	//
-	
+
 	draw3DView(bottomright);
 
 }
@@ -717,18 +717,23 @@ void ofxReprojectionCalibration::draw3DView(float x, float y, float w, float h) 
 	fbo3DView.begin();
 	ofClear(75);
 	ofSetColor(255,255,255,255);
-
+    cam3DView.begin();
 	shader3DView.begin();
 	shader3DView.setUniformTexture("depth_map", depthFloats, 0);
 	shader3DView.setUniformTexture("color_image", colorImage, 1);
 
-	cam3DView.begin();
-
 	grid3DView.draw();
+
+
+	shader3DView.end();
+
+	glPointSize(10);
+	ofSetColor(255,0,0,255);
+    points3DView.draw();
+    glPointSize(1);
 
 	cam3DView.end();
 
-	shader3DView.end();
 	fbo3DView.end();
 
 	ofSetColor(255,255,255,255);
@@ -884,6 +889,7 @@ static void saveDataToFile(ofxReprojectionCalibrationData data, string filename)
 
 void ofxReprojectionCalibration::loadData(string filename) {
 	data = ofxReprojectionCalibrationData::loadFromFile(filename);
+	updatePoints3DView();
 }
 
 void ofxReprojectionCalibration::finalize() {
@@ -947,4 +953,31 @@ void ofxReprojectionCalibration::init3DView() {
 		}
 	}
 }
+
+void ofxReprojectionCalibration::updatePoints3DView() {
+
+	points3DView.clear();
+	points3DView.setMode(OF_PRIMITIVE_POINTS);
+
+    vector< vector< ofVec3f > > measurements = data.getCamPoints();
+
+ 	// Put all measured points in one vector.
+ 	//
+ 	vector<ofVec3f> measurements_all; {
+ 		for(uint i  = 0; i < measurements.size(); i++) {
+ 			for(uint j = 0; j < measurements[i].size(); j++) {
+ 				measurements_all.push_back(measurements[i][j]);
+ 			}
+ 		}
+ 	}
+ 	cout << measurements_all.size() << endl;
+	for(uint i  = 0; i < measurements_all.size(); i++) {
+            ofVec3f currentpoint = measurements_all[i];
+            // Dividing by 20 as in shader. Should make this more customizable.
+            currentpoint.z = currentpoint.z/20.0;
+			points3DView.addVertex(currentpoint);
+		}
+}
+
+
 

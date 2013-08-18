@@ -29,7 +29,6 @@ public:
 			calibration.loadData(filename);
 		}
 
-
 		// Updates the calibration object.
 		void update();
 

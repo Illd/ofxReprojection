@@ -45,13 +45,14 @@ ofxReprojectionCalibrationData::ofxReprojectionCalibrationData(string filename)
     vector< vector< ofVec3f> > measurements;
     if(numCamPointsets > 0)
     {
-        XML.pushTag("campoints", numCamPointsets-1);
+        for (int k = 0; k < numCamPointsets; k++) {
+        XML.pushTag("campoints", k);
         int numPointsets = XML.getNumTags("pointset");
         if(numPointsets > 0)
         {
             for(int i = 0; i < numPointsets; i++)
             {
-                XML.pushTag("pointset", numPointsets-1);
+                XML.pushTag("pointset", i);
                 vector<ofVec3f> measurement;
                 int numPoints = XML.getNumTags("point");
                 for (int j = 0; j < numPoints; j++)
@@ -69,19 +70,21 @@ ofxReprojectionCalibrationData::ofxReprojectionCalibrationData(string filename)
         }
 
         XML.popTag();
+        }
     }
 
     int numProjPointsets = XML.getNumTags("projectorpoints:pointset");
     vector< vector< ofVec2f> > projpoints;
     if(numProjPointsets > 0)
     {
-        XML.pushTag("projectorpoints", numProjPointsets-1);
+        for (int k = 0; k < numCamPointsets; k++) {
+        XML.pushTag("projectorpoints", k);
         int numPointsets = XML.getNumTags("pointset");
         if(numPointsets > 0)
         {
             for(int i = 0; i < numPointsets; i++)
             {
-                XML.pushTag("pointset", numPointsets-1);
+                XML.pushTag("pointset", i);
                 vector<ofVec2f> projpoint;
                 int numPoints = XML.getNumTags("point");
                 for (int j = 0; j < numPoints; j++)
@@ -98,6 +101,7 @@ ofxReprojectionCalibrationData::ofxReprojectionCalibrationData(string filename)
         }
 
         XML.popTag();
+        }
     }
     cout << "came to end" << endl;
 }
