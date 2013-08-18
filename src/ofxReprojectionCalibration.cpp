@@ -714,23 +714,24 @@ void ofxReprojectionCalibration::draw3DView(float x, float y, float w, float h) 
 	ofRectangle rect = ofRectangle(x,y,w,h);
 	cam3DView.setArea(rect);
 	ofPushStyle();
+
 	fbo3DView.begin();
+
 	ofClear(75);
 	ofSetColor(255,255,255,255);
+
     cam3DView.begin();
+
 	shader3DView.begin();
 	shader3DView.setUniformTexture("depth_map", depthFloats, 0);
 	shader3DView.setUniformTexture("color_image", colorImage, 1);
-
 	grid3DView.draw();
-
-
 	shader3DView.end();
 
 	glPointSize(10);
 	ofSetColor(255,0,0,255);
     points3DView.draw();
-    glPointSize(1);
+    glPointSize(10);
 
 	cam3DView.end();
 

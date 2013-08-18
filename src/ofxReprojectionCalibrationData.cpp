@@ -99,7 +99,6 @@ ofxReprojectionCalibrationData::ofxReprojectionCalibrationData(string filename)
                 XML.popTag();
             }
         }
-
         XML.popTag();
         }
     }
