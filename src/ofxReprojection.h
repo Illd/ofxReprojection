@@ -48,8 +48,9 @@ public:
 		void disableGui() { setGuiEnabled(false); }
 
 		// Will use ofSetWindowShape to include the projector in the current window.
-		void setupProjector(int projectorWidth, int projectorHeight, ofxDirection projectorPosition, bool moveWindow = false);
+		void setupProjector(int projectorWidth, int projectorHeight, ofxDirection projectorPosition);
 		void setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition);
+		void autoMoveWindow();
 
 		// Info about the window segments
 		ofPoint getProjectorPoint();

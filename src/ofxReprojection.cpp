@@ -155,7 +155,7 @@ void ofxReprojection::drawRenderer() {
 	renderer.drawHueDepthImage();
 }
 
-void ofxReprojection::setupProjector(int projectorWidth, int projectorHeight, ofxDirection projectorPosition, bool moveWindow) {
+void ofxReprojection::setupProjector(int projectorWidth, int projectorHeight, ofxDirection projectorPosition) {
 	ofPoint windowsize = ofGetWindowSize();
 	mainWindowWidth = (int)windowsize.x;
 	mainWindowHeight = (int)windowsize.y;
@@ -176,21 +176,22 @@ void ofxReprojection::setupProjector(int projectorWidth, int projectorHeight, of
 
 	ofSetWindowShape(newwindowsize.x, newwindowsize.y);
 
-	if(moveWindow) {
-		ofPoint screensize = ofPoint();
-		screensize.x = ofGetScreenWidth();
-		screensize.y = ofGetScreenHeight();
+}
+void ofxReprojection::autoMoveWindow() {
+	ofPoint windowsize = ofPoint(mainWindowWidth, mainWindowHeight);
+	ofPoint screensize = ofPoint();
+	screensize.x = ofGetScreenWidth();
+	screensize.y = ofGetScreenHeight();
 
-		ofLogVerbose("ofxReprojection") << "Found screen size " << screensize;
+	ofLogVerbose("ofxReprojection") << "Found screen size " << screensize;
 
-		if(projectorPosition == OFX_DIRECTION_LEFT) {
-			ofSetWindowPosition(-projectorWidth,0);
-		} else if(projectorPosition == OFX_DIRECTION_RIGHT) {
-			ofSetWindowPosition(screensize.x - windowsize.x, 0);
-			ofLogVerbose("ofxReprojection") << "moving window to " << ofPoint(screensize.x-windowsize.x,0);
-		} else {
-			ofLogError("ofxReprojection") << "projectorPosition DOWN or UP not implemented.";
-		}
+	if(projectorPosition == OFX_DIRECTION_LEFT) {
+		ofSetWindowPosition(-projectorWidth,0);
+	} else if(projectorPosition == OFX_DIRECTION_RIGHT) {
+		ofSetWindowPosition(screensize.x - windowsize.x, 0);
+		ofLogVerbose("ofxReprojection") << "moving window to " << ofPoint(screensize.x-windowsize.x,0);
+	} else {
+		ofLogError("ofxReprojection") << "projectorPosition DOWN or UP not implemented.";
 	}
 }
 
