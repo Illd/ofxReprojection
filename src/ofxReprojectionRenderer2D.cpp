@@ -78,15 +78,6 @@ void ofxReprojectionRenderer2D::keyPressed(ofKeyEventArgs& e) {
 	}
 }
 
-void ofxReprojectionRenderer2D::begin() {
-    shader3D.begin();
-}
-
-void ofxReprojectionRenderer2D::end() {
-    shader3D.end();
-
-}
-
 void ofxReprojectionRenderer2D::drawHueDepthImage() {
 	if(!huetex.isAllocated()) {
 		ofLogVerbose("ofxReprojection") << "allocating ofTexture huetext in drawHueDepthImage()";

@@ -33,10 +33,6 @@ class ofxReprojectionRenderer2D {
 
 		void drawHueDepthImage();
 
-		// Draws transformed 3D object
-		void begin();
-		void end();
-
 		void enableTransform() { useTransform = true; }
 		void disableTransform() { useTransform = false; }
 		void toggleTransform() { useTransform = !useTransform; }
@@ -56,7 +52,6 @@ class ofxReprojectionRenderer2D {
 		ofxBase3DVideo *cam;
 		ofVboMesh outputgrid;
 		ofShader shader2D;
-		ofShader shader3D;
 		ofMatrix4x4 projectionMatrix;
 		ofMatrix4x4 identityMatrix;
 
