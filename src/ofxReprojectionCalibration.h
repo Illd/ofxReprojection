@@ -89,9 +89,6 @@ public:
 	static const cv::Mat lm_affinerow;
 	static void lm_evaluate_camera_matrix(const double *par, int m_dat, const void *data, double *fvec, int *info);
 
-	// helper
-	static ofVec3f pixel3f_to_world3fData( ofVec3f p, ofxReprojectionCalibrationData data);
-
 	bool isFinalized() { return bFinalized; }
 
 

@@ -253,19 +253,6 @@ void ofxReprojectionCalibration::updateChessboard() {
 	ofPopStyle();
 }
 
-ofVec3f ofxReprojectionCalibration::pixel3f_to_world3fData( ofVec3f p, ofxReprojectionCalibrationData data) {
-	if(p.z < 1.0e-5f) {
-		return ofVec3f(0,0,0);
-	} else {
-		float x = (2.0*((double)p.x) - ((double)data.getCamWidth()))/((double)data.getCamWidth());
-		float y = (2.0*((double)p.y) - ((double)data.getCamHeight()))/((double)data.getCamHeight());
-		//float z = (2.0*((double)p.z) - ((double)ref_max_depth))/((double)ref_max_depth);
-		float z = ((double)p.z / (double)data.getRefMaxDepth());
-
-		return ofVec3f(x,y,z);
-	}
-}
-
 ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(const ofxReprojectionCalibrationData &data) {
 
     vector< vector< ofVec3f > > measurements = data.getCamPoints();
