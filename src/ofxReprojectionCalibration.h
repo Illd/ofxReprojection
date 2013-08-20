@@ -75,6 +75,15 @@ public:
 	void enableChessboardMouseControl() { setChessboardMouseControlEnabled(true); }
 	void disableChessboardMouseControl() { setChessboardMouseControlEnabled(false); }
 
+	// Enable/disable drawing of projector frustrum in depth cam color image.
+	void setDrawProjectorFrustrumEnabled(bool enable) { bDrawProjectorFrustrum = enable; }
+	void enableDrawProjectorFrustrum() { setDrawProjectorFrustrumEnabled(true); }
+	void disableDrawProjectorFrustrum(){ setDrawProjectorFrustrumEnabled(false); }
+
+	void updateProjectorFrustrum();
+	static void lm_evaluate_projector_point(const double *par, int m_dat, const void *data, double *fvec, int *info);
+
+
 	void mousePressedChessboard(ofMouseEventArgs &mouse);
 	void mouseDraggedChessboard(ofMouseEventArgs &mouse);
 	void mouseReleasedChessboard(ofMouseEventArgs &mouse);
@@ -109,6 +118,7 @@ private:
 	ofTexture depthImage;
 	ofFbo statusMessagesImage;
 	ofFbo chessboard;
+	ofFbo projectorFrustrum;
 
 	ofFloatImage depthFloats;
 
@@ -117,6 +127,7 @@ private:
 	bool bKeysEnabled;
 	bool bChessboardMouseControlEnabled;
 	bool bUse3DView;
+	bool bDrawProjectorFrustrum;
 
 	int stability_buffer_i;
 	int camWidth, camHeight;
@@ -171,6 +182,17 @@ private:
 	ofVboMesh points3DView;
 
 	ofShader shader3DView;
+
+	struct evalProjPData {
+		float x0;
+		float y0;
+		ofMatrix4x4 projectionMatrix;
+		int camWidth;
+		int camHeight;
+		int projectorWidth;
+		int projectorHeight;
+		float *depth;
+	};
 
 
 };

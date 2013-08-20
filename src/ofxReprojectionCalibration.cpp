@@ -6,6 +6,7 @@ ofxReprojectionCalibration::ofxReprojectionCalibration() {
 	bChessboardMouseControlEnabled = false;
 	draggingChessboard = false;
 	bUse3DView = true;
+	bDrawProjectorFrustrum = true;
 }
 
 bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibrationConfig config) {
@@ -205,6 +206,73 @@ void ofxReprojectionCalibration::loadFile() {
 }
 
 void ofxReprojectionCalibration::saveFile() {
+
+}
+
+float ofxInterpolateBilinear(float v00, float v01, float v10, float v11, float x, float y) {
+	float fr0 = (1-x)*v00 + x*v10;
+	float fr1 = (1-x)*v01 + x*v11;
+
+	float p = (1-y)*fr0 + y*fr1;
+
+	return p;
+}
+
+
+float largevalue = 1e5;
+void ofxReprojectionCalibration::lm_evaluate_projector_point(const double *par, int m_dat, const void *data, double *fvec, int *info) {
+	// Calculate x,y in the equation
+	// projectionMatrix * [x y depth(x,y)]' = [x0 y0]'
+	
+	evalProjPData *d = (evalProjPData*)data;
+	//cout << "using matrix " << d->projectionMatrix << endl;
+
+	float dist = ofDistSquared(par[0], par[1], d->projectorWidth/2, d->projectorHeight/2);
+	
+	if(ofRectangle(0,0,d->camWidth,d->camHeight).inside(ofPoint(par[0],par[1]))) {
+		float depthvalue00 = d->depth[(int)(((int)par[0])      + ((int)par[1])*d->camWidth)];
+		float depthvalue10 = d->depth[(int)(((int)par[0]+1) + ((int)par[1])*d->camWidth)];
+		float depthvalue01 = d->depth[(int)(((int)par[0])      + ((int)par[1]+1)*d->camWidth)];
+		float depthvalue11 = d->depth[(int)(((int)par[0]+1) + ((int)par[1]+1)*d->camWidth)];
+
+		float minimum = 1e9;
+		if(depthvalue00 > 1e-5 && depthvalue00 < minimum) minimum = depthvalue00;
+		if(depthvalue10 > 1e-5 && depthvalue10 < minimum) minimum = depthvalue10;
+		if(depthvalue01 > 1e-5 && depthvalue01 < minimum) minimum = depthvalue01;
+		if(depthvalue11 > 1e-5 && depthvalue11 < minimum) minimum = depthvalue11;
+
+		if(minimum == 1e9) minimum = 0;
+
+		if(depthvalue00 < 1e-5) depthvalue00 = minimum;
+		if(depthvalue10 < 1e-5) depthvalue10 = minimum;
+		if(depthvalue01 < 1e-5) depthvalue01 = minimum;
+		if(depthvalue11 < 1e-5) depthvalue11 = minimum;
+
+		//cout << "depth values: " << depthvalue00 << "," << depthvalue10 << "," << depthvalue01 << "," << depthvalue11 << endl;
+
+		float depthvalue = ofxInterpolateBilinear(depthvalue00, depthvalue01, depthvalue10, depthvalue11, 
+					par[0] - (int)par[0], par[1] - (int)par[1]);
+
+		//cout << "depth: " << depthvalue << endl;
+
+		if(depthvalue < 1e-5) {
+			fvec[0] = largevalue*dist;
+			fvec[1] = largevalue*dist;
+		} else {
+
+			ofVec4f camVector = ofVec4f(par[0], par[1], depthvalue,0);
+			//cout << "camVector: " << camVector << endl;
+			ofVec4f projectorVector = d->projectionMatrix * camVector;
+			//cout << "projectorVector: " << projectorVector << endl;
+
+			//cout << "actual error calc." << endl;
+			fvec[0] = projectorVector.x - d->x0;
+			fvec[1] = projectorVector.y - d->y0;
+		}
+	} else {
+		fvec[0] = largevalue*dist;
+		fvec[1] = largevalue*dist;
+	}
 
 }
 
@@ -562,6 +630,7 @@ void ofxReprojectionCalibration::update() {
 
 		// Convert image to ofTexture for drawing status screen.
 		colorImage.loadData(pPixelsUC, camWidth, camHeight, GL_RGB);
+		updateProjectorFrustrum();
 
 		// If chessboard is found, depth data exists and planarity check is satisfied,
 		// add this measurement to the stability buffer corner_history.
@@ -670,12 +739,84 @@ void ofxReprojectionCalibration::update() {
 
 				data.addMeasurement(measurement_mean, chessboard_points);
 
+
 				measurement_pause = true;
 				measurement_pause_time = ofGetSystemTime();
 
 			}
 		}
 	}
+
+}
+
+
+void ofxReprojectionCalibration::updateProjectorFrustrum() {
+	//ofLogVerbose("ofxReprojection") << "starting updateProjectorFrustrum()";
+	if(!projectorFrustrum.isAllocated()) {
+		projectorFrustrum.allocate(camWidth, camHeight, GL_RGB);
+	}
+
+	ofPushStyle();
+	ofSetColor(255,255,255,255);
+	projectorFrustrum.begin();
+	ofClear(25);
+
+
+	evalProjPData ppdata;
+	ppdata.depth = depthFloats.getPixels();
+	ppdata.projectionMatrix = data.getMatrix();
+	ppdata.camWidth = camWidth;
+	ppdata.camHeight = camHeight;
+	ppdata.projectorWidth = projectorWidth;
+	ppdata.projectorHeight = projectorHeight;
+
+	for(int x = 0; x < projectorWidth; x++) {
+		for(int y = 0; y < projectorHeight; y += 1) {
+			ppdata.x0 = x; 
+			ppdata.y0 = y;
+
+			lm_status_struct lm_status;
+			lm_control_struct lm_control = lm_control_double;
+			//lm_control.printflags = 3;
+			lm_control.epsilon = 0.01;
+
+			int n_par = 2;
+			double lm_params[2] = {(double)camWidth/2, (double)camHeight/2};
+
+			lmmin(n_par, lm_params, 2, (const void*) &ppdata,
+				&lm_evaluate_projector_point,
+				&lm_control, &lm_status, &lm_printout_std);
+
+			ofRect(lm_params[0], lm_params[1], 1, 1);
+			//ofLogVerbose("ofxReprojection") << "updateFrustrum: plotting at " << lm_params[0] << "," << lm_params[1];
+		}
+	}
+
+	// for(int x = 0; x < projectorWidth; x += projectorWidth) {
+	// 	for(int y = 0; y < projectorHeight; y += 1) {
+	// 		ppdata.x0 = x; 
+	// 		ppdata.y0 = y;
+
+	// 		lm_status_struct lm_status;
+	// 		lm_control_struct lm_control = lm_control_double;
+	// 		//lm_control.printflags = 3;
+	// 		lm_control.epsilon = 0.01;
+
+	// 		int n_par = 2;
+	// 		double lm_params[2] = {(double)camWidth/2, (double)camHeight/2};
+
+	// 		lmmin(n_par, lm_params, 2, (const void*) &ppdata,
+	// 			&lm_evaluate_projector_point,
+	// 			&lm_control, &lm_status, &lm_printout_std);
+
+	// 		ofRect(lm_params[0], lm_params[1], 1, 1);
+	// 		//ofLogVerbose("ofxReprojection") << "updateFrustrum: plotting at " << lm_params[0] << "," << lm_params[1];
+	// 	}
+	// }
+
+	projectorFrustrum.end();
+
+	ofPopStyle();
 
 }
 
@@ -688,6 +829,11 @@ void ofxReprojectionCalibration::drawStatusScreen(float x, float y, float w, flo
 	ofRectangle bottomright = ofRectangle(x+w/2,y+h/2,w/2,h/2);
 
 	colorImage.draw(topleft);
+	// ofPushStyle();
+	// ofSetColor(255,255,255,100);
+	projectorFrustrum.draw(topleft.x,topleft.y,topleft.width,topleft.height);
+	/* ofPopStyle(); */
+
 
 	if(refMaxDepth > 0) {
 		ofxReprojectionUtils::makeHueDepthImage(cam->getDistancePixels(), camWidth, camHeight, refMaxDepth, depthImage);

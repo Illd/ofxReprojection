@@ -103,6 +103,7 @@ ofxReprojectionCalibrationData::ofxReprojectionCalibrationData(string filename)
         }
     }
     cout << "came to end" << endl;
+    updateMatrix();
 }
 
 ofxReprojectionCalibrationData::~ofxReprojectionCalibrationData()
