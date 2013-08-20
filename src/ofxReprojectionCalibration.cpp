@@ -8,12 +8,20 @@ ofxReprojectionCalibration::ofxReprojectionCalibration() {
 	bUse3DView = true;
 }
 
-bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibrationConfig config) {
+bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibrationData *data, ofxReprojectionCalibrationConfig config) {
 	if(cam == NULL) {
 		ofLogWarning("ofxReprojection") << "Valid ofxBase3DVideo providing both color and depth image must be passed to constructor ofxReprojectionCalibration";
 		return false;
 	} else {
 		this->cam = cam;
+	}
+
+	if(data == NULL) {
+		ofLogWarning("ofxReprojection") << "Valid ofxReprojectionCalibrationData object "
+			"must be supplied to init() in ofxReprojectionCalibration";
+		return false;
+	} else {
+		this->data = data;
 	}
 
 	camHeight = cam->getPixelsRef().getHeight();
@@ -164,11 +172,11 @@ void ofxReprojectionCalibration::keyPressed(ofKeyEventArgs& e) {
 }
 
 void ofxReprojectionCalibration::deleteLastMeasurement() {
-	data.deleteLastMeasurement();
+	data->deleteLastMeasurement();
 }
 
 void ofxReprojectionCalibration::clear() {
-	data.clear();
+	data->clear();
 }
 
 void ofxReprojectionCalibration::loadFile() {
@@ -253,7 +261,7 @@ void ofxReprojectionCalibration::updateChessboard() {
 	ofPopStyle();
 }
 
-ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(const ofxReprojectionCalibrationData &data) {
+ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReprojectionCalibrationData &data) {
 
     vector< vector< ofVec3f > > measurements = data.getCamPoints();
     vector< vector< ofVec2f > > projpoints = data.getProjectorPoints();
@@ -641,7 +649,7 @@ void ofxReprojectionCalibration::update() {
 					}
 				}
 
-				data.addMeasurement(measurement_mean, chessboard_points);
+				data->addMeasurement(measurement_mean, chessboard_points);
 
 				measurement_pause = true;
 				measurement_pause_time = ofGetSystemTime();
@@ -731,7 +739,7 @@ void ofxReprojectionCalibration::updateStatusMessages() {
 
 	ofDrawBitmapString(str, 20,20);
 
-	ostringstream msg; msg << "Valid measurements: " << data.getCamPoints().size();
+	ostringstream msg; msg << "Valid measurements: " << data->getCamPoints().size();
 	ofDrawBitmapString(msg.str(), 20, height-20);
 
 	if(bKeysEnabled) {
@@ -866,14 +874,9 @@ static void saveDataToFile(ofxReprojectionCalibrationData data, string filename)
 	// fs.release();
 }
 
-void ofxReprojectionCalibration::loadData(string filename) {
-	data = ofxReprojectionCalibrationData::loadFromFile(filename);
-	updatePoints3DView();
-}
-
 void ofxReprojectionCalibration::finalize() {
 	if(bFinalized) return;
-	data.updateMatrix();
+	data->updateMatrix();
 	bFinalized = true;
 }
 
@@ -927,7 +930,7 @@ void ofxReprojectionCalibration::updatePoints3DView() {
 	points3DView.clear();
 	points3DView.setMode(OF_PRIMITIVE_POINTS);
 
-    vector< vector< ofVec3f > > measurements = data.getCamPoints();
+    vector< vector< ofVec3f > > measurements = data->getCamPoints();
 
  	// Put all measured points in one vector.
  	//

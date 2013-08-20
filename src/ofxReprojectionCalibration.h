@@ -26,6 +26,7 @@ public:
 	~ofxReprojectionCalibration();
 
 	bool init(  	ofxBase3DVideo *cam,
+			ofxReprojectionCalibrationData *data,
 			ofxReprojectionCalibrationConfig config = ofxReprojectionCalibrationConfig());
 	void init3DView();
 
@@ -82,21 +83,19 @@ public:
 	void finalize();
 	void unfinalize();
 
-	void loadData(string filename);
-
-	static ofMatrix4x4 calculateReprojectionTransform(const ofxReprojectionCalibrationData &data);
+	static ofMatrix4x4 calculateReprojectionTransform(ofxReprojectionCalibrationData &data);
 
 	static const cv::Mat lm_affinerow;
 	static void lm_evaluate_camera_matrix(const double *par, int m_dat, const void *data, double *fvec, int *info);
 
 	bool isFinalized() { return bFinalized; }
 
-
-	ofxBase3DVideo* cam;
-	ofxReprojectionCalibrationData data;
 	ofxReprojectionCalibrationConfig config;
 
 private:
+	ofxBase3DVideo* cam;
+	ofxReprojectionCalibrationData *data;
+
 	ofTexture colorImage;
 	ofTexture depthImage;
 	ofFbo statusMessagesImage;

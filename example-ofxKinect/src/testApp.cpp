@@ -10,17 +10,13 @@ void testApp::setup(){
 	depthcam.setUseTexture(false);
 	depthcam.open();
 
+	dataset.loadFile("exampleCalibrationData.xml");
 
-	calibration.init(&depthcam);
-
-	// Load calibration data to skip the calibration stage.
-	calibration.loadData("exampleCalibrationData.xml");
-
+	calibration.init(&depthcam,&dataset);
 	calibration.enableKeys();
 	calibration.enableChessboardMouseControl();
 
 	rendererInited = false;
-
 
 }
 
@@ -33,7 +29,7 @@ void testApp::update(){
 	if(calibration.isFinalized() && !rendererInited) {
 		renderer.init(&depthcam);
 		renderer.setDrawArea(1024,0,1024,768);
-		renderer.setProjectionMatrix(calibration.data.getMatrix());
+		renderer.setProjectionMatrix(dataset.getMatrix());
 
 		rendererInited = true;
 	}

@@ -13,19 +13,16 @@ class ofxReprojectionCalibrationData {
 			return ofxReprojectionCalibrationData(filename); 
 		}
 
-		void saveToFile(string filename);
+		void loadFile(string filename);
+		void saveFile(string filename);
 
 		void updateMatrix();
 
-		ofMatrix4x4 getMatrix() const;
-		int getCamWidth() const;
-		int getCamHeight() const;
-		int getProjectorWidth() const;
-		int getProjectorHeight() const;
-		float getRefMaxDepth() const;
+		ofMatrix4x4 getMatrix();
+		float getRefMaxDepth();
 
-		vector< vector< ofVec3f > > getCamPoints() const;
-		vector< vector< ofVec2f > > getProjectorPoints() const;
+		vector< vector< ofVec3f > >& getCamPoints();
+		vector< vector< ofVec2f > >& getProjectorPoints();
 
 		void addMeasurement(vector<ofVec3f> newCamPoints, vector<ofVec2f> newProjectorPoints) {
 			camPoints.push_back(newCamPoints);
@@ -53,10 +50,6 @@ class ofxReprojectionCalibrationData {
 
 		ofMatrix4x4 projmat;
 
-		int cam_width;
-		int cam_height;
-		int proj_width;
-		int proj_height;
 		float ref_max_depth;
 
 };
