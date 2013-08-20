@@ -6,7 +6,8 @@ ofxReprojectionRenderer2D::ofxReprojectionRenderer2D()
 
 	useTransform = true;
 	useDepthImage = true;
-	pointsize = 0.2;
+	pointsize = 0;
+	bPointsizeSpecified = false;
 
 	refMaxDepth = -1;
 
@@ -214,6 +215,21 @@ void ofxReprojectionRenderer2D::setDrawMethod(ofxReprojectionRenderer2DDrawMetho
 	}
 
 	drawMethod = d;
+
+	//
+	// Set default point size
+	//
+	
+	if(!bPointsizeSpecified) {
+		if(drawMethod == OFXREPROJECTIONRENDERER_2DDRAWMETHOD_POINTS) {
+			pointsize = 10;
+		} else if(drawMethod == OFXREPROJECTIONRENDERER_2DDRAWMETHOD_TRIANGLES) {
+			pointsize = 0.2;
+		} else {
+			ofLogWarning("ofxReprojection") << "invalid rendering method!";
+			return;
+		}
+	}
 
 	//
 	// Initialize shaders

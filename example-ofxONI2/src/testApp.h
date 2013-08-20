@@ -18,6 +18,8 @@ public:
 	void exit();
 
 	ofxONI2 depthcam;
-	ofxReprojection reprojection;
+	ofxReprojectionCalibration calibration;
+	ofxReprojectionCalibrationData dataset;
+	ofxReprojectionRenderer2D renderer;
 
 };

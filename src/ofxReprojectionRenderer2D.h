@@ -64,7 +64,7 @@ class ofxReprojectionRenderer2D {
 		void enableKeys() { setKeysEnabled(true); }
 		void disableKeys() { setKeysEnabled(false); }
 
-		void setPointsize(float p) { pointsize = p; }
+		void setPointsize(float p) { bPointsizeSpecified = true; pointsize = p; }
 
 	private:
 		ofxBase3DVideo *cam;
@@ -103,6 +103,8 @@ class ofxReprojectionRenderer2D {
 
 		bool bKeysEnabled;
 		bool bDepthUpdated;
+
+		bool bPointsizeSpecified;
 
 };
 
