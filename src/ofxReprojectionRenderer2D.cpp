@@ -1,7 +1,7 @@
-#include "ofxReprojectionRenderer.h"
+#include "ofxReprojectionRenderer2D.h"
 
 
-ofxReprojectionRenderer::ofxReprojectionRenderer()
+ofxReprojectionRenderer2D::ofxReprojectionRenderer2D()
 {
 
 	useTransform = true;
@@ -19,15 +19,15 @@ ofxReprojectionRenderer::ofxReprojectionRenderer()
 }
 
 
-ofxReprojectionRenderer::~ofxReprojectionRenderer()
+ofxReprojectionRenderer2D::~ofxReprojectionRenderer2D()
 {
 
 }
 
-bool ofxReprojectionRenderer::init(ofxBase3DVideo *cam) {
+bool ofxReprojectionRenderer2D::init(ofxBase3DVideo *cam) {
 	if(cam == NULL) {
 		ofLogWarning("ofxReprojection") << "Valid ofxBase3DVideo providing both color "
-		       "and depth image must be passed to constructor ofxReprojectionRenderer";
+		       "and depth image must be passed to constructor ofxReprojectionRenderer2D";
 		return false;
 	} else {
 		this->cam = cam;
@@ -49,7 +49,7 @@ bool ofxReprojectionRenderer::init(ofxBase3DVideo *cam) {
 	return true;
 }
 
-void ofxReprojectionRenderer::update() {
+void ofxReprojectionRenderer2D::update() {
 	if(cam->isFrameNew()) {
 
 		if(refMaxDepth == -1) {
@@ -61,32 +61,32 @@ void ofxReprojectionRenderer::update() {
 	}
 }
 
-void ofxReprojectionRenderer::setKeysEnabled(bool enable) {
+void ofxReprojectionRenderer2D::setKeysEnabled(bool enable) {
 	if(!bKeysEnabled && enable) {
-		ofAddListener(ofEvents().keyPressed, this, &ofxReprojectionRenderer::keyPressed);
+		ofAddListener(ofEvents().keyPressed, this, &ofxReprojectionRenderer2D::keyPressed);
 	} else if(bKeysEnabled && !enable) {
-		ofRemoveListener(ofEvents().keyPressed, this, &ofxReprojectionRenderer::keyPressed);
+		ofRemoveListener(ofEvents().keyPressed, this, &ofxReprojectionRenderer2D::keyPressed);
 	}
 
 	bKeysEnabled = enable;
 }
 
-void ofxReprojectionRenderer::keyPressed(ofKeyEventArgs& e) {
+void ofxReprojectionRenderer2D::keyPressed(ofKeyEventArgs& e) {
 	if(e.key == 't') {
 		toggleTransform();
 	}
 }
 
-void ofxReprojectionRenderer::begin() {
+void ofxReprojectionRenderer2D::begin() {
     shader3D.begin();
 }
 
-void ofxReprojectionRenderer::end() {
+void ofxReprojectionRenderer2D::end() {
     shader3D.end();
 
 }
 
-void ofxReprojectionRenderer::drawHueDepthImage() {
+void ofxReprojectionRenderer2D::drawHueDepthImage() {
 	if(!huetex.isAllocated()) {
 		ofLogVerbose("ofxReprojection") << "allocating ofTexture huetext in drawHueDepthImage()";
 		huetex.allocate(camWidth,camHeight, GL_RGB);
@@ -99,7 +99,7 @@ void ofxReprojectionRenderer::drawHueDepthImage() {
 	drawImage(huetex);
 }
 
-void ofxReprojectionRenderer::drawImage(ofImage &img) {
+void ofxReprojectionRenderer2D::drawImage(ofImage &img) {
 	if(!img.isUsingTexture()) {
 		ofLogWarning("ofxReprojection") << "drawImage(ofImage) called with ofImage object "
 		       "not using textures. Texture is needed.";
@@ -109,7 +109,7 @@ void ofxReprojectionRenderer::drawImage(ofImage &img) {
 }
 
 // Needs input to be RGB image.
-void ofxReprojectionRenderer::drawImage(unsigned char *pixels, int pw, int ph) {
+void ofxReprojectionRenderer2D::drawImage(unsigned char *pixels, int pw, int ph) {
 	if(!temptex.isAllocated() || pw != temptex.getWidth() || ph != temptex.getHeight()) {
 		temptex.allocate(pw,ph,GL_RGB);
 	}
@@ -118,7 +118,7 @@ void ofxReprojectionRenderer::drawImage(unsigned char *pixels, int pw, int ph) {
 	drawImage(temptex);
 }
 
-void ofxReprojectionRenderer::drawImage(ofPixels &pix) {
+void ofxReprojectionRenderer2D::drawImage(ofPixels &pix) {
 	if(pix.getNumChannels() != 3) {
 		ofLogWarning("ofxReprojection") << "drawImage(ofPixels) needs RGB input image.";
 	} else {
@@ -126,7 +126,7 @@ void ofxReprojectionRenderer::drawImage(ofPixels &pix) {
 	}
 }
 
-void ofxReprojectionRenderer::drawImage(ofTexture &tex)
+void ofxReprojectionRenderer2D::drawImage(ofTexture &tex)
 {
 	// The default coordinate system is [-1,1]x[-1,1],[0,1]
 	// representing the limits of the camera field of view.
@@ -177,14 +177,14 @@ void ofxReprojectionRenderer::drawImage(ofTexture &tex)
 	ofPopStyle();
 }
 
-void ofxReprojectionRenderer::setProjectionMatrix(ofMatrix4x4 m)
+void ofxReprojectionRenderer2D::setProjectionMatrix(ofMatrix4x4 m)
 {
     projectionMatrix = m;
     identityMatrix.makeIdentityMatrix();
 
 }
 
-void ofxReprojectionRenderer::setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition) {
+void ofxReprojectionRenderer2D::setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition) {
 	this->projectorWidth = projectorWidth;
 	this->projectorHeight = projectorHeight;
 	this->projectorPosition = projectorPosition;
@@ -199,14 +199,14 @@ void ofxReprojectionRenderer::setProjectorInfo(int projectorWidth, int projector
 	output.allocate(projectorWidth,projectorHeight, GL_RGB);
 }
 
-void ofxReprojectionRenderer::setDrawArea(float x, float y, float w, float h) {
+void ofxReprojectionRenderer2D::setDrawArea(float x, float y, float w, float h) {
 	drawX = x;
 	drawY = y;
 	drawWidth = w;
 	drawHeight = h;
 }
 
-void ofxReprojectionRenderer::setDrawMethod(ofxReprojectionRenderer2DDrawMethod d) { 
+void ofxReprojectionRenderer2D::setDrawMethod(ofxReprojectionRenderer2DDrawMethod d) { 
 
 	if(d == OFXREPROJECTIONRENDERER_2DDRAWMETHOD_POINTS) {
 		ofLogVerbose("ofxReprojection") << "setDrawMethod called with drawMethod = points";

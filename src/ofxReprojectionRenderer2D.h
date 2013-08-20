@@ -12,10 +12,10 @@ enum ofxReprojectionRenderer2DDrawMethod {
        	OFXREPROJECTIONRENDERER_2DDRAWMETHOD_TRIANGLES,
 };
 
-class ofxReprojectionRenderer {
+class ofxReprojectionRenderer2D {
 	public:
-		ofxReprojectionRenderer();
-		~ofxReprojectionRenderer();
+		ofxReprojectionRenderer2D();
+		~ofxReprojectionRenderer2D();
 
 		bool init(ofxBase3DVideo *cam);
 
