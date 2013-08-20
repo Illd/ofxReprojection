@@ -1,4 +1,3 @@
 ofxONI2
-ofxGui
 ofxXmlSettings
 ofxReprojection
