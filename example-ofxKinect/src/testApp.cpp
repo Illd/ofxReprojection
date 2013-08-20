@@ -1,34 +1,57 @@
 #include "testApp.h"
 
+bool rendererInited = false;
+
 void testApp::setup(){
 	ofSetLogLevel(OF_LOG_VERBOSE);
 	ofSetVerticalSync(false);
 
 	depthcam.init();
+	depthcam.setUseTexture(false);
 	depthcam.open();
 
-	reprojection.init(&depthcam);
-	
-	// The projector has a resolution of 1024x768 and is configured
-	// as the right monitor. This command adds space in the ofAppWindow
-	// for the projector. The window can be moved so that the position
-	// matches the projector position on the desktop.
-	reprojection.setupProjector(1024,768,OFX_DIRECTION_RIGHT);
+
+	calibration.init(&depthcam);
 
 	// Load calibration data to skip the calibration stage.
-	//reprojection.loadCalibrationData("2013-06-30-20-00-02-291.xml");
-	//reprojection.finalizeCalibration();
-	//
+	calibration.loadData("exampleCalibrationData.xml");
+
+	calibration.enableKeys();
+	calibration.enableChessboardMouseControl();
+
+	rendererInited = false;
+
+
 }
 
 void testApp::update(){
 	depthcam.update();
-	reprojection.update();
+	if(!calibration.isFinalized()) {
+		calibration.update();
+	}
+
+	if(calibration.isFinalized() && !rendererInited) {
+		renderer.init(&depthcam);
+		renderer.setDrawArea(1024,0,1024,768);
+		renderer.setProjectionMatrix(calibration.data.getMatrix());
+
+		rendererInited = true;
+	}
+
+	if(calibration.isFinalized() && rendererInited) {
+		renderer.update();
+	}
 }
 
 void testApp::draw(){
-	// Simplest possible demo:
-	 reprojection.draw();
+	if(!calibration.isFinalized()) {
+		calibration.drawStatusScreen(0,0,1024,768);
+		calibration.drawChessboard(1024,0,1024,768);
+	}
+	
+	if(calibration.isFinalized() && rendererInited) {
+		renderer.drawHueDepthImage();
+	}
 }
 
 void testApp::keyPressed(int key){

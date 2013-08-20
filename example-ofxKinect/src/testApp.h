@@ -18,6 +18,8 @@ public:
 	void exit();
 
 	ofxKinect depthcam;
-	ofxReprojection reprojection;
+	ofxReprojectionCalibration calibration;
+	ofxReprojectionCalibrationData dataset;
+	ofxReprojectionRenderer2D renderer;
 
 };
