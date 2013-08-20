@@ -92,6 +92,12 @@ ofxReprojectionCalibrationData::ofxReprojectionCalibrationData(string filename)
                     double x = XML.getValue("point:x", 0.0, j);
                     double y = XML.getValue("point:y", 0.0, j);
                     ofVec2f p = ofVec2f(x, y);
+
+		    // FIXME: remove this when data file with projector coordinate space [0,1]x[0,1] is available.
+		    p.x /= 1024.0;
+		    p.y /= 768.0; 
+
+
                     projpoint.push_back(p);
                     cout << "projpoint " << p << endl;
                 }

@@ -13,7 +13,7 @@ void testApp::setup(){
 	calibration.init(&depthcam);
 
 	// Load calibration data to skip the calibration stage.
-	calibration.loadData("2013-06-30-20-00-02-291.xml");
+	calibration.loadData("exampleCalibrationData.xml");
 
 	calibration.enableKeys();
 	calibration.enableChessboardMouseControl();

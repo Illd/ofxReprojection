@@ -140,7 +140,7 @@ void ofxReprojectionRenderer2D::drawImage(ofTexture &tex)
 	ofMatrix4x4 ortho;
 
 	if(useTransform) { 
-		ortho = ofMatrix4x4::newOrthoMatrix(0,projectorWidth,0,projectorHeight, 0, -100000); 
+		ortho = ofMatrix4x4::newOrthoMatrix(0,1,0,1, 0, -100000); 
 	} else { 
 		ortho = ofMatrix4x4::newOrthoMatrix(0,camWidth,0,camHeight, 0, -100000); 
 	}
@@ -185,25 +185,13 @@ void ofxReprojectionRenderer2D::setProjectionMatrix(ofMatrix4x4 m)
 
 }
 
-void ofxReprojectionRenderer2D::setProjectorInfo(int projectorWidth, int projectorHeight) {
-	this->projectorWidth = projectorWidth;
-	this->projectorHeight = projectorHeight;
-
-	if(drawWidth == 0) {
-	       drawWidth = projectorWidth;
-	}
-	if(drawHeight == 0) {
-		drawHeight = projectorHeight;
-	}
-
-	output.allocate(projectorWidth,projectorHeight, GL_RGB);
-}
-
 void ofxReprojectionRenderer2D::setDrawArea(float x, float y, float w, float h) {
 	drawX = x;
 	drawY = y;
 	drawWidth = w;
 	drawHeight = h;
+
+	output.allocate(w,h,GL_RGB);
 }
 
 void ofxReprojectionRenderer2D::setDrawMethod(ofxReprojectionRenderer2DDrawMethod d) { 

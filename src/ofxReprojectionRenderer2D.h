@@ -22,21 +22,7 @@ class ofxReprojectionRenderer2D {
 
 		void setProjectionMatrix(ofMatrix4x4 m);
 
-        ofMatrix4x4 getProjectionMatrix() {return projectionMatrix;}
-        int getProjWidth() { return projectorWidth;}
-        int getProjHeight() { return projectorHeight;}
-        int getCamWidth() { return camWidth;}
-        int getCamHeight() {return camHeight;}
-        float getMaxDepth() {return refMaxDepth;}
-
-		// Example function which draws depth picture
-		void draw(ofTexture depthTexture, ofTexture userTexture, float pointsize, bool use_transform, bool use_depthimage);
-
-		void setProjectorInfo(int projectorWidth, int projectorHeight);
-
 		void setDrawArea(float x, float y, float w, float h);
-		void setDrawArea(float x, float y) { setDrawArea(x, y, projectorWidth, projectorHeight); }
-		void setDrawArea(const ofPoint& point) { setDrawArea(point.x, point.y); }
 		void setDrawArea(const ofRectangle& rect) { setDrawArea(rect.x, rect.y, rect.width, rect.height); }
 
 		// Draws transformed 2d image
@@ -73,9 +59,6 @@ class ofxReprojectionRenderer2D {
 		ofShader shader3D;
 		ofMatrix4x4 projectionMatrix;
 		ofMatrix4x4 identityMatrix;
-
-		int projectorWidth;
-		int projectorHeight;
 
 		int camWidth;
 		int camHeight;
