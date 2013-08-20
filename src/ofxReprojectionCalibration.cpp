@@ -21,13 +21,13 @@ bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibr
 
 	this->config = config;
 
-	chess_rows = 5;
-	chess_cols = 7;
-	chess_x = 100;
-	chess_y = 100;
-	chess_width = 400;
-	chess_height = 400;
-	chess_brightness = 255;
+	chessboardSquares = ofPoint(7,5);
+	chessboardArea = ofRectangle( 0, 0,
+		       	0.9*0.75* chessboardSquares.x/7.0,
+		       	0.9* chessboardSquares.y/7.0);
+	chessboardArea.x = (1-chessboardArea.width)/2;
+	chessboardArea.y = (1-chessboardArea.height)/2;
+	chessboardBrightness = 255;
 
 	refMaxDepth = -1;
 
@@ -45,34 +45,6 @@ bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibr
 
 ofxReprojectionCalibration::~ofxReprojectionCalibration() {
 }
-
-// void ofxReprojectionCalibration::set3DViewMouseControlEnabled(bool enable) {
-// 	if(!b3DViewMouseControlEnabled && enable) {
-// 		ofAddListener(ofEvents().mousePressed, this, &ofxReprojectionCalibration::mousePressed3DView);
-// 		ofAddListener(ofEvents().mouseDragged, this, &ofxReprojectionCalibration::mouseDragged3DView);
-// 		ofAddListener(ofEvents().mouseReleased, this, &ofxReprojectionCalibration::mouseReleased3DView);
-// 	} else if(b3DViewMouseControlEnabled && !enable) {
-// 		ofRemoveListener(ofEvents().mousePressed, this, &ofxReprojectionCalibration::mousePressed3DView);
-// 		ofRemoveListener(ofEvents().mouseDragged, this, &ofxReprojectionCalibration::mouseDragged3DView);
-// 		ofRemoveListener(ofEvents().mouseReleased, this, &ofxReprojectionCalibration::mouseReleased3DView);
-// 	}
-//
-// 	b3DViewMouseControlEnabled = enable;
-// }
-//
-// void ofxReprojectionCalibration::mousePressed3DView(ofMouseEventArgs &mouse) {
-// 	if(bFinalized) return;
-// 	if(last3DViewBig.inside(ofPoint(mouse.x,mouse.y))) {
-// 	}
-// }
-//
-// void ofxReprojectionCalibration::mousePressed3DView(ofMouseEventArgs &mouse) {
-// 	if(bFinalized) return;
-// }
-//
-// void ofxReprojectionCalibration::mousePressed3DView(ofMouseEventArgs &mouse) {
-// 	if(bFinalized) return;
-// }
 
 void ofxReprojectionCalibration::setChessboardMouseControlEnabled(bool enable) {
 	if(!bChessboardMouseControlEnabled && enable) {
@@ -93,13 +65,13 @@ void ofxReprojectionCalibration::mousePressedChessboard(ofMouseEventArgs &mouse)
 	if(!lastChessboardBig.isEmpty() && lastChessboardBig.inside(ofPoint(mouse.x,mouse.y))) {
 		draggingChessboard = true;
 		draggingChessboardDrawArea = lastChessboardBig;
-		draggingChessboardRect = ofRectangle(chess_x, chess_y, chess_width, chess_height);
+		draggingChessboardRect = chessboardArea;
 		draggingStartPoint = ofPoint(mouse.x, mouse.y);
 		draggingButton = mouse.button;
 	} else if(!lastChessboardSmall.isEmpty() && lastChessboardSmall.inside(ofPoint(mouse.x,mouse.y))) {
 		draggingChessboard = true;
 		draggingChessboardDrawArea = lastChessboardSmall;
-		draggingChessboardRect = ofRectangle(chess_x, chess_y, chess_width, chess_height);
+		draggingChessboardRect = chessboardArea;
 		draggingStartPoint = ofPoint(mouse.x, mouse.y);
 		draggingButton = mouse.button;
 	}
@@ -109,45 +81,44 @@ void ofxReprojectionCalibration::mouseDraggedChessboard(ofMouseEventArgs &mouse)
 	if(bFinalized) return;
 	if(draggingChessboard && draggingButton == 0) {
 		ofPoint drag = ofPoint(mouse.x,mouse.y) - draggingStartPoint;
-		drag.x *= (float)projectorWidth / draggingChessboardDrawArea.width;
-		drag.y *= (float)projectorHeight / draggingChessboardDrawArea.height;
+		drag.x /= draggingChessboardDrawArea.width;
+		drag.y /= draggingChessboardDrawArea.height;
 
 		ofPoint newChessboardPoint = draggingChessboardRect.getTopLeft() + drag;
-		newChessboardPoint.x = ofClamp(newChessboardPoint.x, 0, projectorWidth - chess_width);
-		newChessboardPoint.y = ofClamp(newChessboardPoint.y, 0, projectorHeight - chess_height);
+		newChessboardPoint.x = ofClamp(newChessboardPoint.x, 0, 1 - chessboardArea.width);
+		newChessboardPoint.y = ofClamp(newChessboardPoint.y, 0, 1 - chessboardArea.height);
 
-		chess_x = newChessboardPoint.x;
-		chess_y = newChessboardPoint.y;
+		chessboardArea.setPosition(newChessboardPoint);
 
 		updateChessboard();
 	} else if(draggingChessboard && draggingButton != 0) {
 		ofPoint drag = ofPoint(mouse.x,mouse.y) - draggingStartPoint;
-		drag.x *= (float)projectorWidth / draggingChessboardDrawArea.width;
-		drag.y *= (float)projectorHeight / draggingChessboardDrawArea.height;
+		drag.x /= draggingChessboardDrawArea.width;
+		drag.y /= draggingChessboardDrawArea.height;
 
 		ofPoint relativeStartPoint = draggingStartPoint - draggingChessboardDrawArea.getTopLeft();
-		relativeStartPoint.x *= (float)projectorWidth / draggingChessboardDrawArea.width;
-		relativeStartPoint.y *= (float)projectorHeight / draggingChessboardDrawArea.height;
+		relativeStartPoint.x /= draggingChessboardDrawArea.width;
+		relativeStartPoint.y /= draggingChessboardDrawArea.height;
 		relativeStartPoint -= draggingChessboardRect.getCenter();
 
 		if(relativeStartPoint.x < 0) {
-			chess_x = draggingChessboardRect.x + drag.x;
-			chess_width = draggingChessboardRect.width - drag.x;
+			chessboardArea.x = draggingChessboardRect.x + drag.x;
+			chessboardArea.width = draggingChessboardRect.width - drag.x;
 		} else {
-			chess_width = draggingChessboardRect.width + drag.x;
+			chessboardArea.width = draggingChessboardRect.width + drag.x;
 		}
 
 		if(relativeStartPoint.y < 0) {
-			chess_y = draggingChessboardRect.y + drag.y;
-			chess_height = draggingChessboardRect.height - drag.y;
+			chessboardArea.y = draggingChessboardRect.y + drag.y;
+			chessboardArea.height = draggingChessboardRect.height - drag.y;
 		} else {
-			chess_height = draggingChessboardRect.height + drag.y;
+			chessboardArea.height = draggingChessboardRect.height + drag.y;
 		}
 
-		chess_x = ofClamp(chess_x, 0, projectorWidth - chess_width);
-		chess_y = ofClamp(chess_y, 0, projectorHeight - chess_height);
-		chess_width = ofClamp(chess_width, 0, projectorWidth - chess_x);
-		chess_height = ofClamp(chess_height, 0, projectorHeight - chess_y);
+		chessboardArea.x = ofClamp(chessboardArea.x, 0, 1-chessboardArea.width);
+		chessboardArea.y = ofClamp(chessboardArea.y, 0, 1-chessboardArea.height);
+		chessboardArea.width = ofClamp(chessboardArea.width, 0, 1-chessboardArea.x);
+		chessboardArea.height = ofClamp(chessboardArea.height, 0, 1-chessboardArea.y);
 
 		updateChessboard();
 	}
@@ -244,28 +215,41 @@ void ofxReprojectionCalibration::lm_evaluate_camera_matrix(const double *par, in
 }
 
 void ofxReprojectionCalibration::updateChessboard() {
-	ofPushStyle();
-	chessboard.begin();
+	if(!chessboardImage.isAllocated()) {
+		ofLogWarning("ofxReprojection") << "updateChessboard() called before chessboard FBO was allocated";
+		return;
+	}
 
-	ofClear(chess_brightness,chess_brightness,chess_brightness,255);
+
+	ofPushStyle();
+	chessboardImage.begin();
+
+	ofClear(chessboardBrightness);
 	ofSetColor(0,0,0,255);
 
-	for(int x = 0; x < chess_cols; x++) {
-		for(int y = 0; y < chess_rows; y++) {
+	for(int x = 0; x < (int)chessboardSquares.x; x++) {
+		for(int y = 0; y < (int)chessboardSquares.y; y++) {
 			if((x+y)%2 == 0) {
-				ofRectangle a( chess_x + x*chess_width/chess_cols,
-					chess_y + y*chess_height/chess_rows,
-					chess_width/chess_cols,
-					chess_height/chess_rows
-				      );
+				ofRectangle a = ofRectangle( 
+					chessboardArea.x + x*chessboardArea.width/chessboardSquares.x,
+					chessboardArea.y + y*chessboardArea.height/chessboardSquares.y,
+					chessboardArea.width / chessboardSquares.x,
+					chessboardArea.height / chessboardSquares.y
+					);
 
+				a = ofRectangle(
+					a.x*chessboardImage.getWidth(),
+				       	a.y*chessboardImage.getHeight(),
+					a.width*chessboardImage.getWidth(),
+				       	a.height*chessboardImage.getHeight()
+					);
 				ofRect(a);
 			}
 		}
 	}
 
 
-	chessboard.end();
+	chessboardImage.end();
 	ofPopStyle();
 }
 
@@ -418,8 +402,10 @@ void ofxReprojectionCalibration::update() {
 		}
 
 
+		cv::Size chessboardSize = cv::Size((int)chessboardSquares.x-1,(int)chessboardSquares.y-1);
+
 		if(!measurement_pause) {
-			chessfound =  cv::findChessboardCorners(gray, cv::Size(chess_cols-1,chess_rows-1), chesscorners,
+			chessfound =  cv::findChessboardCorners(gray, chessboardSize, chesscorners,
 				cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_FAST_CHECK);
 		}
 
@@ -556,7 +542,7 @@ void ofxReprojectionCalibration::update() {
 				}
 			}
 
-			cv::drawChessboardCorners(chessdetectimage, cv::Size(chess_cols-1,chess_rows-1), cv::Mat(chesscorners), chessfound);
+			cv::drawChessboardCorners(chessdetectimage, chessboardSize, cv::Mat(chesscorners), chessfound);
 			/* color_image.setFromPixels(pPixelsUC, kinect_width, kinect_height, OF_IMAGE_COLOR); */
 		}
 
@@ -657,11 +643,11 @@ void ofxReprojectionCalibration::update() {
 				ofLogVerbose("ofxReprojection") << "Measurement: " << cv::Mat(measurement_mean) << endl;
 
 				vector<ofVec2f> chessboard_points;
-				for(int y = 0; y < chess_rows-1; y++) {
-					for(int x = 0; x < chess_cols-1; x++) {
-						int px = chess_x + ((int)((x+1)*chess_width/(chess_cols)));
-						int py = chess_y + ((int)((y+1)*chess_height/(chess_rows)));
-						ofVec2f p((float)px,(float)py);
+				for(int y = 0; y < (int)chessboardSquares.x-1; y++) {
+					for(int x = 0; x < (int)chessboardSquares.y-1; x++) {
+						float px = chessboardArea.x + ((int)((x+1)*chessboardArea.width/(chessboardSquares.x)));
+						float py = chessboardArea.y + ((int)((y+1)*chessboardArea.height/(chessboardSquares.y)));
+						ofVec2f p(px,py);
 
 						ofLogVerbose("ofxReprojection") << "chessboard point " << p << endl;
 						chessboard_points.push_back(p);
@@ -837,7 +823,12 @@ void ofxReprojectionCalibration::updateStatusMessages() {
 }
 
 void ofxReprojectionCalibration::drawChessboard(float x, float y, float w, float h) {
-	chessboard.draw(x,y,w,h);
+	if(!chessboardImage.isAllocated()) {
+		ofLogVerbose("ofxReprojection")  << "allocating " << w << "," << h ;
+		chessboardImage.allocate(w,h,GL_LUMINANCE);
+		updateChessboard();
+	}
+	chessboardImage.draw(x,y,w,h);
 	lastChessboardBig = ofRectangle(x,y,w,h);
 }
 
@@ -902,16 +893,6 @@ void ofxReprojectionCalibration::finalize() {
 void ofxReprojectionCalibration::unfinalize() {
 	if(!bFinalized) return;
 	bFinalized = false;
-}
-
-void ofxReprojectionCalibration::setProjectorInfo(int projectorWidth, int projectorHeight) {
-	this->projectorWidth = projectorWidth;
-	this->projectorHeight = projectorHeight;
-
-	chess_width = ((int)(0.8f*projectorWidth));
-	chess_height = ((int)(0.8f*projectorHeight));
-	chessboard.allocate(projectorWidth,projectorHeight,GL_LUMINANCE);
-	updateChessboard();
 }
 
 void ofxReprojectionCalibration::init3DView() {

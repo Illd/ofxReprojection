@@ -29,8 +29,6 @@ public:
 			ofxReprojectionCalibrationConfig config = ofxReprojectionCalibrationConfig());
 	void init3DView();
 
-	void setProjectorInfo(int projectorWidth, int projectorHeight);
-
 	void update();
 	void updateStatusMessages();
 	void updateChessboard();
@@ -41,8 +39,6 @@ public:
 	void drawStatusScreen(const ofRectangle& rect) { drawStatusScreen(rect.x, rect.y, rect.width, rect.height); }
 
 	void drawChessboard(float x, float y, float w, float h);
-	void drawChessboard(float x, float y) { drawChessboard(x, y, projectorWidth, projectorHeight); }
-	void drawChessboard(const ofPoint& point) { drawChessboard(point.x, point.y); }
 	void drawChessboard(const ofRectangle& rect) { drawChessboard(rect.x, rect.y, rect.width, rect.height); }
 
 	void draw3DView(float x, float y, float w, float h);
@@ -107,7 +103,7 @@ private:
 	ofTexture colorImage;
 	ofTexture depthImage;
 	ofFbo statusMessagesImage;
-	ofFbo chessboard;
+	ofFbo chessboardImage;
 
 	ofFloatImage depthFloats;
 
@@ -119,9 +115,6 @@ private:
 
 	int stability_buffer_i;
 	int camWidth, camHeight;
-
-	int projectorWidth;
-	int projectorHeight;
 
 	//ofRectangle last3DView;
 
@@ -139,13 +132,9 @@ private:
 	bool chessfound_enough_frames;
 	bool chessfound_variance_ok;
 
-	int chess_rows;
-	int chess_cols;
-	int chess_x;
-	int chess_y;
-	int chess_width;
-	int chess_height;
-	int chess_brightness;
+	ofPoint chessboardSquares;
+	ofRectangle chessboardArea;
+	int chessboardBrightness;
 
 	vector< vector<cv::Point3f> > corner_history;
 

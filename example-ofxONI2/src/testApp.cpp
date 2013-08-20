@@ -11,12 +11,12 @@ void testApp::setup(){
 
 
 	calibration.init(&depthcam);
-	calibration.setProjectorInfo(1024,768);
 
 	// Load calibration data to skip the calibration stage.
 	calibration.loadData("2013-06-30-20-00-02-291.xml");
 
 	calibration.enableKeys();
+	calibration.enableChessboardMouseControl();
 
 	rendererInited = false;
 
@@ -31,7 +31,6 @@ void testApp::update(){
 
 	if(calibration.isFinalized() && !rendererInited) {
 		renderer.init(&depthcam);
-		renderer.setProjectorInfo(1024,768);
 		renderer.setDrawArea(1024,0,1024,768);
 		renderer.setProjectionMatrix(calibration.data.getMatrix());
 
