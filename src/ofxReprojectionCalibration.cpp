@@ -904,10 +904,9 @@ void ofxReprojectionCalibration::unfinalize() {
 	bFinalized = false;
 }
 
-void ofxReprojectionCalibration::setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition) {
+void ofxReprojectionCalibration::setProjectorInfo(int projectorWidth, int projectorHeight) {
 	this->projectorWidth = projectorWidth;
 	this->projectorHeight = projectorHeight;
-	this->projectorPosition = projectorPosition;
 
 	chess_width = ((int)(0.8f*projectorWidth));
 	chess_height = ((int)(0.8f*projectorHeight));

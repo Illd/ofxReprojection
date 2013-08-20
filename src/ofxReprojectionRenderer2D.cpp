@@ -184,10 +184,9 @@ void ofxReprojectionRenderer2D::setProjectionMatrix(ofMatrix4x4 m)
 
 }
 
-void ofxReprojectionRenderer2D::setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition) {
+void ofxReprojectionRenderer2D::setProjectorInfo(int projectorWidth, int projectorHeight) {
 	this->projectorWidth = projectorWidth;
 	this->projectorHeight = projectorHeight;
-	this->projectorPosition = projectorPosition;
 
 	if(drawWidth == 0) {
 	       drawWidth = projectorWidth;

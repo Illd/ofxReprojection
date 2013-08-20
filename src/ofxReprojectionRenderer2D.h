@@ -3,7 +3,6 @@
 #include "ofMain.h"
 
 #include "ofxBase3DVideo.h"
-#include "ofxDirection.h"
 #include "ofxReprojectionUtils.h"
 
 enum ofxReprojectionRenderer2DDrawMethod {
@@ -33,7 +32,7 @@ class ofxReprojectionRenderer2D {
 		// Example function which draws depth picture
 		void draw(ofTexture depthTexture, ofTexture userTexture, float pointsize, bool use_transform, bool use_depthimage);
 
-		void setProjectorInfo(int projectorWidth, int projectorHeight, ofxDirection projectorPosition);
+		void setProjectorInfo(int projectorWidth, int projectorHeight);
 
 		void setDrawArea(float x, float y, float w, float h);
 		void setDrawArea(float x, float y) { setDrawArea(x, y, projectorWidth, projectorHeight); }
@@ -77,7 +76,6 @@ class ofxReprojectionRenderer2D {
 
 		int projectorWidth;
 		int projectorHeight;
-		ofxDirection projectorPosition;
 
 		int camWidth;
 		int camHeight;
