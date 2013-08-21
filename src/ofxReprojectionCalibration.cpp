@@ -70,15 +70,15 @@ void ofxReprojectionCalibration::setChessboardMouseControlEnabled(bool enable) {
 
 void ofxReprojectionCalibration::mousePressedChessboard(ofMouseEventArgs &mouse) {
 	if(bFinalized) return;
-	if(!lastChessboardBig.isEmpty() && lastChessboardBig.inside(ofPoint(mouse.x,mouse.y))) {
+	if(!lastProjectorChessboard.isEmpty() && lastProjectorChessboard.inside(ofPoint(mouse.x,mouse.y))) {
 		draggingChessboard = true;
-		draggingChessboardDrawArea = lastChessboardBig;
+		draggingChessboardDrawArea = lastProjectorChessboard;
 		draggingChessboardRect = chessboardArea;
 		draggingStartPoint = ofPoint(mouse.x, mouse.y);
 		draggingButton = mouse.button;
-	} else if(!lastChessboardSmall.isEmpty() && lastChessboardSmall.inside(ofPoint(mouse.x,mouse.y))) {
+	} else if(!lastMonitorChessboard.isEmpty() && lastMonitorChessboard.inside(ofPoint(mouse.x,mouse.y))) {
 		draggingChessboard = true;
-		draggingChessboardDrawArea = lastChessboardSmall;
+		draggingChessboardDrawArea = lastMonitorChessboard;
 		draggingChessboardRect = chessboardArea;
 		draggingStartPoint = ofPoint(mouse.x, mouse.y);
 		draggingButton = mouse.button;
@@ -668,11 +668,13 @@ void ofxReprojectionCalibration::drawStatusScreen(float x, float y, float w, flo
 	updateStatusMessages();
 	statusMessagesImage.draw(bottomleft.x,bottomleft.y,bottomleft.width,bottomleft.height);
 
-	//chessboard.draw(bottomright.x,bottomright.y,bottomright.width,bottomright.height);
-	//lastChessboardSmall = bottomright;
-	//
+	if(bUse3DView) {
+		draw3DView(bottomright);
+	} else {
+		chessboardImage.draw(bottomright.x,bottomright.y,bottomright.width,bottomright.height);
+		lastMonitorChessboard = bottomright;
+	}
 
-	draw3DView(bottomright);
 
 }
 
@@ -814,7 +816,7 @@ void ofxReprojectionCalibration::drawChessboard(float x, float y, float w, float
 		updateChessboard();
 	}
 	chessboardImage.draw(x,y,w,h);
-	lastChessboardBig = ofRectangle(x,y,w,h);
+	lastProjectorChessboard = ofRectangle(x,y,w,h);
 }
 
 

@@ -53,10 +53,6 @@ public:
 	void enable3DViewMouseControl() { set3DViewMouseControlEnabled(true); }
 	void disable3DViewMouseControl() { set3DViewMouseControlEnabled(false); }
 
-	// void mousePressed3DView(ofMouseEventArgs &mouse);
-	// void mouseDragged3DView(ofMouseEventArgs &mouse);
-	// void mouseReleased3DView(ofMouseEventArgs &mouse);
-
 	// Enable/disable listening to openFrameworks window keypresses (d,c,s and f)
 	// and issuing appropriate commands during calibration stage.
 	void setKeysEnabled(bool enable);
@@ -75,7 +71,9 @@ public:
 	void mouseDraggedChessboard(ofMouseEventArgs &mouse);
 	void mouseReleasedChessboard(ofMouseEventArgs &mouse);
 
-
+	// 
+	// Interactive commands:
+	//
 	void deleteLastMeasurement();
 	void clear();
 	void loadFile();
@@ -112,10 +110,8 @@ private:
 	int stability_buffer_i;
 	int camWidth, camHeight;
 
-	//ofRectangle last3DView;
-
-	ofRectangle lastChessboardBig;
-	ofRectangle lastChessboardSmall;
+	ofRectangle lastProjectorChessboard;
+	ofRectangle lastMonitorChessboard;
 	bool draggingChessboard;
 	ofRectangle draggingChessboardDrawArea;
 	ofRectangle draggingChessboardRect;
@@ -148,11 +144,8 @@ private:
 
 	ofxEasyCamArea cam3DView;
 	ofFbo fbo3DView;
-
 	ofVboMesh grid3DView;
-
 	ofVboMesh points3DView;
-
 	ofShader shader3DView;
 
 
