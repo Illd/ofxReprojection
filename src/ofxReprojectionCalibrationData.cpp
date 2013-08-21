@@ -65,7 +65,6 @@ void ofxReprojectionCalibrationData::loadFile(string filename) {
                     double z = XML.getValue("point:z", 0.0, j);
                     ofVec3f p = ofVec3f(x, y, z);
                     measurement.push_back(p);
-                    cout << "measurement " << p << endl;
                 }
                 camPoints.push_back(measurement);
                 XML.popTag();
@@ -102,7 +101,6 @@ void ofxReprojectionCalibrationData::loadFile(string filename) {
 
 
                     projpoint.push_back(p);
-                    cout << "projpoint " << p << endl;
                 }
                 projectorPoints.push_back(projpoint);
                 XML.popTag();
@@ -111,7 +109,7 @@ void ofxReprojectionCalibrationData::loadFile(string filename) {
         XML.popTag();
         }
     }
-    cout << "came to end" << endl;
+    updateMatrix();
 }
 
 ofxReprojectionCalibrationData::~ofxReprojectionCalibrationData()
@@ -154,3 +152,48 @@ void ofxReprojectionCalibrationData::saveFile(string filename)
 {
 }
 
+// TODO: update with new XML format
+static void saveDataToFile(ofxReprojectionCalibrationData data, string filename) {
+
+	//ofFileDialogResult filename = ofSystemSaveDialog(ofGetTimestampString(),"Save measurements.");
+
+	// cv::FileStorage fs(filename.getPath(), cv::FileStorage::WRITE);
+
+	// fs << "timestamp" << ofGetTimestampString();
+
+	// fs << "kinect_width" << kinect_width;
+	// fs << "kinect_height" << kinect_height;
+
+	// fs << "projector_width" << projector_width;
+	// fs << "projector_height" << projector_height;
+
+	// fs << "ref_max_depth" << kinect.ref_max_depth;
+
+	// fs << "measurements" << "[";
+
+	// for(uint i = 0; i < valid_measurements.size() ; i++) {
+	// 	fs << "[";
+	// 	for(uint j = 0; j < valid_measurements[i].size(); j++) {
+	// 		fs << valid_measurements[i][j];
+	// 	}
+	// 	fs << "]";
+
+	// }
+
+	// fs << "]";
+
+	// fs << "projpoints" << "[";
+
+	// for(uint i = 0; i < all_chessboard_points.size() ; i++) {
+	// 	fs << "[";
+	// 	for(uint j = 0; j < all_chessboard_points[i].size(); j++) {
+	// 		fs << all_chessboard_points[i][j];
+	// 	}
+	// 	fs << "]";
+
+	// }
+
+	// fs << "]";
+
+	// fs.release();
+}

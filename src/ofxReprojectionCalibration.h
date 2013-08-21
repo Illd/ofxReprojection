@@ -59,8 +59,6 @@ public:
 	void draw3DView(const ofPoint& point) { draw3DView(point.x, point.y); }
 	void draw3DView(const ofRectangle& rect) { draw3DView(rect.x, rect.y, rect.width, rect.height); }
 
-	void updatePoints3DView();
-
 	void set3DViewMouseControlEnabled(bool enable);
 	void enable3DViewMouseControl() { set3DViewMouseControlEnabled(true); }
 	void disable3DViewMouseControl() { set3DViewMouseControlEnabled(false); }
@@ -94,6 +92,9 @@ public:
 	void setData(ofxReprojectionCalibrationData *data) { this->data = data; update(true); }
 	ofxReprojectionCalibrationData* getData() { return data; }
 
+	void setConfig(ofxReprojectionCalibrationConfig config) { this->config = config; update(true); }
+	ofxReprojectionCalibrationConfig& getConfig() { return config; }
+
 	bool isFinalized() { return bFinalized; }
 
 	ofxReprojectionCalibrationConfig config;
@@ -102,6 +103,7 @@ private:
 	void init3DView();
 	void updateStatusMessages();
 	void updateChessboard();
+	void updatePoints3DView();
 	void update(bool forceupdate);
 
 	static const cv::Mat lm_affinerow;
