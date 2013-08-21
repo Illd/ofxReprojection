@@ -809,7 +809,7 @@ void ofxReprojectionCalibration::updateStatusMessages() {
 	ofPopStyle();
 }
 
-void ofxReprojectionCalibration::drawChessboard(float x, float y, float w, float h) {
+void ofxReprojectionCalibration::drawProjectorChessboard(float x, float y, float w, float h) {
 	if(!chessboardImage.isAllocated()) {
 		ofLogVerbose("ofxReprojection")  << "allocating " << w << "," << h ;
 		chessboardImage.allocate(w,h,GL_LUMINANCE);

@@ -43,7 +43,7 @@ void testApp::update(){
 void testApp::draw(){
 	if(!calibration.isFinalized()) {
 		calibration.drawStatusScreen(0,0,1024,768);
-		calibration.drawChessboard(1024,0,1024,768);
+		calibration.drawProjectorChessboard(1024,0,1024,768);
 	}
 	
 	if(calibration.isFinalized() && rendererInited) {
