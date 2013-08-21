@@ -200,14 +200,14 @@ void ofxReprojectionCalibration::lm_evaluate_camera_matrix(const double *par, in
 
 	vector<void*> *datasets = (vector<void*>*)data;
 
-	void* data_kinect_voidp    = (*datasets)[0];
+	void* data_cam_voidp    = (*datasets)[0];
 	void* data_projector_voidp = (*datasets)[1];
 
-	vector< cv::Point3f > *data_kinect       = (vector< cv::Point3f >*)data_kinect_voidp;
+	vector< cv::Point3f > *data_cam       = (vector< cv::Point3f >*)data_cam_voidp;
 	vector< cv::Point2f > *data_projector    = (vector< cv::Point2f >*)data_projector_voidp;
 
 	for(int i = 0; i < m_dat/3; i++) { // for each measurement
-		cv::Point3f x_data = (*data_kinect)[i];
+		cv::Point3f x_data = (*data_cam)[i];
 		cv::Mat x = (cv::Mat_<double>(4,1) << x_data.x, x_data.y, x_data.z, 1);
 
 		cv::Mat b = A*x;
@@ -381,15 +381,6 @@ void ofxReprojectionCalibration::update() {
 		cv::Mat gray;
 		cv::cvtColor(chessdetectimage, gray, CV_BGR2GRAY);
 
-
-		// // Draw image with equialized histogram for inspection purposes.
-		// // This image seems to be worse for detecting the chess board.
-		// // But it is sometimes recommended as an option to
-		// // findChessboardCorners (cv::CALIB_CB_NORMALIZE_IMAGE)
-		// cv::Mat gray2;
-		// cv::equalizeHist(gray,gray2);
-		// color_image_debug.setFromPixels((unsigned char*) gray2.data, kinect_width, kinect_height, OF_IMAGE_GRAYSCALE);
-
 		chessfound = false;
 
 		if(measurement_pause and (ofGetSystemTime() - measurement_pause_time > config.measurement_pause_length)) {
@@ -488,7 +479,7 @@ void ofxReprojectionCalibration::update() {
 				sumXZ += p.x*p.z;
 				n += 1;
 
-				//cout << "interpolating depth value. close int: " << pDPixel[imgx1+imgy1*kinect_width]
+				//cout << "interpolating depth value. close int: " << pDPixel[imgx1+imgy1*camWidth]
 				     //<< ", interp: " << p.z << endl;
 
 				chesscorners_depth.push_back(p);
@@ -538,7 +529,6 @@ void ofxReprojectionCalibration::update() {
 			}
 
 			cv::drawChessboardCorners(chessdetectimage, chessboardSize, cv::Mat(chesscorners), chessfound);
-			/* color_image.setFromPixels(pPixelsUC, kinect_width, kinect_height, OF_IMAGE_COLOR); */
 		}
 
 		// Convert image to ofTexture for drawing status screen.
