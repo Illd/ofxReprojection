@@ -369,6 +369,7 @@ void ofxReprojectionCalibration::update() {
 
 	// TODO: separate this into a thread? findChessboardCorners can be very slow.
 	if(cam->isFrameNew()) {
+		ofxReprojectionUtils::makeHueDepthImage(cam->getDistancePixels(), camWidth, camHeight, refMaxDepth, depthImage);
 		depthFloats.setFromPixels(cam->getDistancePixels(), camWidth, camHeight, OF_IMAGE_GRAYSCALE);
 
 		// Convert color image to OpenCV image.
@@ -645,35 +646,39 @@ void ofxReprojectionCalibration::update() {
 
 			}
 		}
+
+		updateStatusMessages();
 	}
 
 }
 
+void ofxReprojectionCalibration::drawColorImage(float x, float y, float w, float h) {
+	colorImage.draw(x,y,w,h);
+}
+
+void ofxReprojectionCalibration::drawDepthImage(float x, float y, float w, float h) {
+	depthImage.draw(x,y,w,h);
+}
+
+void ofxReprojectionCalibration::drawStatusMessagesImage(float x, float y, float w, float h) {
+	statusMessagesImage.draw(x,y,w,h);
+}
 
 void ofxReprojectionCalibration::drawStatusScreen(float x, float y, float w, float h){
-
 	ofRectangle topleft = ofRectangle(x,y,w/2,h/2);
 	ofRectangle topright = ofRectangle(x+w/2,y,w/2,h/2);
 	ofRectangle bottomleft = ofRectangle(x,y+h/2,w/2,h/2);
 	ofRectangle bottomright = ofRectangle(x+w/2,y+h/2,w/2,h/2);
 
-	colorImage.draw(topleft);
-
-	if(refMaxDepth > 0) {
-		ofxReprojectionUtils::makeHueDepthImage(cam->getDistancePixels(), camWidth, camHeight, refMaxDepth, depthImage);
-		depthImage.draw(topright);
-	}
-
-	updateStatusMessages();
-	statusMessagesImage.draw(bottomleft.x,bottomleft.y,bottomleft.width,bottomleft.height);
+	drawColorImage(topleft);
+	drawDepthImage(topright);
+	drawStatusMessagesImage(bottomleft);
 
 	if(bUse3DView) {
 		draw3DView(bottomright);
 	} else {
 		drawChessboard(bottomright);
 	}
-
-
 }
 
 void ofxReprojectionCalibration::draw3DView(float x, float y, float w, float h) {

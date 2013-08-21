@@ -39,6 +39,21 @@ public:
 	void drawStatusScreen(const ofPoint& point) { drawStatusScreen(point.x, point.y); }
 	void drawStatusScreen(const ofRectangle& rect) { drawStatusScreen(rect.x, rect.y, rect.width, rect.height); }
 
+	void drawColorImage(float x, float y, float w, float h);
+	void drawColorImage(float x, float y) { drawColorImage(x, y, colorImage.getWidth(), colorImage.getHeight()); }
+	void drawColorImage(const ofPoint& point) { drawColorImage(point.x, point.y); }
+	void drawColorImage(const ofRectangle& rect) { drawColorImage(rect.x, rect.y, rect.width, rect.height); }
+
+	void drawDepthImage(float x, float y, float w, float h);
+	void drawDepthImage(float x, float y) { drawDepthImage(x, y, depthImage.getWidth(), depthImage.getHeight()); }
+	void drawDepthImage(const ofPoint& point) { drawDepthImage(point.x, point.y); }
+	void drawDepthImage(const ofRectangle& rect) { drawDepthImage(rect.x, rect.y, rect.width, rect.height); }
+
+	void drawStatusMessagesImage(float x, float y, float w, float h);
+	void drawStatusMessagesImage(float x, float y) { drawStatusMessagesImage(x, y, statusMessagesImage.getWidth(), statusMessagesImage.getHeight()); }
+	void drawStatusMessagesImage(const ofPoint& point) { drawStatusMessagesImage(point.x, point.y); }
+	void drawStatusMessagesImage(const ofRectangle& rect) { drawStatusMessagesImage(rect.x, rect.y, rect.width, rect.height); }
+
 	void drawChessboard(float x, float y, float w, float h);
 	void drawChessboard(const ofRectangle& rect) { drawChessboard(rect.x, rect.y, rect.width, rect.height); }
 
