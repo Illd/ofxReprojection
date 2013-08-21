@@ -42,7 +42,7 @@ class ofxReprojectionUtils {
 			// Is there any way to check that the format of the texture is 
 			// already set to GL_RGB?
 
-			static unsigned char *outPixels = new unsigned char[3*width*height];
+			unsigned char *outPixels = new unsigned char[3*width*height];
 
 			for(int i = 0; i < width*height; i++) {
 				ofColor c = ofColor::black;
@@ -59,6 +59,8 @@ class ofxReprojectionUtils {
 			}
 
 			tex.loadData(outPixels,width,height,GL_RGB);
+
+			delete outPixels;
 		};
 
 

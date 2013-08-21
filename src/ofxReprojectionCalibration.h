@@ -47,7 +47,7 @@ public:
 	void draw3DView(const ofPoint& point) { draw3DView(point.x, point.y); }
 	void draw3DView(const ofRectangle& rect) { draw3DView(rect.x, rect.y, rect.width, rect.height); }
 
-    void updatePoints3DView();
+	void updatePoints3DView();
 
 	void set3DViewMouseControlEnabled(bool enable);
 	void enable3DViewMouseControl() { set3DViewMouseControlEnabled(true); }
