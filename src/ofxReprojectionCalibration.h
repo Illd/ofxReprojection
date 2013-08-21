@@ -39,8 +39,8 @@ public:
 	void drawStatusScreen(const ofPoint& point) { drawStatusScreen(point.x, point.y); }
 	void drawStatusScreen(const ofRectangle& rect) { drawStatusScreen(rect.x, rect.y, rect.width, rect.height); }
 
-	void drawProjectorChessboard(float x, float y, float w, float h);
-	void drawProjectorChessboard(const ofRectangle& rect) { drawProjectorChessboard(rect.x, rect.y, rect.width, rect.height); }
+	void drawChessboard(float x, float y, float w, float h);
+	void drawChessboard(const ofRectangle& rect) { drawChessboard(rect.x, rect.y, rect.width, rect.height); }
 
 	void draw3DView(float x, float y, float w, float h);
 	void draw3DView(float x, float y) { draw3DView(x, y, camWidth, camHeight); }
@@ -110,8 +110,8 @@ private:
 	int stability_buffer_i;
 	int camWidth, camHeight;
 
-	ofRectangle lastProjectorChessboard;
-	ofRectangle lastMonitorChessboard;
+	vector<ofRectangle> lastChessboards;
+	int lastChessboardIndex;
 	bool draggingChessboard;
 	ofRectangle draggingChessboardDrawArea;
 	ofRectangle draggingChessboardRect;

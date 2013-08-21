@@ -5,7 +5,10 @@ ofxReprojectionCalibration::ofxReprojectionCalibration() {
 	bKeysEnabled = false;
 	bChessboardMouseControlEnabled = false;
 	draggingChessboard = false;
-	bUse3DView = true;
+	bUse3DView = false;
+
+	lastChessboards.resize(5);
+	lastChessboardIndex = 0;
 }
 
 bool ofxReprojectionCalibration::init(ofxBase3DVideo *cam, ofxReprojectionCalibrationData *data, ofxReprojectionCalibrationConfig config) {
@@ -70,18 +73,14 @@ void ofxReprojectionCalibration::setChessboardMouseControlEnabled(bool enable) {
 
 void ofxReprojectionCalibration::mousePressedChessboard(ofMouseEventArgs &mouse) {
 	if(bFinalized) return;
-	if(!lastProjectorChessboard.isEmpty() && lastProjectorChessboard.inside(ofPoint(mouse.x,mouse.y))) {
-		draggingChessboard = true;
-		draggingChessboardDrawArea = lastProjectorChessboard;
-		draggingChessboardRect = chessboardArea;
-		draggingStartPoint = ofPoint(mouse.x, mouse.y);
-		draggingButton = mouse.button;
-	} else if(!lastMonitorChessboard.isEmpty() && lastMonitorChessboard.inside(ofPoint(mouse.x,mouse.y))) {
-		draggingChessboard = true;
-		draggingChessboardDrawArea = lastMonitorChessboard;
-		draggingChessboardRect = chessboardArea;
-		draggingStartPoint = ofPoint(mouse.x, mouse.y);
-		draggingButton = mouse.button;
+	for(unsigned int i = 0; i < lastChessboards.size(); i++) {
+		if(!lastChessboards[i].isEmpty() && lastChessboards[i].inside(ofPoint(mouse.x,mouse.y))) {
+			draggingChessboard = true;
+			draggingChessboardDrawArea = lastChessboards[i];
+			draggingChessboardRect = chessboardArea;
+			draggingStartPoint = ofPoint(mouse.x, mouse.y);
+			draggingButton = mouse.button;
+		}
 	}
 }
 
@@ -671,8 +670,7 @@ void ofxReprojectionCalibration::drawStatusScreen(float x, float y, float w, flo
 	if(bUse3DView) {
 		draw3DView(bottomright);
 	} else {
-		chessboardImage.draw(bottomright.x,bottomright.y,bottomright.width,bottomright.height);
-		lastMonitorChessboard = bottomright;
+		drawChessboard(bottomright);
 	}
 
 
@@ -809,14 +807,15 @@ void ofxReprojectionCalibration::updateStatusMessages() {
 	ofPopStyle();
 }
 
-void ofxReprojectionCalibration::drawProjectorChessboard(float x, float y, float w, float h) {
-	if(!chessboardImage.isAllocated()) {
+void ofxReprojectionCalibration::drawChessboard(float x, float y, float w, float h) {
+	if(!chessboardImage.isAllocated() || chessboardImage.getWidth() < w || chessboardImage.getHeight() < h) {
 		ofLogVerbose("ofxReprojection")  << "allocating " << w << "," << h ;
 		chessboardImage.allocate(w,h,GL_LUMINANCE);
 		updateChessboard();
 	}
 	chessboardImage.draw(x,y,w,h);
-	lastProjectorChessboard = ofRectangle(x,y,w,h);
+	lastChessboards[lastChessboardIndex] = ofRectangle(x,y,w,h);
+	lastChessboardIndex = (lastChessboardIndex + 1) % lastChessboards.size();
 }
 
 
