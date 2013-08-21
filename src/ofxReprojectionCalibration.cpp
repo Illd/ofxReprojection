@@ -363,12 +363,16 @@ ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReproj
 }
 
 void ofxReprojectionCalibration::update() {
+	update(false);
+}
+
+void ofxReprojectionCalibration::update(bool forceupdate) {
 	if(refMaxDepth < 0) {
 		refMaxDepth = ofxReprojectionUtils::getMaxDepth(cam->getDistancePixels(), camWidth, camHeight);
 	}
 
 	// TODO: separate this into a thread? findChessboardCorners can be very slow.
-	if(cam->isFrameNew()) {
+	if(forceupdate || cam->isFrameNew()) {
 		ofxReprojectionUtils::makeHueDepthImage(cam->getDistancePixels(), camWidth, camHeight, refMaxDepth, depthImage);
 		depthFloats.setFromPixels(cam->getDistancePixels(), camWidth, camHeight, OF_IMAGE_GRAYSCALE);
 

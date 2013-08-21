@@ -28,11 +28,8 @@ public:
 	bool init(  	ofxBase3DVideo *cam,
 			ofxReprojectionCalibrationData *data,
 			ofxReprojectionCalibrationConfig config = ofxReprojectionCalibrationConfig());
-	void init3DView();
 
 	void update();
-	void updateStatusMessages();
-	void updateChessboard();
 
 	void drawStatusScreen(float x, float y, float w, float h);
 	void drawStatusScreen(float x, float y) { drawStatusScreen(x, y, camWidth*2, camHeight*2); }
@@ -82,10 +79,6 @@ public:
 	void enableChessboardMouseControl() { setChessboardMouseControlEnabled(true); }
 	void disableChessboardMouseControl() { setChessboardMouseControlEnabled(false); }
 
-	void mousePressedChessboard(ofMouseEventArgs &mouse);
-	void mouseDraggedChessboard(ofMouseEventArgs &mouse);
-	void mouseReleasedChessboard(ofMouseEventArgs &mouse);
-
 	// 
 	// Interactive commands:
 	//
@@ -98,14 +91,26 @@ public:
 
 	static ofMatrix4x4 calculateReprojectionTransform(ofxReprojectionCalibrationData &data);
 
-	static const cv::Mat lm_affinerow;
-	static void lm_evaluate_camera_matrix(const double *par, int m_dat, const void *data, double *fvec, int *info);
+	void setData(ofxReprojectionCalibrationData *data) { this->data = data; update(true); }
+	ofxReprojectionCalibrationData* getData() { return data; }
 
 	bool isFinalized() { return bFinalized; }
 
 	ofxReprojectionCalibrationConfig config;
 
 private:
+	void init3DView();
+	void updateStatusMessages();
+	void updateChessboard();
+	void update(bool forceupdate);
+
+	static const cv::Mat lm_affinerow;
+	static void lm_evaluate_camera_matrix(const double *par, int m_dat, const void *data, double *fvec, int *info);
+
+	void mousePressedChessboard(ofMouseEventArgs &mouse);
+	void mouseDraggedChessboard(ofMouseEventArgs &mouse);
+	void mouseReleasedChessboard(ofMouseEventArgs &mouse);
+
 	ofxBase3DVideo* cam;
 	ofxReprojectionCalibrationData *data;
 
