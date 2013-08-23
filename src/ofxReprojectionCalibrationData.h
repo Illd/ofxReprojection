@@ -19,7 +19,6 @@ class ofxReprojectionCalibrationData {
 		void updateMatrix();
 
 		ofMatrix4x4 getMatrix();
-		float getRefMaxDepth();
 
 		vector< vector< ofVec3f > >& getCamPoints();
 		vector< vector< ofVec2f > >& getProjectorPoints();

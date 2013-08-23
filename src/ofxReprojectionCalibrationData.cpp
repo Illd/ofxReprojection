@@ -141,12 +141,6 @@ ofMatrix4x4 ofxReprojectionCalibrationData::getMatrix()
 }
 
 
-float ofxReprojectionCalibrationData::getRefMaxDepth()
-{
-    return ref_max_depth;
-}
-
-
 // IMPLEMENT THIS.
 void ofxReprojectionCalibrationData::saveFile(string filename)
 {
