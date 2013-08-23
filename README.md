@@ -5,6 +5,9 @@ ofxReprojection is still at the draft stage. Do not expect it to be working.
 ofxReprojection
 ==============
 
+![](/ofxaddons_thumbnail.png)
+
+
 ofxReprojection is a toolkit for dynamic projection mapping using a depth cam and projector. 
 
 The depth cam (e.g. the Kinect camera for XBox)
