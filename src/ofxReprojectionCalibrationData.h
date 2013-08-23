@@ -18,30 +18,13 @@ class ofxReprojectionCalibrationData {
 
 		void updateMatrix();
 
-		ofMatrix4x4 getMatrix();
+		ofMatrix4x4 getMatrix() { return projmat; }
+		vector< vector< ofVec3f > >& getCamPoints() { return camPoints; }
+		vector< vector< ofVec2f > >& getProjectorPoints() { return projectorPoints; }
 
-		vector< vector< ofVec3f > >& getCamPoints();
-		vector< vector< ofVec2f > >& getProjectorPoints();
-
-		void addMeasurement(vector<ofVec3f> newCamPoints, vector<ofVec2f> newProjectorPoints) {
-			camPoints.push_back(newCamPoints);
-			projectorPoints.push_back(newProjectorPoints);
-			updateMatrix();
-		}
-
-		void clear() {
-			camPoints.clear();
-			projectorPoints.clear();
-			updateMatrix();
-		}
-
-		void deleteLastMeasurement() {
-			if(camPoints.size() > 0) {
-				camPoints.pop_back();
-				projectorPoints.pop_back();
-			}
-			updateMatrix();
-		}
+		void addMeasurement(vector<ofVec3f> newCamPoints, vector<ofVec2f> newProjectorPoints);
+		void clear();
+		void deleteLastMeasurement();
 
 	private:
 		vector< vector< ofVec3f > > camPoints;
