@@ -1,6 +1,7 @@
 Documentation for ofxReprojection
 =================================
 
+- **Date**: 2013-08-23
 - **Version**: 0.0.1
 
 This document describes the API for the ofxReprojection addon for [openFrameworks](http://openframeworks.cc). See the [README file](README.md) for a general explanation of the purpose of the addon.
@@ -8,13 +9,13 @@ This document describes the API for the ofxReprojection addon for [openFramework
 Classes
 -------
 ofxReprojection consists of the following classes
- - **[ofxReprojectionCalibration](#class_ofxreprojectioncalibration)**: asdf 
- - **[ofxReprojectionCalibrationData](#class_ofxreprojectioncalibrationdata)**: asd
- - **[ofxReprojectionCalibrationConfig](#class_ofxreprojectioncalibrationconfig)**: configuration data used in the [ofxReprojectionCalibration](#class_ofxreprojectioncalibration) class.
- - **[ofxReprojectionCalibrationRenderer2D](#class_ofxreprojectioncalibrationrenderer2d)**: uses the calibration data to draw an image in 
- - **[ofxReprojectionUtils](#class_ofxreprojectionutils)**: misc. static methods.
- - **[ofxHighlightRects](#class_ofxhighlightrects)**: create a border and text description around an ofRectangle, which fades out after some time.
- - **[ofxEasyCamArea](#class_ofxeasycamarea)**: equivalent to ofEasyCam, only with 
+ - **[ofxReprojectionCalibration](#class_ofxreprojectioncalibration)**:  
+ - **[ofxReprojectionCalibrationData](#class_ofxreprojectioncalibrationdata)**: 
+ - **[ofxReprojectionCalibrationConfig](#class_ofxreprojectioncalibrationconfig)**: Configuration data used in the [ofxReprojectionCalibration](#class_ofxreprojectioncalibration) class.
+ - **[ofxReprojectionCalibrationRenderer2D](#class_ofxreprojectioncalibrationrenderer2d)**: Uses the calibration data to draw an image in 
+ - **[ofxReprojectionUtils](#class_ofxreprojectionutils)**: Collection of static utility functions.
+ - **[ofxHighlightRects](#class_ofxhighlightrects)**: Create a border and text description around an ofRectangle, which fades out after some time.
+ - **[ofxEasyCamArea](#class_ofxeasycamarea)**: Equivalent to ofEasyCam, but can be used on FBOs drawn on only part of the screen.
 
 ### ofxReprojectionCalibration
 
