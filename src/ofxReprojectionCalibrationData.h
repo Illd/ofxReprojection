@@ -46,9 +46,5 @@ class ofxReprojectionCalibrationData {
 	private:
 		vector< vector< ofVec3f > > camPoints;
 		vector< vector< ofVec2f > > projectorPoints;
-
 		ofMatrix4x4 projmat;
-
-		float ref_max_depth;
-
 };
