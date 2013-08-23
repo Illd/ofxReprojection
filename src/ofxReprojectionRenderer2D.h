@@ -48,6 +48,8 @@ class ofxReprojectionRenderer2D {
 
 		void setPointsize(float p) { bPointsizeSpecified = true; pointsize = p; }
 
+		ofFbo& getOutputFbo() { return output; }
+
 	private:
 		ofxBase3DVideo *cam;
 		ofVboMesh outputgrid;
