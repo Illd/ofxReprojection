@@ -190,11 +190,21 @@ void ofxReprojectionCalibration::clear() {
 }
 
 void ofxReprojectionCalibration::loadFile() {
+	ofFileDialogResult filedialog = ofSystemLoadDialog("Load calibration measurements");
+	string filename = filedialog.getPath();
+	ofLogVerbose("ofxReprojection") << "Got filename from load dialog: " << filename;
+
+	data->loadFile(filename);
 
 }
 
 void ofxReprojectionCalibration::saveFile() {
+	ostringstream a; a << "ofxReprojection-" << ofGetTimestampString() << ".xml";
+	ofFileDialogResult filedialog = ofSystemSaveDialog(a.str(),"Save calibration measurements");
+	string filename = filedialog.getPath();
+	ofLogVerbose("ofxReprojection") << "Got filename from save dialog: " << filename;
 
+	data->saveFile(filename);
 }
 
 const cv::Mat ofxReprojectionCalibration::lm_affinerow = (cv::Mat_<double>(1,4) << 0,0,0,1);

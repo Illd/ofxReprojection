@@ -45,18 +45,11 @@ void ofxReprojectionCalibrationData::loadFile(string filename) {
 	ofXml xml;
 
 	if(filename.empty()) {
-		ofFileDialogResult filedialog = ofSystemLoadDialog("Load calibration measurements");
-		filename = filedialog.getPath();
-		ofLogVerbose("ofxReprojection") << "Got filename from load dialog: " << filename;
-	}
-
-	if(filename.empty()) {
 		ofLogWarning("ofxReprojection") << "loadFile: No file given.";
 		return;
 	}
 
-	if(xml.load(filename)) {
-	} else {
+	if(!xml.load(filename)) {
 		ofLogWarning("ofxReprojection") << "loadFile: Could not load file: " << filename;
 		return;
 	}
