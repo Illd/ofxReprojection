@@ -12,7 +12,7 @@ This document describes the API for the ofxReprojection addon for [openFramework
 Classes
 -------
 ofxReprojection consists of the following classes
- - **[ofxReprojectionCalibration](#class_ofxreprojectioncalibration)**:  
+ - **[ofxReprojectionCalibration](#ofxreprojectioncalibration)**:  
  - **[ofxReprojectionCalibrationData](#class_ofxreprojectioncalibrationdata)**: 
  - **[ofxReprojectionCalibrationConfig](#class_ofxreprojectioncalibrationconfig)**: Configuration data used in the [ofxReprojectionCalibration](#class_ofxreprojectioncalibration) class.
  - **[ofxReprojectionCalibrationRenderer2D](#class_ofxreprojectioncalibrationrenderer2d)**: Uses the calibration data to draw an image in 
@@ -20,7 +20,7 @@ ofxReprojection consists of the following classes
  - **[ofxHighlightRects](#class_ofxhighlightrects)**: Create a border and text description around an ofRectangle, which fades out after some time.
  - **[ofxEasyCamArea](#class_ofxeasycamarea)**: Equivalent to ofEasyCam, but can be used on FBOs drawn on only part of the screen.
 
-### <a id="class_ofxreprojectioncalibration"></a>ofxReprojectionCalibration
+### ofxReprojectionCalibration
 
 Public methods and variables:
  - *bool* **init**(ofxBase3DVideo \*cam, [ofxReprojectionCalibrationData](#class_ofxreprojectioncalibrationdata) \*data, [ofxReprojectionCalibrationConfig](#class_ofxreprojectioncalibrationconfig) config = ofxReprojectionCalibrationConfig())
