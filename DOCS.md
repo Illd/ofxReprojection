@@ -20,7 +20,7 @@ ofxReprojection consists of the following classes
  - **[ofxHighlightRects](#class_ofxhighlightrects)**: Create a border and text description around an ofRectangle, which fades out after some time.
  - **[ofxEasyCamArea](#class_ofxeasycamarea)**: Equivalent to ofEasyCam, but can be used on FBOs drawn on only part of the screen.
 
-### ofxReprojectionCalibration
+### <a id="class_ofxreprojectioncalibration"></a>ofxReprojectionCalibration
 
 Public methods and variables:
  - *bool* **init**(ofxBase3DVideo \*cam, [ofxReprojectionCalibrationData](#class_ofxreprojectioncalibrationdata) \*data, [ofxReprojectionCalibrationConfig](#class_ofxreprojectioncalibrationconfig) config = ofxReprojectionCalibrationConfig())
