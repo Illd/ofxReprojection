@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxReprojectionCalibrationData.h"
 
 #define STRINGIFY(A) #A
 
@@ -10,6 +11,9 @@
 class ofxReprojectionUtils {
 
 	public:
+		static void setupScreen(ofxReprojectionCalibrationData &data);
+		static void setupScreen(ofMatrix4x4 m);
+
 		static const string stringVertexShader2DPoints;
 		static const string stringFragmentShader2DPoints;
 		static const string stringGeometryShader2DPoints;

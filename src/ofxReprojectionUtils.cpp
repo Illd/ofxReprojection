@@ -1,6 +1,26 @@
 #include "ofxReprojectionUtils.h"
 
+//
+//
+// Setup screen for rendering (orthographic projection
+// mulitiplied by the camera/projector projection matrix)
+//
+//
 
+void ofxReprojectionUtils::setupScreen(ofxReprojectionCalibrationData& data) {
+	setupScreen(data.getMatrix());
+}
+
+void ofxReprojectionUtils::setupScreen(ofMatrix4x4 m) {
+	ofMatrix4x4 ortho = ofMatrix4x4::newOrthoMatrix(0, 1, 0, 1, -1, 1);
+	ofMatrix4x4 glprojectionmatrix = ofMatrix4x4::getTransposedOf(m) * ortho;
+
+	ofSetMatrixMode(OF_MATRIX_PROJECTION);
+	ofLoadMatrix(glprojectionmatrix);
+
+	ofSetMatrixMode(OF_MATRIX_MODELVIEW);
+	ofLoadIdentityMatrix();
+}
 
 //
 //
