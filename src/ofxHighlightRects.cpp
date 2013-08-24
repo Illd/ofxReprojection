@@ -67,14 +67,37 @@ void ofxHighlightRects::draw(ofEventArgs &e) {
 			alpha = 255*(1-((currentTime - (it->timestamp + it->stayTime))/((float) it->fadeTime)));
 		}
 		if(alpha > 1) {
-			ofSetColor(fg,alpha);
-			ofSetLineWidth(it->lineWidth);
-			ofRectRounded(it->rect,it->lineWidth);
-			ofDrawBitmapStringHighlight( it->name,
-				       it->rect.x+it->lineWidth-1,
-				       it->rect.y+9+it->lineWidth,
-				       ofColor(fg,alpha),
-				       ofColor(bg,alpha));
+        	ofSetColor(fg,alpha);
+
+            	ofPushMatrix();
+
+        	ofPath test;
+
+            	test.setPolyWindingMode(OF_POLY_WINDING_ODD);
+            	test.setColor(ofColor(fg,alpha));
+            	test.setFilled(true);
+
+            	test.moveTo(it->rect.x, it->rect.y);
+            	test.lineTo(it->rect.x + it->rect.width, it->rect.y);
+            	test.lineTo(it->rect.x + it->rect.width, it->rect.y + it->rect.height);
+            	test.lineTo(it->rect.x, it->rect.y + it->rect.height);
+            	test.close();
+            	
+            	test.moveTo(it->rect.x + it->lineWidth, it->rect.y + it->lineWidth);
+            	test.lineTo(it->rect.x + it->rect.width - it->lineWidth, it->rect.y + it->lineWidth);
+            	test.lineTo(it->rect.x + it->rect.width - it->lineWidth, it->rect.y + it->rect.height - it->lineWidth);
+            	test.lineTo(it->rect.x + it->lineWidth, it->rect.y +it->rect.height - it->lineWidth);
+            	test.lineTo(it->rect.x + it->lineWidth, it->rect.y + it->lineWidth);
+            	test.close();
+            	test.draw();
+
+            	ofPopMatrix();
+
+
+            	ofSetColor(0,0,0,alpha);
+            	ofDrawBitmapString( it->name,
+                                         it->rect.x+it->lineWidth + 1,
+                                         it->rect.y+11 + it->lineWidth);
 		}
 
 		if(it->timestamp + it->stayTime + it->fadeTime < currentTime) {
