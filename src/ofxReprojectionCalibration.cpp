@@ -49,7 +49,7 @@ bool ofxReprojectionCalibration::init(  ofxBase3DVideo *cam,
 
 	refMaxDepth = -1;
 
-	corner_history.reserve(config.num_stability_frames);
+	corner_history.resize(config.num_stability_frames);
 
 	statusMessagesImage.allocate(camWidth, camHeight, GL_RGB);
 	depthImage.allocate(camWidth, camHeight, GL_RGB);
@@ -411,6 +411,7 @@ void ofxReprojectionCalibration::update(bool forceupdate) {
 
 		vector<cv::Point2f> chesscorners;
 
+		// ofLogVerbose("ofxReprojection") << "Calibration update: Converting to grayscale image";
 		cv::Mat gray;
 		cv::cvtColor(chessdetectimage, gray, CV_BGR2GRAY);
 
@@ -431,6 +432,7 @@ void ofxReprojectionCalibration::update(bool forceupdate) {
 		vector<cv::Point3f> chesscorners_depth;
 
 		if(chessfound) {
+			// ofLogVerbose("ofxReprojection") << "Calibration update: Found chessboard, calc. sub-pixel coords.";
 			cv::cornerSubPix(gray, chesscorners, cv::Size(5, 5), cv::Size(-1, -1),
 				cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, 0.1));
 
@@ -456,6 +458,7 @@ void ofxReprojectionCalibration::update(bool forceupdate) {
 
 			chessfound_includes_depth = true;
 			for(uint i = 0; i < chesscorners.size(); i++) {
+				// ofLogVerbose("ofxReprojection") << "Calibration update: Found chessboard, interp z coord #" << i << ".";
 				float *pDPixel = (float*) cam->getDistancePixels();
 
 				// Calculate 3D point from color and depth image ("world coords")
@@ -515,11 +518,13 @@ void ofxReprojectionCalibration::update(bool forceupdate) {
 				//cout << "interpolating depth value. close int: " << pDPixel[imgx1+imgy1*camWidth]
 				     //<< ", interp: " << p.z << endl;
 
+				// ofLogVerbose("ofxReprojection") << "Calibration update: result " << p.z << ".";
 				chesscorners_depth.push_back(p);
 			}
 
 
 			if(chessfound_includes_depth) {
+				// ofLogVerbose("ofxReprojection") << "Calibration update: checking planarity";
 				//cout << chesscorners_depth << endl;
 
 				// Solve least squares to find plane equation
@@ -561,19 +566,23 @@ void ofxReprojectionCalibration::update(bool forceupdate) {
 				}
 			}
 
+			// ofLogVerbose("ofxReprojection") << "Calibration update: Drawing detected chessboard corners onto color img.";
 			cv::drawChessboardCorners(chessdetectimage, chessboardSize, cv::Mat(chesscorners), chessfound);
 		}
 
 		// Convert image to ofTexture for drawing status screen.
+		// ofLogVerbose("ofxReprojection") << "Calibration update: copying color img from cv::Mat to ofTexture.";
 		colorImage.loadData(pPixelsUC, camWidth, camHeight, GL_RGB);
+		// ofLogVerbose("ofxReprojection") << "Calibration update: successfully copied to ofTexture";
 
 		// If chessboard is found, depth data exists and planarity check is satisfied,
 		// add this measurement to the stability buffer corner_history.
 
 		bool frame_ok = chessfound && chessfound_includes_depth && chessfound_planar;
 		if(!frame_ok) chesscorners_depth.clear();
+		//if(frame_ok) ofLogVerbose("ofxReprojection") << "Calibration update: adding OK frame to corner history.";
 
-		stability_buffer_i = (stability_buffer_i + 1)%(corner_history.capacity());
+		stability_buffer_i = (stability_buffer_i + 1)%(config.num_stability_frames);
 
 		corner_history[stability_buffer_i] = chesscorners_depth;
 
@@ -581,13 +590,14 @@ void ofxReprojectionCalibration::update(bool forceupdate) {
 
 		chessfound_enough_frames = false;
 		if(frame_ok) {
+			// ofLogVerbose("ofxReprojection") << "Calibration update: counting OK frames in history";
 			num_ok_frames = 0;
 			for(uint i = 0; i < corner_history.size(); i++) {
 				if(corner_history[i].size() == chesscorners_depth.size()) {
 					num_ok_frames += 1;
 				}
 			}
-			if(num_ok_frames == corner_history.size()) {
+			if(num_ok_frames == config.num_stability_frames) {
 				chessfound_enough_frames = true;
 			}
 		}
@@ -595,8 +605,10 @@ void ofxReprojectionCalibration::update(bool forceupdate) {
 		// If enough consecutive acceptable frames/measurements have been found,
 		// check variance within the stability buffer corner_history.
 
+
 		chessfound_variance_ok = false;
 		if(chessfound_enough_frames) {
+			// ofLogVerbose("ofxReprojection") << "Calibration update: calculating/checking variance";
 			largest_variance_xy = 0;
 			largest_variance_z  = 0;
 			for(uint i = 0; i < corner_history[0].size(); i++) {
@@ -641,6 +653,8 @@ void ofxReprojectionCalibration::update(bool forceupdate) {
 				// add to valid_measurements and all_chessboard_points.
 				// Also, convert to openFrameworks vector structs.
 
+				// ofLogVerbose("ofxReprojection") << "Calibration update: variance OK, adding measurement";
+
 				vector<ofVec3f> measurement_mean;
 				for(uint i = 0; i < corner_history[0].size(); i++) {
 					cv::Vec<float, 3> corner;
@@ -655,19 +669,22 @@ void ofxReprojectionCalibration::update(bool forceupdate) {
 					}
 
 					ofVec3f cornerp = ofVec3f(corner[0],corner[1],corner[2]);
+					// ofLogVerbose("ofxReprojection") << "Adding measurement corner: " << cornerp;
 					measurement_mean.push_back(cornerp);
 				}
 
-				ofLogVerbose("ofxReprojection") << "Measurement: " << cv::Mat(measurement_mean) << endl;
 
 				vector<ofVec2f> chessboard_points;
-				for(int y = 0; y < (int)chessboardSquares.x-1; y++) {
-					for(int x = 0; x < (int)chessboardSquares.y-1; x++) {
-						float px = chessboardArea.x + ((int)((x+1)*chessboardArea.width/(chessboardSquares.x)));
-						float py = chessboardArea.y + ((int)((y+1)*chessboardArea.height/(chessboardSquares.y)));
+
+				// findChessboardCorners gives row-major order corners,
+				// the loop below must match this (y is outer loop).
+				for(int y = 0; y < (int)chessboardSquares.y-1; y++) {
+					for(int x = 0; x < (int)chessboardSquares.x-1; x++) {
+						float px = chessboardArea.x + (x+1)*(chessboardArea.width/chessboardSquares.x);
+						float py = chessboardArea.y + (y+1)*(chessboardArea.height/chessboardSquares.y);
 						ofVec2f p(px,py);
 
-						ofLogVerbose("ofxReprojection") << "chessboard point " << p << endl;
+						// ofLogVerbose("ofxReprojection") << "Adding chessboard corner: " << p;
 						chessboard_points.push_back(p);
 					}
 				}
