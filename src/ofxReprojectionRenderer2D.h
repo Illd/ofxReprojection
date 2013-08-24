@@ -3,6 +3,7 @@
 #include "ofMain.h"
 
 #include "ofxBase3DVideo.h"
+#include "ofxHighlightRects.h"
 #include "ofxReprojectionUtils.h"
 
 enum ofxReprojectionRenderer2DDrawMethod {
@@ -85,6 +86,9 @@ class ofxReprojectionRenderer2D {
 		bool bDepthUpdated;
 
 		bool bPointsizeSpecified;
+		
+		ofxHighlightRects highlighter;
+		bool bFirstDraw;
 
 };
 

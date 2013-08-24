@@ -7,6 +7,7 @@ class ofxHighlightRects {
 		ofxHighlightRects();
 		void init();
 		void highlightRect(std::string name, ofRectangle rect);
+		void removeHighlight(std::string name);
 
 		float getStayTime() { return stayTime; }
 		float getFadeTime() { return fadeTime; }

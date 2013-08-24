@@ -36,6 +36,17 @@ void ofxHighlightRects::highlightRect(std::string name, ofRectangle rect) {
 	highlights.push_back(data);
 }
 
+void ofxHighlightRects::removeHighlight(std::string name) {
+	std::vector<HighlightRectData>::iterator it = highlights.begin();
+	while(it != highlights.end()) {
+		if(it->name == name) {
+			it = highlights.erase(it);
+		} else {
+			++it;
+		}
+	}
+}
+
 void ofxHighlightRects::draw(ofEventArgs &e) {
 	unsigned long long currentTime = ofGetElapsedTimeMillis();
 

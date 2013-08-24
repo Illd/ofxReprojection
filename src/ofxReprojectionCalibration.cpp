@@ -7,6 +7,7 @@ ofxReprojectionCalibration::ofxReprojectionCalibration() {
 	draggingChessboard = false;
 	bUse3DView = false;
 	bHasReceivedFirstFrame = false;
+	bStatusFirstDraw = true;
 
 	lastChessboards.resize(5);
 	lastChessboardIndex = 0;
@@ -57,6 +58,8 @@ bool ofxReprojectionCalibration::init(  ofxBase3DVideo *cam,
 	if(bUse3DView) {
 		init3DView();
 	}
+
+	highlighter.init();
 
 	return true;
 }
@@ -729,6 +732,11 @@ void ofxReprojectionCalibration::drawStatusScreen(float x, float y, float w, flo
 	} else {
 		drawChessboard(bottomright);
 	}
+
+	if(bStatusFirstDraw) {
+		bStatusFirstDraw = false;
+		highlighter.highlightRect("Status screen for calibration", ofRectangle(x,y,w,h));
+	}
 }
 
 void ofxReprojectionCalibration::draw3DView(float x, float y, float w, float h) {
@@ -870,6 +878,18 @@ void ofxReprojectionCalibration::drawChessboard(float x, float y, float w, float
 	chessboardImage.draw(x,y,w,h);
 	lastChessboards[lastChessboardIndex] = ofRectangle(x,y,w,h);
 	lastChessboardIndex = (lastChessboardIndex + 1) % lastChessboards.size();
+
+	string title = "Chessboard (should be covering the projector screen area)";
+
+	if(!calibrationFirstDraw.isEmpty() && w*h > calibrationFirstDraw.width*calibrationFirstDraw.height) {
+		calibrationFirstDraw = ofRectangle();
+		highlighter.removeHighlight(title);
+	}
+
+	if(calibrationFirstDraw.isEmpty()) {
+		calibrationFirstDraw = ofRectangle(x,y,w,h);
+		highlighter.highlightRect(title, calibrationFirstDraw);
+	}
 }
 
 void ofxReprojectionCalibration::finalize() {

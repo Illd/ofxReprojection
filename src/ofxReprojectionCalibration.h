@@ -11,6 +11,7 @@
 #include "ofxReprojectionUtils.h"
 #include "lmmin.h"
 #include "ofxEasyCamArea.h"
+#include "ofxHighlightRects.h"
 
 // This class takes care of the calibration of depth cam and projector.
 //
@@ -171,6 +172,10 @@ private:
 	ofShader shader3DView;
 
 	bool bHasReceivedFirstFrame;
+
+	ofxHighlightRects highlighter;
+	bool bStatusFirstDraw;
+	ofRectangle calibrationFirstDraw;
 
 };
 

@@ -9,6 +9,8 @@ ofxReprojectionRenderer2D::ofxReprojectionRenderer2D()
 	pointsize = 0;
 	bPointsizeSpecified = false;
 
+	bFirstDraw = true;
+
 	refMaxDepth = -1;
 
 	drawX = 0;
@@ -46,6 +48,8 @@ bool ofxReprojectionRenderer2D::init(ofxBase3DVideo *cam) {
 		drawMethod = OFXREPROJECTIONRENDERER_2DDRAWMETHOD_TRIANGLES;
 	}
 	setDrawMethod(drawMethod);
+
+	highlighter.init();
 
 	return true;
 }
@@ -118,8 +122,13 @@ void ofxReprojectionRenderer2D::drawImage(ofPixels &pix) {
 	}
 }
 
-void ofxReprojectionRenderer2D::drawImage(ofTexture &tex)
-{
+void ofxReprojectionRenderer2D::drawImage(ofTexture &tex) {
+	if(bFirstDraw) {
+		bFirstDraw = false;
+		ofRectangle drawArea = ofRectangle(drawX, drawY, drawWidth, drawHeight);
+		highlighter.highlightRect("Reprojection area (should fill the projector screen area)", drawArea);
+	}
+
 	// The default coordinate system is [-1,1]x[-1,1],[0,1]
 	// representing the limits of the camera field of view.
 
