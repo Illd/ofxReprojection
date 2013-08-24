@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxXmlSettings.h"
 
 class ofxReprojectionCalibrationData {
 	public:
