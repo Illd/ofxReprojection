@@ -1,7 +1,7 @@
 #pragma once
 
 struct ofxReprojectionCalibrationConfig {
-	int num_stability_frames;
+	unsigned int num_stability_frames;
 	int depth_min;
 	int depth_max;
 	bool use_planar_condition;
