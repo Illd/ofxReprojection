@@ -3,7 +3,7 @@
 ofxHighlightRects::ofxHighlightRects() {
 	inited = false;
 
-	stayTime = 2000;
+	stayTime = 5000;
 	fadeTime = 2000;
 	lineWidth = 10;
 
@@ -26,12 +26,7 @@ void ofxHighlightRects::highlightRect(std::string name, ofRectangle rect) {
 	data.stayTime = stayTime;
 	data.fadeTime = fadeTime;
 	data.lineWidth = lineWidth;
-
 	data.rect = rect;
-	data.rect.x += lineWidth/2;
-	data.rect.y += lineWidth/2;
-	data.rect.width -= lineWidth;
-	data.rect.height -= lineWidth;
 
 	highlights.push_back(data);
 }
@@ -71,33 +66,33 @@ void ofxHighlightRects::draw(ofEventArgs &e) {
 
             	ofPushMatrix();
 
-        	ofPath test;
+        	ofPath path;
 
-            	test.setPolyWindingMode(OF_POLY_WINDING_ODD);
-            	test.setColor(ofColor(fg,alpha));
-            	test.setFilled(true);
+            	path.setPolyWindingMode(OF_POLY_WINDING_ODD);
+            	path.setColor(ofColor(fg,alpha));
+            	path.setFilled(true);
 
-            	test.moveTo(it->rect.x, it->rect.y);
-            	test.lineTo(it->rect.x + it->rect.width, it->rect.y);
-            	test.lineTo(it->rect.x + it->rect.width, it->rect.y + it->rect.height);
-            	test.lineTo(it->rect.x, it->rect.y + it->rect.height);
-            	test.close();
-            	
-            	test.moveTo(it->rect.x + it->lineWidth, it->rect.y + it->lineWidth);
-            	test.lineTo(it->rect.x + it->rect.width - it->lineWidth, it->rect.y + it->lineWidth);
-            	test.lineTo(it->rect.x + it->rect.width - it->lineWidth, it->rect.y + it->rect.height - it->lineWidth);
-            	test.lineTo(it->rect.x + it->lineWidth, it->rect.y +it->rect.height - it->lineWidth);
-            	test.lineTo(it->rect.x + it->lineWidth, it->rect.y + it->lineWidth);
-            	test.close();
-            	test.draw();
+		path.rectRounded(it->rect, it->lineWidth);
+		path.close();
+
+		path.rectangle( it->rect.x + it->lineWidth,
+				it->rect.y + it->lineWidth,
+				it->rect.width - 2*it->lineWidth,
+				it->rect.height - 2* it->lineWidth
+				);
+		path.close();
+
+            	path.draw();
 
             	ofPopMatrix();
 
 
-            	ofSetColor(0,0,0,alpha);
-            	ofDrawBitmapString( it->name,
-                                         it->rect.x+it->lineWidth + 1,
-                                         it->rect.y+11 + it->lineWidth);
+            	ofDrawBitmapStringHighlight( it->name,
+                                         it->rect.x+it->lineWidth + 4,
+                                         it->rect.y+it->lineWidth + 14,
+					 ofColor(fg,alpha),
+					 ofColor(0,alpha)
+					 );
 		}
 
 		if(it->timestamp + it->stayTime + it->fadeTime < currentTime) {

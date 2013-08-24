@@ -893,6 +893,7 @@ void ofxReprojectionCalibration::drawChessboard(float x, float y, float w, float
 }
 
 void ofxReprojectionCalibration::finalize() {
+	highlighter.removeAllHighlights();
 	if(bFinalized) return;
 	bFinalized = true;
 }
