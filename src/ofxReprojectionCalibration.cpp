@@ -6,6 +6,7 @@ ofxReprojectionCalibration::ofxReprojectionCalibration() {
 	bChessboardMouseControlEnabled = false;
 	draggingChessboard = false;
 	bUse3DView = false;
+	bHasReceivedFirstFrame = false;
 
 	lastChessboards.resize(5);
 	lastChessboardIndex = 0;
@@ -29,6 +30,9 @@ bool ofxReprojectionCalibration::init(  ofxBase3DVideo *cam,
 	} else {
 		this->data = data;
 	}
+
+	ostringstream msg; msg << "Initing ofxReprojectionCalibration with depth cam type " << typeid(*cam).name() << ".";
+	ofLogVerbose("ofxReprojection") << msg.str();
 
 	camHeight = cam->getPixelsRef().getHeight();
 	camWidth = cam->getPixelsRef().getWidth();
@@ -379,8 +383,25 @@ void ofxReprojectionCalibration::update(bool forceupdate) {
 		refMaxDepth = ofxReprojectionUtils::getMaxDepth(cam->getDistancePixels(), camWidth, camHeight);
 	}
 
+	//
+	// isFrameNew could be positive with only depth image without color image or the other way around.
+	// Could cause crash here (?). When using ofxKinect. Will load pixel references and check that they're not null.
+	//
+	// if(!bHasReceivedFirstFrame) {
+	// 	unsigned char *a = (unsigned char*) cam->getPixels();
+	// 	float *b = (float*) cam->getDistancePixels();
+	//
+	// 	if(a != NULL && b != NULL) {
+	// 		bHasReceivedFirstFrame = true;
+	// 	}
+	// }
+	bHasReceivedFirstFrame = true;
+
+	//
 	// TODO: separate this into a thread? findChessboardCorners can be very slow.
-	if(forceupdate || cam->isFrameNew()) {
+	//
+	if(bHasReceivedFirstFrame && (forceupdate || cam->isFrameNew())) {
+		// ofLogVerbose("ofxReprojection") << "Calibration update: Updating chessboard";
 		ofxReprojectionUtils::makeHueDepthImage(cam->getDistancePixels(), camWidth, camHeight, refMaxDepth, depthImage);
 		depthFloats.setFromPixels(cam->getDistancePixels(), camWidth, camHeight, OF_IMAGE_GRAYSCALE);
 

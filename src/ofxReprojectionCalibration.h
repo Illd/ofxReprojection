@@ -170,6 +170,7 @@ private:
 	ofVboMesh points3DView;
 	ofShader shader3DView;
 
+	bool bHasReceivedFirstFrame;
 
 };
 
