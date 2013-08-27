@@ -79,10 +79,10 @@ Public methods and variables:
  - *ofMatrix4x4* **getMatrix**()
    
    Get the projection matrix corresponding to the camera and projector points contained in this object.
- - *vector<vector<ofVec3f>>&* getCamPoints()
+ - *vector\<vector\<ofVec3f\>\>&* **getCamPoints**()
 
    Return a reference to the vector of vectors containing the measurement sets of camera points.
- - *vector<vector<ofVec3f>>&* getProjectorPoints()
+ - *vector\<vector\<ofVec2f\>\>&* **getProjectorPoints**()
 
    Return a reference to the vector of vectors containing the measurement sets of projector points.
  - *void* **addMeasurement**(vector<ofVec3f> newCamPoints, vector<ofVec2f> newProjectorPoints)
