@@ -10,7 +10,7 @@ OF_ROOT = ../../..
 # for example search paths like:
 # USER_CFLAGS = -I src/objects
 
-USER_CFLAGS = 
+USER_CFLAGS =  -I/usr/include/ni
 
 
 
@@ -18,7 +18,7 @@ USER_CFLAGS =
 # for example libraries like:
 # USER_LDFLAGS = libs/libawesomelib.a
 
-USER_LDFLAGS =  -lOpenNI -lopencv_calib3d -lopencv_imgproc -lopencv_core
+USER_LDFLAGS =  -lOpenNI
 
 EXCLUDE_FROM_SOURCE="bin,.xcodeproj,obj"
 

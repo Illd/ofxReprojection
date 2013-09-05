@@ -1,5 +1,3 @@
 ofxONI1_5
 ofxOpenCv
 ofxReprojection
-ofxGui
-ofxXmlSettings
