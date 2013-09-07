@@ -74,3 +74,9 @@ Licence
 -------
 ofxReprojection is free to use for non-commercial purpouses.
 
+
+Screenshots/pictures
+--------------------
+Calibration test on 2013-09-06:
+
+![](/screenshots/test-2013-09-06.jpg)
