@@ -12,9 +12,13 @@ void testApp::setup(){
 	depthcam.addImageGenerator();
 	depthcam.start();
 
+	ofxReprojectionUtils::waitForPositive(&depthcam, &ofxOpenNI::getWidth, &ofxOpenNI::update);
+
+	base3DVideoAdapter = new ofxOpenNIBase3DVideoAdapter(depthcam);
+
 	dataset.loadFile("exampleCalibrationData.xml");
 
-	calibration.init(&depthcam,&dataset);
+	calibration.init(base3DVideoAdapter,&dataset);
 	calibration.enableKeys();
 	calibration.enableChessboardMouseControl();
 
@@ -23,13 +27,13 @@ void testApp::setup(){
 }
 
 void testApp::update(){
-	depthcam.update();
+	base3DVideoAdapter->update();
 	if(!calibration.isFinalized()) {
 		calibration.update();
 	}
 
 	if(calibration.isFinalized() && !rendererInited) {
-		renderer.init(&depthcam);
+		renderer.init(base3DVideoAdapter);
 		renderer.setDrawArea(1024,0,1024,768);
 		renderer.setProjectionMatrix(dataset.getMatrix());
 

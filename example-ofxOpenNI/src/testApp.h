@@ -7,6 +7,7 @@
 
 #include "ofxReprojection.h"
 #include "ofxOpenNI.h"
+#include "ofxOpenNIBase3DVideoAdapter.h"
 
 
 class testApp : public ofBaseApp {
@@ -18,6 +19,7 @@ public:
 	void exit();
 
 	ofxOpenNI depthcam;
+	ofxOpenNIBase3DVideoAdapter* base3DVideoAdapter;
 	ofxReprojectionCalibration calibration;
 	ofxReprojectionCalibrationData dataset;
 	ofxReprojectionRenderer2D renderer;
