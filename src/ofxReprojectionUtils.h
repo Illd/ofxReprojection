@@ -85,4 +85,31 @@ class ofxReprojectionUtils {
 			ofLogVerbose("ofxReprojection") << "ofxReprojectionUtils::getMaxDepth calculated to " << max; 
 			return max;
 		};
+
+
+
+		//
+		// Takes an object and one of its member functions, and waits
+		// for this function to return a positive number.
+		//
+		// Optionally, the f_update function can be passed, and will be
+		// called for each iteration.
+		//
+		// Used in initialization situations where one needs to wait for
+		// data from hardware when this is not directly possible because
+		// the data reading loop is abstracted away in a class.
+		//
+		template<typename NumericType, class ObjectClass>
+		static bool waitForPositive(	ObjectClass* obj,
+			      		 	NumericType (ObjectClass::*f_get)(), 
+						void (ObjectClass::*f_update)() = NULL, 
+						float time = 2) {
+
+			float now = ofGetElapsedTimef();
+			while( !( ((*obj).*f_get)() > 0) && ofGetElapsedTimef() - now < time) {
+				ofSleepMillis(10);
+				if(f_update != NULL) ((*obj).*f_update)();
+			}
+			return (((*obj).*f_get)() > 0);
+		}
 };
