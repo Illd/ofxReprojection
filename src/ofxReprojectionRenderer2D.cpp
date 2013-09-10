@@ -150,7 +150,7 @@ void ofxReprojectionRenderer2D::drawImage(ofTexture &tex) {
 	ofSetMatrixMode(OF_MATRIX_MODELVIEW);
 	ofLoadIdentityMatrix();
 
-	ofClear(100,120,100,255);
+	ofClear(0);
 
 	glEnable(GL_POINT_SPRITE);
 	glEnable(GL_PROGRAM_POINT_SIZE);
