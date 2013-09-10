@@ -1,3 +1,10 @@
+Screenshots/pictures
+--------------------
+Calibration test on 2013-09-06:
+
+![](/screenshots/test-2013-09-06.jpg)
+
+
 ### Draft
 ofxReprojection is still at the draft stage. Do not expect it to be working.
 
@@ -72,11 +79,4 @@ ofxReprojection is made by [Bjørnar Steinnes Luteberget](https://github.com/lut
 
 Licence
 -------
-ofxReprojection is free to use for non-commercial purpouses.
-
-
-Screenshots/pictures
---------------------
-Calibration test on 2013-09-06:
-
-![](/screenshots/test-2013-09-06.jpg)
+ofxReprojection is free to use for non-commercial purposes.
