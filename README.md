@@ -1,5 +1,5 @@
-Screenshots/pictures
---------------------
+ofxReprojection
+==============
 Calibration test on 2013-09-06:
 
 ![](/screenshots/test-2013-09-06.jpg)
@@ -9,9 +9,8 @@ Calibration test on 2013-09-06:
 ofxReprojection is still at the draft stage. Do not expect it to be working.
 
 
-ofxReprojection
-==============
-
+Description
+--------
 ![](/ofxaddons_thumbnail.png)
 
 
