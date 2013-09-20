@@ -26,6 +26,8 @@ class ofxReprojectionRenderer2D {
 		void setDrawArea(float x, float y, float w, float h);
 		void setDrawArea(const ofRectangle& rect) { setDrawArea(rect.x, rect.y, rect.width, rect.height); }
 
+		void setBackgroundColor(ofColor c) { backgroundColor = c; }
+
 		// Draws transformed 2d image
 		void drawImage(ofTexture &tex);
 		void drawImage(ofImage &img);
@@ -57,6 +59,7 @@ class ofxReprojectionRenderer2D {
 		ofShader shader2D;
 		ofMatrix4x4 projectionMatrix;
 		ofMatrix4x4 identityMatrix;
+		ofColor backgroundColor;
 
 		int camWidth;
 		int camHeight;

@@ -19,6 +19,8 @@ ofxReprojectionRenderer2D::ofxReprojectionRenderer2D()
 	drawHeight = 0;
 
 	drawMethod = OFXREPROJECTIONRENDERER_2DDRAWMETHOD_UNDEFINED;
+
+	backgroundColor = ofColor::black;
 }
 
 
@@ -134,6 +136,7 @@ void ofxReprojectionRenderer2D::drawImage(ofTexture &tex) {
 
 	ofPushStyle();
 	ofSetColor(255,255,255,255);
+	ofEnableDepthTest();
 
 	output.begin();
 
@@ -150,7 +153,7 @@ void ofxReprojectionRenderer2D::drawImage(ofTexture &tex) {
 	ofSetMatrixMode(OF_MATRIX_MODELVIEW);
 	ofLoadIdentityMatrix();
 
-	ofClear(0);
+	ofClear(backgroundColor);
 
 	glEnable(GL_POINT_SPRITE);
 	glEnable(GL_PROGRAM_POINT_SIZE);
