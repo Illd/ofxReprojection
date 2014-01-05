@@ -12,6 +12,7 @@
 #include "lmmin.h"
 #include "ofxEasyCamArea.h"
 #include "ofxHighlightRects.h"
+#include "ofxCoordinateTransform.h"
 
 // This class takes care of the calibration of depth cam and projector.
 //
@@ -28,7 +29,8 @@ public:
 
 	bool init(  	ofxBase3DVideo *cam,
 			ofxReprojectionCalibrationData *data,
-			ofxReprojectionCalibrationConfig config = ofxReprojectionCalibrationConfig());
+			ofxReprojectionCalibrationConfig config = ofxReprojectionCalibrationConfig(),
+      ofxCoordinateTransform3f *transform = NULL);
 
 	void update();
 
@@ -176,6 +178,8 @@ private:
 	ofxHighlightRects highlighter;
 	bool bStatusFirstDraw;
 	ofRectangle calibrationFirstDraw;
+
+  ofxCoordinateTransform3f* coordinateTransform;
 
 };
 

@@ -14,8 +14,9 @@ ofxReprojectionCalibration::ofxReprojectionCalibration() {
 }
 
 bool ofxReprojectionCalibration::init(  ofxBase3DVideo *cam,
-	       				ofxReprojectionCalibrationData *data, 
-					ofxReprojectionCalibrationConfig config) {
+	       				ofxReprojectionCalibrationData *data,
+					ofxReprojectionCalibrationConfig config,
+          ofxCoordinateTransform3f *transform) {
 	if(cam == NULL) {
 		ofLogWarning("ofxReprojection") << "Valid ofxBase3DVideo providing both color and "
 			"depth image must be passed to constructor ofxReprojectionCalibration";
@@ -34,6 +35,8 @@ bool ofxReprojectionCalibration::init(  ofxBase3DVideo *cam,
 
 	ostringstream msg; msg << "Initing ofxReprojectionCalibration with depth cam type " << typeid(*cam).name() << ".";
 	ofLogVerbose("ofxReprojection") << msg.str();
+
+  coordinateTransform = transform;
 
 	camHeight = cam->getPixelsRef().getHeight();
 	camWidth = cam->getPixelsRef().getWidth();
