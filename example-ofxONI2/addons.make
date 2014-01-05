@@ -1,3 +1,0 @@
-ofxONI2
-ofxXmlSettings
-ofxReprojection
