@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxCoordinateTransform.h"
 
 class ofxReprojectionCalibrationData {
 	public:
@@ -25,8 +26,13 @@ class ofxReprojectionCalibrationData {
 		void clear();
 		void deleteLastMeasurement();
 
+    void setTransform(ofxCoordinateTransform3f* t) {
+      transform = t;
+    }
+
 	private:
 		vector< vector< ofVec3f > > camPoints;
 		vector< vector< ofVec2f > > projectorPoints;
 		ofMatrix4x4 projmat;
+    ofxCoordinateTransform3f* transform;
 };

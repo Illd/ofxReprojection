@@ -2,9 +2,11 @@
 #include "ofxReprojectionCalibration.h"
 
 ofxReprojectionCalibrationData::ofxReprojectionCalibrationData() {
+  transform = NULL;
 }
 
 ofxReprojectionCalibrationData::ofxReprojectionCalibrationData(string filename) {
+  transform = NULL;
 	loadFile(filename);
 }
 
@@ -14,7 +16,7 @@ ofxReprojectionCalibrationData::~ofxReprojectionCalibrationData() {
 
 void ofxReprojectionCalibrationData::updateMatrix() {
 	if(camPoints.size() > 0) {
-		projmat = ofxReprojectionCalibration::calculateReprojectionTransform(*this);
+		projmat = ofxReprojectionCalibration::calculateReprojectionTransform(*this,transform);
 	} else {
 		projmat = ofMatrix4x4::newIdentityMatrix();
 

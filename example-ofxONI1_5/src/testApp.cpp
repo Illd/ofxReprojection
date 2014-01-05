@@ -6,12 +6,17 @@ void testApp::setup(){
 	ofSetLogLevel(OF_LOG_VERBOSE);
 	ofSetVerticalSync(false);
 
+
 	depthcam.init();
 	depthcam.open();
 
-	dataset.loadFile("exampleCalibrationData.xml");
+  convertToRealWorld = new ofxCoordinateTransformONI1_5ToRealWorld(depthcam);
 
-	calibration.init(&depthcam,&dataset);
+	dataset.loadFile("exampleCalibrationData.xml");
+  dataset.setTransform(convertToRealWorld);
+
+	calibration.init(&depthcam,&dataset,
+      ofxReprojectionCalibrationConfig(), convertToRealWorld);
 
 	calibration.enableKeys();
 	calibration.enableChessboardMouseControl();

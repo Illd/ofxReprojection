@@ -8,6 +8,8 @@
 #include "ofxReprojection.h"
 #include "ofxONI1_5.h"
 
+#include "ofxCoordinateTransformONI1_5ToRealWorld.h"
+
 
 class testApp : public ofBaseApp {
 public:
@@ -21,5 +23,7 @@ public:
 	ofxReprojectionCalibration calibration;
 	ofxReprojectionCalibrationData dataset;
 	ofxReprojectionRenderer2D renderer;
+
+  ofxCoordinateTransform3f* convertToRealWorld;
 
 };

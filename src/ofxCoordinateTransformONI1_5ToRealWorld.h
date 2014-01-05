@@ -1,3 +1,5 @@
+#pragma once
+
 #include "ofxCoordinateTransform.h"
 #include "ofxONI1_5.h"
 
@@ -8,4 +10,4 @@ class ofxCoordinateTransformONI1_5ToRealWorld : public ofxCoordinateTransform3f 
 
   private:
     ofxONI1_5& oni;
-}
+};

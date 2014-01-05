@@ -289,7 +289,7 @@ void ofxReprojectionCalibration::updateChessboard() {
 	ofPopStyle();
 }
 
-ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReprojectionCalibrationData &data) {
+ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReprojectionCalibrationData &data, ofxCoordinateTransform3f* transform) {
 	vector< vector< ofVec3f > > measurements = data.getCamPoints();
 	vector< vector< ofVec2f > > projpoints = data.getProjectorPoints();
 
@@ -313,9 +313,11 @@ ofMatrix4x4 ofxReprojectionCalibration::calculateReprojectionTransform(ofxReproj
 
  	// Transform measurement coodinates into world coordinates.
  	//
-	// 	for(int i = 0; i < measurements_all.size(); i++) {
-	// 		measurements_all[i] = pixel3f_to_world3fData(measurements_all[i], data);
-	// 	}
+  if(transform) {
+	 	for(int i = 0; i < measurements_all.size(); i++) {
+	 		measurements_all[i] = transform->transform(measurements_all[i]);
+	 	}
+  }
 	// 	for(int i = 0; i < projpoints_all.size(); i++) {
 	// 		// Transform projector coordinates? (not necessary)
 	// 	}

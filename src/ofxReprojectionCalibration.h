@@ -90,7 +90,7 @@ public:
 	void finalize();
 	void unfinalize();
 
-	static ofMatrix4x4 calculateReprojectionTransform(ofxReprojectionCalibrationData &data);
+	static ofMatrix4x4 calculateReprojectionTransform(ofxReprojectionCalibrationData &data, ofxCoordinateTransform3f* transform=NULL);
 
 	void setData(ofxReprojectionCalibrationData *data) { this->data = data; update(true); }
 	ofxReprojectionCalibrationData* getData() { return data; }
