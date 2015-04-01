@@ -872,7 +872,7 @@ void ofxReprojectionCalibration::updateStatusMessages() {
 void ofxReprojectionCalibration::drawChessboard(float x, float y, float w, float h) {
 	if(!chessboardImage.isAllocated() || chessboardImage.getWidth() < w || chessboardImage.getHeight() < h) {
 		ofLogVerbose("ofxReprojection")  << "allocating " << w << "," << h ;
-		chessboardImage.allocate(w,h,GL_LUMINANCE);
+		chessboardImage.allocate(w,h,GL_RGB);
 		updateChessboard();
 	}
 	chessboardImage.draw(x,y,w,h);
